@@ -1,0 +1,13 @@
+user表：账号、密码、用户名、头像、简介
+follow表：用户id，被关注用户id
+blacklist表：用户id，被拉黑用户id
+post表：标题、内容、类型、时间、位置、点赞数、评论量、收藏数、发布者、图片有无、视频有无
+message表：发送者id、接收者id、内容、时间
+star表：帖子id、用户id
+comment表：内容、帖子id、用户id、时间、（点赞数、评论量、收藏数）
+picture表：帖子id、图片路径
+video表：帖子id、视频路径
+notice表：用户id、内容、时间、被查看与否、类型
+
+problems：
+多处登录的问题
