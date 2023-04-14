@@ -21,6 +21,8 @@ class User(db.Model):
     created = db.Column(db.DateTime, doc="创建时间")
     updated = db.Column(db.DateTime, doc="更新时间")
 
+    status = db.Column(db.Integer, doc="登录状态")
+
 class Follow(db.Model):
     """
     关注
@@ -65,6 +67,9 @@ class Post(db.Model):
     comment_num = db.Column(db.Integer, doc="评论数")
     star_num = db.Column(db.Integer, doc="收藏数")
 
+    last_replied_user_id = db.Column(db.Integer, doc="最新回复的用户id")
+    last_replied_time = db.Column(db.DateTime, doc="最新回复时间")
+
     created = db.Column(db.DateTime, doc="创建时间")
     updated = db.Column(db.DateTime, doc="更新时间")
 
@@ -88,6 +93,8 @@ class Comment(db.Model):
 
     created = db.Column(db.DateTime, doc="创建时间")
     updated = db.Column(db.DateTime, doc="更新时间")
+
+
 
 class Star(db.Model):
     """
