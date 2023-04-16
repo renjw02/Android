@@ -4,7 +4,7 @@
 # here put the import lib
 
 
-def reply_params_check(content):
+def comment_params_check(content):
     '''
     content     小于1024
     '''

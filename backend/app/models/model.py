@@ -32,7 +32,7 @@ class Follow(db.Model):
     id = db.Column(db.Integer, primary_key=True,
                    autoincrement=True, doc="id")
 
-    user_id = db.Column(db.Integer, doc="用户id")
+    user_id = db.Column(db.Integer, db.ForegnKey("user.id", ondelete="CASCADE"), doc="用户id")
     followed_id = db.Column(db.Integer, doc="被关注者id")
 
 class Blacklist(db.Model):
@@ -44,7 +44,7 @@ class Blacklist(db.Model):
     id = db.Column(db.Integer, primary_key=True,
                    autoincrement=True, doc="id")
 
-    user_id = db.Column(db.Integer, doc="用户id")
+    user_id = db.Column(db.Integer, db.ForegnKey("user.id", ondelete="CASCADE"), doc="用户id")
     blocked_id = db.Column(db.Integer, doc="被拉黑id")
 
 class Post(db.Model):
@@ -86,9 +86,10 @@ class Comment(db.Model):
                    autoincrement=True, doc="id")
     
     user_id = db.Column(db.Integer, doc="用户id")
-    post_id = db.Column(db.Integer, doc="帖子id")
+    post_id = db.Column(db.Integer, db.ForegnKey("post.id", ondelete="CASCADE"), doc="帖子id")
+    post = db.relationship('Post', backref=db.backref('comments', cascade='all, delete'))
+
     comment_id = db.Column(db.Integer, doc="评论id")
-    
     content = db.Column(db.String(1024), doc="内容")
 
     created = db.Column(db.DateTime, doc="创建时间")
@@ -106,9 +107,12 @@ class Star(db.Model):
                    autoincrement=True, doc="收藏id")
 
     user_id = db.Column(db.Integer, doc="用户id")
-    post_id = db.Column(db.Integer, doc="帖子id")
+    post_id = db.Column(db.Integer, db.ForegnKey("post.id", ondelete="SET NULL"), doc="帖子id")
+    post = db.relationship('Post', backref=db.backref('comments', cascade='all, delete'))
     
     title = db.Column(db.String(255), doc="标题")
+
+    created = db.Column(db.DateTime, doc="创建时间")
 
 class Picture(db.Model):
     """
