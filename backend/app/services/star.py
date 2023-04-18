@@ -9,7 +9,6 @@ from extension import db
 from models.model import Star, Post
 
 class StarService():
-    # TODO 实现外键，否则原帖子被删了id混乱
     def collect_post(self, post_id, user_id, title):
         try:
             now = datetime.datetime.now()
@@ -60,14 +59,22 @@ class StarService():
     def check_collection_and_post(self, star_id):
         try:
             s = Star.query.filter(Star.id == star_id).first()
-            if s is None:
-                return False, False
+            if s.post_id is None:
+                return True
             else:
-                p = Post.query/filter(Post.id == s.post_id).first()
-                if p is None:
-                    return True, False
-                return True,True
+                return False
         except Exception as e:
             print(e)
-            return False, False
+            return False
+        
+    def check_collection(self, star_id):
+        try:
+            s = Star.query.filter(Star.id == star_id).first()
+            if s is None:
+                return False
+            else:
+                return True
+        except Exception as e:
+            print(e)
+            return False
 

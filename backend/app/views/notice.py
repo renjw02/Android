@@ -5,16 +5,16 @@
 import os
 
 from flask import Blueprint, jsonify, request, g
-from services import StarService
+from services import NoticeService
 from utils import login_required
 
-bp = Blueprint('user', __name__, url_prefix='/api/star')
+bp = Blueprint('user', __name__, url_prefix='/api/notice')
 
-service = StarService()
+service = NoticeService()
 
 @bp.route('/')
 def index():
-    return jsonify({'message': "star配置完成!"}), 200
+    return jsonify({'message': "notice配置完成!"}), 200
 
 
 # 收藏帖子
