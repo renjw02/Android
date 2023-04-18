@@ -221,6 +221,22 @@ class UserService():
             print(e)
             return [], False
         
+    def get_my_follower_list(self, user_id):
+        try:
+            follower_sql = """
+            select follow.user_id as followerId, follow.id as followId, 
+                user.nickname as nickname, user.profile as profile 
+            from follow
+            inner join user on follow.user_id = user.id
+            where follow.followed_id = {user_id}
+            """
+            follower_result = db.session.execute(follower_sql.format(user_id=user_id))
+            follower_list = [dict(zip(result.keys(), result)) for result in follower_result]
+            return follower_list, True
+        except Exception as e:
+            print(e)
+            return [], False
+        
     def get_blocked_list(self, user_id):
         try:
             blocked_sql = """

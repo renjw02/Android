@@ -23,6 +23,8 @@ def index():
 def collect_post():
     try:
         content = request.get_json()
+        if content is None:
+            return jsonify({'message': "no content"}), 400
         # TODO check_content
 
         collection, flag = service.collect_post(content['post_id'], content['user_id'], content['title'])
@@ -46,6 +48,8 @@ def collect_post():
 def cancel_collection():
     try:
         content = request.get_json()
+        if content is None:
+            return jsonify({'message': "no content"}), 400
         result = service.check_collection(content['collection_id'])
 
         flag = service.cancel_collection(content['collection_id'], content['post_id'])

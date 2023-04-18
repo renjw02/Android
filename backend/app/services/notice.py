@@ -10,10 +10,10 @@ from models.model import Notice
 
 class NoticeService():
     
-    def create_notice(self, user_id, type, content, creator="系统通知"):
+    def create_notice(self, user_id, type, content, creator_id=0):
         try:
             now = datetime.datetime.now()
-            n = Notice(user_id=user_id, type=type, content=content, creator=creator, 
+            n = Notice(user_id=user_id, type=type, content=content, creato_id=creator_id, 
                        created=now, has_checked=False)
             db.session.add(n)
             db.session.commit()
@@ -71,9 +71,7 @@ class NoticeService():
     def get_notice_detail(self, notice_id):
         try:
             n = Notice.query.filter(Notice.id == notice_id).first()
-            db.session.query(Notice).filter(Notice.id == notice_id).update({
-                "has_checked" : True
-            })
+            n.has_checked = True
             db.session.commit()
             if n is None:
                 return None, False
@@ -91,6 +89,18 @@ class NoticeService():
             if n.user_id == user_id:
                 return True
             return False
+        except Exception as e:
+            print(e)
+            return False
+        
+    def check_notice(self, notice_id):
+        try:
+            n = Notice.query.filter(Notice.id == notice_id).first()
+            if n is None:
+                return False
+            if n.has_checked == False:
+                return False
+            return True
         except Exception as e:
             print(e)
             return False

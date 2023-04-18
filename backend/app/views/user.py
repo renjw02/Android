@@ -283,6 +283,23 @@ def get_followed_list(userId):
         else: return jsonify({'message': "error"}), 500
     except:
         return jsonify({'message': "exception!"}), 400 
+    
+
+# 获取关注我的用户列表
+@bp.route('/getfollowedlist', methods=['GET'])
+@login_required
+def get_followed_list():
+    try:
+        follower_list, flag = service.get_my_follower_list(g.user_id)
+        if flag:
+            return jsonify({
+                'message': "ok",
+                'followed_list': follower_list,
+                'total_num': follower_list.length()
+            }), 200
+        else: return jsonify({'message': "error"}), 500
+    except:
+        return jsonify({'message': "exception!"}), 400 
 
 
 # 拉黑用户

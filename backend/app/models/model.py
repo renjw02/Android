@@ -147,7 +147,7 @@ class Notice(db.Model):
     user_id = db.Column(db.Integer, doc="用户id")
     content = db.Column(db.String(64), doc="通知内容")
     type = db.Column(db.Integer, doc="通知类型")
-    creator = db.Column(db.String(32), doc="通知来源")
+    creator_id = db.Column(db.Integer, doc="通知来源")
 
     created = db.Column(db.DateTime, doc="创建时间")
     has_checked = db.Column(db.Boolean, doc="被查看与否")

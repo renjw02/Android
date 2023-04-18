@@ -17,22 +17,26 @@ def index():
     return jsonify({'message': "notice配置完成!"}), 200
 
 
-# 收藏帖子
-@bp.route('/collectpost', methods=['POST'])
-@login_required
-def collect_post():
+# 创建通知
+@bp.route('/createnotice', methods=['POST'])
+def createnotice():
     try:
         content = request.get_json()
+        if content is None:
+            return jsonify({'message': "no content"}), 400
         # TODO check_content
-
-        collection, flag = service.collect_post(content['post_id'], content['user_id'], content['title'])
+        if content['type'] == 0:
+            # 系统消息
+            notice, flag = service.create_notice(content['user_id'], content['type'], content['content'])
+        elif content['type'] == 1:
+            # 私信
+            notice, flag = service.create_notice(content['user_id'], content['type'], content['content'],
+                                             content['creator_id'])
         if flag:
             return jsonify({
                 'message': "ok",
-                'collectionId': collection.id,
-                'postId': collection.post_id,
-                'userId': collection.user_id,
-                'created': collection.created
+                'noticeType': notice.type,
+                'noticeId': notice.id
             }), 200
         else:
             return jsonify({'message': "error"}), 500
@@ -40,15 +44,21 @@ def collect_post():
         return jsonify({'message': "exception!"}), 400
     
 
-# 取消收藏
-@bp.route('/cancelcollection', methods=['POST'])
+# 删除通知
+@bp.route('/removenotice', methods=['POST'])
 @login_required
-def cancel_collection():
+def remove_notice():
     try:
         content = request.get_json()
-        result = service.check_collection(content['collection_id'])
+        if content is None:
+            return jsonify({'message': "no content"}), 400
+        
+        # TODO check content
+        
+        if not service.check_notice(content['notice_id']):
+            return jsonify({'message': "cannot remove unread notice"}), 400
 
-        flag = service.cancel_collection(content['collection_id'], content['post_id'])
+        flag = service.remove_notice(content['notice_id'])
         if flag:
             return jsonify({
                 'message': "ok",
@@ -59,17 +69,59 @@ def cancel_collection():
         return jsonify({'message': "exception!"}), 400
 
 
-# 获取用户收藏列表
-@bp.route('/getcollectionlist/<int:userId>', methods=['GET'])
+# 获取用户私信列表
+@bp.route('/getnoticelist/<int:userId>', methods=['GET'])
 @login_required
-def get_collection_list(userId):
+def get_notice_list(userId):
     try:
-        collection_list, flag = service.get_collection_list(userId)
+        notice_list, flag = service.get_notice_list(userId)
         if flag:
             return jsonify({
                 'message': "ok",
-                'collectionList': collection_list,
-                'totalNum': collection_list.length()
+                'collectionList': notice_list,
+                'totalNum': notice_list.length()
+            }), 200
+        else:
+            return jsonify({'message': "error"}), 500
+    except:
+        return jsonify({'message': "exception!"}), 400
+    
+
+# 获取私信内容
+@bp.route('/getnotice/<int:noticeId>', methods=['GET'])
+@login_required
+def get_notice(noticeId):
+    try:
+        result = service.check_notice_and_user(noticeId, g.user_id)
+        if not result:
+            return jsonify({'message': "noticeId not match userId"}), 400
+        
+        notice, flag = service.get_notice_detail(noticeId)
+        if flag:
+            return jsonify({
+                'message': "ok",
+                'noticeId': notice.id,
+                'content': notice.content,
+                'type': notice.type,
+                'created': notice.created,
+                'creator': notice.creator 
+            }), 200
+        else:
+            return jsonify({'message': "error"}), 500
+    except:
+        return jsonify({'message': "exception!"}), 400
+    
+
+# 获取未读数量
+@bp.route('/getunreadnum/<int:userId>', methods=['GET'])
+@login_required
+def get_notice(userId):
+    try:
+        num, flag = service.get_unread_num(userId)
+        if flag:
+            return jsonify({
+                'message': "ok",
+                'unreadNum': num
             }), 200
         else:
             return jsonify({'message': "error"}), 500
