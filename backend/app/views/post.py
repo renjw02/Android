@@ -2,6 +2,8 @@
 # -*- encoding: utf-8 -*-
 
 # here put the import lib
+import os, base64
+
 from flask import Blueprint, jsonify, request, g
 from utils import login_required
 from services import PostService
@@ -19,17 +21,38 @@ def index():
 @bp.route('/createpost', methods=['POST'])
 @login_required
 def create_post():
-    try:
-        content = request.get_json()
-        if content is None:
-            return jsonify({'message': "no content"}), 400
-        key, passed = post_params_check(content)
+    try:    
+        title = request.form.get('title')
+        content = request.form.get('content')
+        type = request.form.get('type')
+        position = request.form.get('position')
+
+        key, passed = post_params_check(title, content, type, position)
         if not passed:
             return jsonify({'message': "invalid arguments: " + key}), 400
+        
+        files = request.files.getlist('file')
+        if not files:
+            post, result = service.create_post(title, content, g.user_id, type, position, False, False)
+        else:
+            has_picture = False
+            has_video = False
+            for file in files:
+                filename = file.filename
+                content_type = file.content_type
 
-        post, result = service.create_post(content['title'], content['content'], g.user_id,
-                                           content['type'], content['position'], content['has_picture'],
-                                           content['has_video'])
+                if content_type.startswith('image'):
+                    save_path = './static/images/'
+                    has_picture = True
+                elif content_type.startswith('video'):
+                    save_path = './static/videos/'
+                    has_video = True
+                
+                file.save(os.path.join(save_path, filename))
+
+
+            post, result = service.create_post(title, content, g.user_id, type, position,
+                                               has_picture, has_video)
 
         if result:
             return jsonify({
@@ -37,6 +60,8 @@ def create_post():
                 'userId': post.user_id,
                 'title': post.title,
                 'content': post.content,
+                'hasPicture': post.has_picture,
+                'hasVideo': post.has_video,
                 'message': "ok"
             }), 200
         else:
@@ -48,11 +73,43 @@ def create_post():
 @bp.route('/getpost/<int:postId>', methods=['GET'])
 @login_required
 def get_post_detail(postId):
-    detail, result = service.get_post_detail(postId)
-    if result:
-        return jsonify(detail), 200
-    else:
-        return jsonify({'message': "error"}), 500
+    try:        
+        detail, result = service.get_post_detail(postId)
+        if result:
+            images_data = []
+            videos_data = []
+            if detail.hasPicture:
+                images_dir = './static/picture'
+                image_files = os.listdir(images_dir)
+
+                for file in image_files:
+                    if file.endswith('.jpg') or file.endswith('.jpeg') or file.endswith('.png'):
+                        file_path = os.path.join(images_dir, file)
+                        with open(file_path, 'rb') as f:
+                            image_data = base64.b64encode(f.read()).decode('utf-8')
+                            images_data.append(image_data)
+            if detail.hasVideo:
+                videos_dir = './static/picture'
+                video_files = os.listdir(videos_dir)
+
+                for file in video_files:
+                    if file.endswith('.mp4'):
+                        file_path = os.path.join(videos_dir, file)
+                        with open(file_path, 'rb') as f:
+                            video_data = base64.b64encode(f.read()).decode('utf-8')
+                            videos_data.append(video_data)
+                
+            return jsonify({
+                'message': "ok",
+                'post': detail,
+                'images': images_data,
+                'video': videos_data
+                }), 200
+        else:
+            return jsonify({'message': "error"}), 500
+    except:
+        return jsonify({'message': "exception!"}), 400
+
 
 # 获取一页的帖子列表
 # 分类：全部、已关注用户、热门、类型
@@ -61,27 +118,31 @@ def get_post_detail(postId):
 @bp.route('/getpostlist', methods=['GET'])
 @login_required
 def get_post_list():
-    page = 1 if request.args.get('page') is None else int(request.args.get('page'))
-    size = 10 if request.args.get('size') is None else int(request.args.get('size'))
-    user_id = 0 if request.args.get('userId') is None else request.args.get('userId')
-    order_by_what = None if request.args.get('orderByWhat') is None else request.args.get('orderByWhat')
-    type = 0 if request.args.get('type') is None else int(request.args.get('type'))
-    only_following = False if request.args.get('onlyFollowing') is None else True
-    hot = False if request.args.get('hot') is None else True
+    try:
+        page = 1 if request.args.get('page') is None else int(request.args.get('page'))
+        size = 10 if request.args.get('size') is None else int(request.args.get('size'))
+        user_id = 0 if request.args.get('userId') is None else request.args.get('userId')
+        order_by_what = None if request.args.get('orderByWhat') is None else request.args.get('orderByWhat')
+        type = 0 if request.args.get('type') is None else int(request.args.get('type'))
+        only_following = False if request.args.get('onlyFollowing') is None else True
+        hot = False if request.args.get('hot') is None else True
 
-    post_list, count, result = service.get_post_list(user_id, page, size, order_by_what, type, 
-                                                    only_following, hot)
+        post_list, count, result = service.get_post_list(user_id, page, size, order_by_what, type, 
+                                                        only_following, hot)
 
-    # count 帖子总数
-    if result:
-        return jsonify({
-            'posts': post_list,
-            'page': page,
-            'size': size,
-            'total': count
-        }), 200
-    else:
-        return jsonify({'message': "error"}), 500
+        # count 帖子总数
+        if result:
+            return jsonify({
+                'posts': post_list,
+                'page': page,
+                'size': size,
+                'total': count
+            }), 200
+        else:
+            return jsonify({'message': "error"}), 500
+    except:
+        return jsonify({'message': "exception!"}), 400
+        
 
 # 修改指定帖子
 @bp.route('/modifypost/<int:postId>', methods=['POST'])
@@ -219,9 +280,9 @@ def get_comment():
         if flag:
             return jsonify({
                 'message': "ok",
-                "user_id": comment.user_id,
-                "comment_id": comment.comment_id,
-                "post_id": comment.post_id,
+                "userId": comment.user_id,
+                "commentId": comment.comment_id,
+                "postId": comment.post_id,
                 "content": comment.content
             }), 200
         else:
@@ -243,7 +304,7 @@ def get_comment_list():
         if flag:
             return jsonify({
                 'message': "ok",
-                'comment_list': comment_list
+                'commentList': comment_list
             }), 200
         else:
             return jsonify({'message': "error"}), 500
@@ -307,3 +368,26 @@ def support_post(postId):
 
 # TODO 创建含有图片或视频的帖子
 # TODO 搜索
+# 搜索帖子
+@bp.route('/searchpost', methods=['GET'])
+@login_required
+def search_post(postId):
+    try:
+        content = request.get_json()
+        if content is None:
+            return jsonify({'message': "no content"}), 400  
+
+        raw_string = content['keywords']
+        keywords = raw_string.split()
+
+        result, flag = service.search_post(keywords)
+
+        if flag:
+            return jsonify({
+                'message': "ok",
+                'postList': result
+            }), 200
+        else:
+            return jsonify({'message': "error"}), 500
+    except:
+        return jsonify({'message': "exception!"}), 400

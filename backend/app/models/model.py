@@ -13,8 +13,6 @@ class User(db.Model):
     password = db.Column(db.String(16), doc="密码")
     nickname = db.Column(db.String(16), doc="用户名称")
 
-    # status = db.Column(db.Integer, doc="登录状态")
-
     profile = db.Column(db.String(255), doc="用户简介")
     avatar = db.Column(db.String(255), doc="头像路径")
 

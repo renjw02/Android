@@ -3,10 +3,10 @@
 
 # here put the import lib
 import datetime
-from sqlalchemy import and_
+from sqlalchemy import and_, or_
 
 from extension import db
-from models.model import Post, Comment
+from models.model import Post, Comment, User
 
 class PostService():
     
@@ -315,6 +315,19 @@ class PostService():
             db.session.rollback()
             return 'errors', False
 
+    def search_post(self, args):   
+        try:
+            title_conditions = [Post.title.like(f'%{arg}%') for arg in args]
+            content_conditions = [Post.content.like(f'%{arg}%') for arg in args]
+            nickname_conditions = [User.nickname.like(f'%{arg}%') for arg in args]
+            query = db.session.query(Post).join(User)
+            conditions = or_(*title_conditions, *content_conditions, *nickname_conditions)
+            result = query.filter(conditions).all()
+
+            return result, True
+        except Exception as e:
+            print(e)
+            return 'errors', False
     
     def upload_picture(self):
         pass
