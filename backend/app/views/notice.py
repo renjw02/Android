@@ -7,6 +7,7 @@ import os
 from flask import Blueprint, jsonify, request, g
 from services import NoticeService
 from utils import login_required
+from checkers import notice_params_check
 
 bp = Blueprint('user', __name__, url_prefix='/api/notice')
 
@@ -24,7 +25,10 @@ def createnotice():
         content = request.get_json()
         if content is None:
             return jsonify({'message': "no content"}), 400
-        # TODO check_content
+        key, passed = notice_params_check(content)
+        if not passed:
+            return jsonify({'message': "invalid arguments: " + key}), 400
+
         if content['type'] == 0:
             # 系统消息
             notice, flag = service.create_notice(content['user_id'], content['type'], content['content'])

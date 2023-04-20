@@ -9,6 +9,7 @@ import pyscrypt
 import jwt
 from flask import current_app, g, request
 
+tokens = {}
 
 def generate_jwt(payload, expiry=None):
     """
@@ -28,7 +29,12 @@ def generate_jwt(payload, expiry=None):
     secret = current_app.config.get('JWT_SECRET', '')
 
     token = jwt.encode(_payload, secret, algorithm='HS256')
+
+    tokens[payload['user_id']] = token
     return token.decode()
+
+def remove_jwt(id):
+    tokens.pop(id)
 
 
 def verify_jwt(token):
@@ -62,6 +68,10 @@ def jwt_authentication():
         if payload:
             g.user_id = payload.get('user_id')
             g.user_name = payload.get('nickname')
+
+            if g.user_id not in tokens or tokens[g.user_id] != token:
+                return {'message': "Login from a different location"}, 401
+                
 
 
 def encrypt_password(password):

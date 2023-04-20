@@ -25,7 +25,6 @@ def collect_post():
         content = request.get_json()
         if content is None:
             return jsonify({'message': "no content"}), 400
-        # TODO check_content
 
         collection, flag = service.collect_post(content['post_id'], content['user_id'], content['title'])
         if flag:

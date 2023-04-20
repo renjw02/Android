@@ -56,7 +56,7 @@ class Post(db.Model):
     
     user_id = db.Column(db.Integer, doc="用户id")
 
-    title = db.Column(db.String(30), doc="标题")
+    title = db.Column(db.String(128), doc="标题")
     content = db.Column(db.String(1024), doc="内容")
     type = db.Column(db.Integer, doc="类型")
 

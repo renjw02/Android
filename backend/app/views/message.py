@@ -7,6 +7,7 @@ import os
 from flask import Blueprint, jsonify, request, g
 from services import MessageService
 from utils import login_required
+from checkers import message_params_check
 
 bp = Blueprint('user', __name__, url_prefix='/api/message')
 
@@ -25,7 +26,10 @@ def create_message():
         content = request.get_json()
         if content is None:
             return jsonify({'message': "no content"}), 400
-        # TODO check_content
+        key, passed = message_params_check(content)
+        if not passed:
+            return jsonify({'message': "invalid arguments: " + key}), 400
+
         message, flag = service.create_message(content['sender_id'], content['receiver_id'], 
                                                content['content'])
         if flag:

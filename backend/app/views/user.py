@@ -7,7 +7,7 @@ import os
 from flask import Blueprint, jsonify, request, g, make_response
 from services import UserService
 from checkers import register_params_check, change_params_check
-from utils import generate_jwt, login_required
+from utils import generate_jwt, login_required, remove_jwt
 
 bp = Blueprint('user', __name__, url_prefix='/api/user')
 
@@ -88,6 +88,7 @@ def logout():
     """
     try:
         flag = service.logout(g.user_id)
+        remove_jwt(g.user_id)
         if flag:
             return jsonify({'message': "ok"}), 200
         else:

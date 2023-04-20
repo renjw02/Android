@@ -9,9 +9,6 @@ def register_params_check(content):
     username
     password
     nickname
-    mobile
-    address
-    signature
     """
     # username
     if 'username' in content:
@@ -38,44 +35,15 @@ def register_params_check(content):
             return "nickname", False
     else:
         return "nickname", False
-        
-    # mobile
-    if 'mobile' in content:
-        mobile = content['mobile']
-        src = r'^[1-9][0-9]{10}$'
-        if not re.match(src, mobile):
-            return "mobile", False
-    else:
-        # mobile 缺失
-        return "mobile", False
     
-    # address
-    if 'address' in content:
-        address = content['address']
-        src = r'^\w+@(qq|163|126|56|mail|gmail)\.com$'
-        if not re.match(src, address):
-            return "address", False
-    else:
-        # address 缺失
-        return "address", False
-
-    # signature
-    if 'signature' in content:
-        pass
-    else:
-        content['signature'] = "这个人很懒，没有留下任何信息。"
-
     return "ok", True
-
 
 def change_params_check(content):
     """
     username
     password
     nickname
-    mobile
-    address
-    signature
+    profile
     """
     # username
     if 'username' in content:
@@ -93,31 +61,11 @@ def change_params_check(content):
             return "nickname", False
     else:
         return "nickname", False
-        
-    # mobile
-    if 'mobile' in content:
-        mobile = content['mobile']
-        src = r'^[1-9][0-9]{10}$'
-        if not re.match(src, mobile):
-            return "mobile", False
-    else:
-        # mobile 缺失
-        return "mobile", False
-    
-    # address
-    if 'address' in content:
-        address = content['address']
-        src = r'^\w+@(qq|163|126|56|mail|gmail)\.com$'
-        if not re.match(src, address):
-            return "address", False
-    else:
-        # address 缺失
-        return "address", False
 
-    # signature
-    if 'signature' in content:
+    # profile
+    if 'profile' in content:
         pass
     else:
-        content['signature'] = "这个人很懒，没有留下任何信息。"
+        return "profile", False
 
     return "ok", True

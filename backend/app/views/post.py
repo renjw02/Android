@@ -179,19 +179,19 @@ def delete_post(postId):
         if not check:
             return jsonify({'message': "not found"}), 404
 
-        post, flag = service.get_post_detail(postId)
-        if not flag: 
-            return jsonify({'message': "not found"}), 404
+        # post, flag = service.get_post_detail(postId)
+        # if not flag: 
+        #     return jsonify({'message': "not found"}), 404
         
-        id_list = []
-        for comment in post['comment']:
-            id_list.append(comment['id'])
+        # id_list = []
+        # for comment in post['comment']:
+        #     id_list.append(comment['id'])
 
-        for id in id_list:
-            flag = service.delete_comment(id)
-            if not flag:
-                return jsonify({'message': "delete error"}), 400
-            # id_list = list(map(lambda x:x-1, id_list))
+        # for id in id_list:
+        #     flag = service.delete_comment(id)
+        #     if not flag:
+        #         return jsonify({'message': "delete error"}), 400
+        #     # id_list = list(map(lambda x:x-1, id_list))
 
         result = service.delete_post(postId)
 
@@ -235,6 +235,7 @@ def comment_post(postId):
         return jsonify({'message': "exception!"}), 400
 
 
+# 暂时废除
 # 删除指定回复
 @bp.route('/deletecomment/<int:commentId>', methods=['POST'])
 @login_required
@@ -365,9 +366,6 @@ def support_post(postId):
     except:
         return jsonify({'message': "exception!"}), 400
 
-
-# TODO 创建含有图片或视频的帖子
-# TODO 搜索
 # 搜索帖子
 @bp.route('/searchpost', methods=['GET'])
 @login_required
