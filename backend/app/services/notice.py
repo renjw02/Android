@@ -6,7 +6,7 @@ import datetime
 from sqlalchemy import and_
 
 from extension import db
-from models.model import Notice
+from models import Notice
 
 class NoticeService():
     

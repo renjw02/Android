@@ -6,7 +6,7 @@ import datetime
 from sqlalchemy import and_, or_
 
 from extension import db
-from models.model import Post, Comment, User
+from models import Post, Comment, User
 
 class PostService():
     

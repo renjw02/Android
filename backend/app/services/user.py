@@ -7,7 +7,7 @@ import datetime
 from sqlalchemy import and_
 
 from utils import encrypt_password
-from models.model import User, Follow, Blacklist
+from models import User, Follow, Blacklist
 from extension import db
 
 class UserService():

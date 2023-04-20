@@ -6,7 +6,7 @@ import datetime
 from sqlalchemy import and_
 
 from extension import db
-from models.model import Star, Post
+from models import Star, Post
 
 class StarService():
     def collect_post(self, post_id, user_id, title):
