@@ -61,9 +61,10 @@ def login():
         user, flag = service.get_user_by_name_and_pass(content['username'], content['password'])
         if user.status == 1:
             return jsonify({'message': "user has already logged in"}), 300
-
+        
         if flag:
             service.login(user.id)
+
             jwt = generate_jwt({
                 "user_id": user.id,
                 "nickname": user.nickname
@@ -117,7 +118,7 @@ def change_attr():
         
         user, flag = service.change_attr(g.user_id, content['username'],
                                 content['nickname'], content['profile'])
-
+        print(123)
         if flag:
             return jsonify({
                 'message': "ok",
@@ -276,11 +277,12 @@ def cancel_follow(followId):
 def get_followed_list(userId):
     try:
         followed_list, flag = service.get_followed_list(userId)
+        print(followed_list)
         if flag:
             return jsonify({
                 'message': "ok",
-                'followed_list': followed_list,
-                'total_num': followed_list.length()
+                'followedList': followed_list,
+                'totalNum': len(followed_list)
             }), 200
         else: return jsonify({'message': "error"}), 500
     except:
@@ -297,7 +299,7 @@ def get_follower_list():
             return jsonify({
                 'message': "ok",
                 'followed_list': follower_list,
-                'total_num': follower_list.length()
+                'total_num': len(follower_list)
             }), 200
         else: return jsonify({'message': "error"}), 500
     except:
@@ -353,7 +355,7 @@ def get_blocked_list(userId):
             return jsonify({
                 'message': "ok",
                 'blocked_list': blocked_list,
-                'total_num': blocked_list.length()
+                'total_num': len(blocked_list)
             }), 200
         else: return jsonify({'message': "error"}), 500
     except:

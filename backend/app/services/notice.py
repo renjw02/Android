@@ -3,7 +3,7 @@
 
 # here put the import lib
 import datetime
-from sqlalchemy import and_
+from sqlalchemy import and_, text
 
 from app.extension import db
 from app.models import Notice
@@ -40,7 +40,7 @@ class NoticeService():
             where user_id = {user_id} and has_checked = False
             """
             sql_count = sql.format(user_id=user_id)
-            count_result = db.session.execute(sql_count)
+            count_result = db.session.execute(text(sql_count))
             count = [dict(zip(result.keys(), result)) for result in count_result]
 
             return count[0]['count'], True
@@ -59,7 +59,7 @@ class NoticeService():
             """
             sql_content = sql.format(user_id=user_id)
 
-            content_result = db.session.execute(sql_content)
+            content_result = db.session.execute(text(sql_content))
 
             notice_list = [dict(zip(result.keys(), result)) for result in content_result]
 

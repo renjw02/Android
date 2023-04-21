@@ -18,20 +18,24 @@ def generate_jwt(payload, expiry=None):
     :param expiry: datetime 有效期
     :return: 生成jwt
     """
-    if expiry is None:
-        now = datetime.datetime.now()
-        expire_hours = int(current_app.config.get('JWT_EXPIRE_HOURS'))
-        expiry = now + datetime.timedelta(hours=expire_hours)
+    try:
+        if expiry is None:
+            now = datetime.datetime.now()
+            expire_hours = int(current_app.config.get('JWT_EXPIRE_HOURS'))
+            expiry = now + datetime.timedelta(hours=expire_hours)
 
-    _payload = {'exp': expiry}
-    _payload.update(payload)
+        _payload = {'exp': expiry}
+        _payload.update(payload)
 
-    secret = current_app.config.get('JWT_SECRET', '')
+        secret = current_app.config.get('JWT_SECRET', '')
 
-    token = jwt.encode(_payload, secret, algorithm='HS256')
-
-    tokens[payload['user_id']] = token
-    return token.decode()
+        token = jwt.encode(_payload, secret, algorithm='HS256')
+        print(payload)
+        tokens[payload['user_id']] = token
+        return token
+    except Exception as e:
+        print(e)
+        return None
 
 def remove_jwt(id):
     tokens.pop(id)
@@ -46,8 +50,9 @@ def verify_jwt(token):
     secret = current_app.config.get('JWT_SECRET', '')
 
     try:
-        payload = jwt.decode(token, secret, algorithm=['HS256'])
-    except jwt.PyJWTError:
+        payload = jwt.decode(token, secret, algorithms=['HS256'])
+    except Exception as e:
+        print(e)
         payload = None
 
     return payload
@@ -70,6 +75,7 @@ def jwt_authentication():
             g.user_name = payload.get('nickname')
 
             if g.user_id not in tokens or tokens[g.user_id] != token:
+                print(tokens)
                 return {'message': "Login from a different location"}, 401
                 
 

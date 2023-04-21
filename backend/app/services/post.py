@@ -3,7 +3,7 @@
 
 # here put the import lib
 import datetime
-from sqlalchemy import and_, or_
+from sqlalchemy import and_, or_, text
 
 from app.extension import db
 from app.models import Post, Comment, User
@@ -160,8 +160,8 @@ class PostService():
                 page-1)*size, order=order_col, where=where_clause)
             sql_count = count_base.format(where=where_clause)
 
-            content_result = db.session.execute(sql_content)
-            count_result = db.session.execute(sql_count)
+            content_result = db.session.execute(text(sql_content))
+            count_result = db.session.execute(text(sql_count))
 
             post_list = [dict(zip(result.keys(), result))
                          for result in content_result]
@@ -240,8 +240,8 @@ class PostService():
                     comment.post_id = {post_id}
                 order by comment.created asc;
             '''
-            post_result = db.session.execute(post_sql.format(post_id=post_id))
-            comment_result = db.session.execute(comment_sql.format(post_id=post_id))
+            post_result = db.session.execute(text(post_sql.format(post_id=post_id)))
+            comment_result = db.session.execute(text(comment_sql.format(post_id=post_id)))
 
             post = [dict(zip(result.keys(), result))
                     for result in post_result][0]
@@ -292,7 +292,7 @@ class PostService():
                     comment.comment_id = {comment_id}
                 order by comment.created asc;
             '''
-            comment_result = db.session.execute(comment_sql.format(comment_id=comment_id))
+            comment_result = db.session.execute(text(comment_sql.format(comment_id=comment_id)))
             comment_list = [dict(zip(result.keys(), result)) for result in comment_result]
             return comment_list, True
         except Exception as e:

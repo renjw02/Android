@@ -4,7 +4,7 @@
 # here put the import lib
 import datetime
 
-from sqlalchemy import and_
+from sqlalchemy import and_, text
 
 from app.utils import encrypt_password
 from app.models import User, Follow, Blacklist
@@ -61,15 +61,13 @@ class UserService():
             return "errors", False
 
     
-    def change_attr(self, user_id, username, nickname, mobile, address, signature):
+    def change_attr(self, user_id, username, nickname, profile):
         try:
             now = datetime.datetime.now()
             db.session.query(User).filter(User.id == user_id).update({
                 'username': username,
                 'nickname': nickname,
-                'mobile': mobile,
-                'address': address,
-                'signature': signature,
+                'profile': profile,
                 'updated': now
             })
             u = User.query.filter(User.id == user_id).first()
@@ -208,13 +206,16 @@ class UserService():
     def get_followed_list(self, user_id):
         try:
             followed_sql = """
-            select follow.followed_id as followedUserId, follow.id as followId, 
+            select 
+                follow.followed_id as followedUserId, follow.id as followId, 
                 user.nickname as nickname, user.profile as profile 
-            from follow
+            from 
+                follow
             inner join user on follow.followed_id = user.id
-            where follow.user_id = {user_id}
+            where 
+                follow.user_id = {user_id}
             """
-            followed_result = db.session.execute(followed_sql.format(user_id=user_id))
+            followed_result = db.session.execute(text(followed_sql.format(user_id=user_id)))
             followed_list = [dict(zip(result.keys(), result)) for result in followed_result]
             return followed_list, True
         except Exception as e:
@@ -230,7 +231,7 @@ class UserService():
             inner join user on follow.user_id = user.id
             where follow.followed_id = {user_id}
             """
-            follower_result = db.session.execute(follower_sql.format(user_id=user_id))
+            follower_result = db.session.execute(text(follower_sql.format(user_id=user_id)))
             follower_list = [dict(zip(result.keys(), result)) for result in follower_result]
             return follower_list, True
         except Exception as e:
@@ -246,7 +247,7 @@ class UserService():
             inner join user on blacklist.blocked_id = user.id
             where blacklist.user_id = {user_id}
             """
-            blocked_result = db.session.execute(blocked_sql.format(user_id=user_id))
+            blocked_result = db.session.execute(text(blocked_sql.format(user_id=user_id)))
             blocked_list = [dict(zip(result.keys(), result)) for result in blocked_result]
             return blocked_list, True
         except Exception as e:

@@ -15,7 +15,7 @@ service = PostService()
 
 @bp.route('/')
 def index():
-    return 'post配置完成!'
+    return jsonify({'message': "post配置完成!"}), 200
 
 # 创建帖子
 @bp.route('/createpost', methods=['POST'])

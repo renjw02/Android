@@ -3,7 +3,7 @@
 
 # here put the import lib
 import datetime
-from sqlalchemy import and_
+from sqlalchemy import and_, text
 
 from app.extension import db
 from app.models import Message
@@ -32,7 +32,7 @@ class MessageService():
             """
             sql_content = sql.format(user1_id=user1_id, user2_id=user2_id)
 
-            content_result = db.session.execute(sql_content)
+            content_result = db.session.execute(text(sql_content))
 
             message_list = [dict(zip(result.keys(), result)) for result in content_result]
 

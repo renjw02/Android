@@ -3,7 +3,7 @@
 
 # here put the import libapp.
 import datetime
-from sqlalchemy import and_
+from sqlalchemy import and_, text
 
 from app.extension import db
 from app.models import Star, Post
@@ -48,7 +48,7 @@ class StarService():
             where user_id = {user_id}
             order by created desc
             """
-            collection_result = db.session.execute(collect_sql.format(user_id=user_id))
+            collection_result = db.session.execute(text(collect_sql.format(user_id=user_id)))
             collection_list = [dict(zip(result.keys(), result)) for result in collection_result]
 
             return collection_list, True
