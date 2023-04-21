@@ -5,11 +5,11 @@
 import os
 
 from flask import Blueprint, jsonify, request, g
-from services import MessageService
-from utils import login_required
-from checkers import message_params_check
+from app.services import MessageService
+from .login_required import login_required
+from app.checkers import message_params_check
 
-bp = Blueprint('user', __name__, url_prefix='/api/message')
+bp = Blueprint('message', __name__, url_prefix='/api/message')
 
 service = MessageService()
 

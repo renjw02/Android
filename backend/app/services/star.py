@@ -1,12 +1,12 @@
 #!/usr/bin/env python
 # -*- encoding: utf-8 -*-
 
-# here put the import lib
+# here put the import libapp.
 import datetime
 from sqlalchemy import and_
 
-from extension import db
-from models import Star, Post
+from app.extension import db
+from app.models import Star, Post
 
 class StarService():
     def collect_post(self, post_id, user_id, title):

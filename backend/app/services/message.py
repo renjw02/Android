@@ -5,8 +5,8 @@
 import datetime
 from sqlalchemy import and_
 
-from extension import db
-from models import Message
+from app.extension import db
+from app.models import Message
 
 class MessageService():
     

@@ -1,3 +1,5 @@
+import os
+
 from flask_script import Manager, Server
 from flask_migrate import Migrate, MigrateCommand
 
@@ -7,7 +9,7 @@ from app.utils import config, encrypt_password
 from app.models import User
 
 
-app = create_app('default')
+app = create_app(os.getenv('TYPE', 'default'))
 
 manager = Manager(app)
 migrate = Migrate(app, db)
@@ -22,7 +24,7 @@ def init_db():
     """Init db"""
     db.drop_all()
     db.create_all()
-    me = User(username="test", password=encrypt_password(str("test")), nickname="test", mobile="45678901122")  
+    me = User(username="test", password=encrypt_password(str("test")), nickname="test")  
     db.session.add(me)
     db.session.commit()
 

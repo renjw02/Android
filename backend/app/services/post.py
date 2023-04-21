@@ -5,8 +5,8 @@
 import datetime
 from sqlalchemy import and_, or_
 
-from extension import db
-from models import Post, Comment, User
+from app.extension import db
+from app.models import Post, Comment, User
 
 class PostService():
     

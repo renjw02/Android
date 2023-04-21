@@ -5,9 +5,9 @@
 import os, base64
 
 from flask import Blueprint, jsonify, request, g
-from utils import login_required
-from services import PostService
-from checkers import post_params_check, comment_params_check
+from .login_required import login_required
+from app.services import PostService
+from app.checkers import post_params_check, comment_params_check
 
 bp = Blueprint('post', __name__, url_prefix='/api/post')
 

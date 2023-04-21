@@ -15,5 +15,5 @@ def login_required(func):
             return {'message': 'User must be authorized.'}, 401
         else:
             return func(*args, **kwargs)
-    wrapper.__name__ = "wrapper" + func.__name__
+    wrapper.__name__ = "warper" + func.__name__
     return wrapper

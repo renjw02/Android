@@ -1,15 +1,20 @@
+import os
+
 from flask import Flask
 from flask_cors import CORS
 
-from configs import configs
-from extension import db
-from views import init_blueprints
-from utils import jwt_authentication
+from .configs import configs
+from .extension import db
+from .views import init_blueprints
+from .utils import jwt_authentication
 
 def create_app(current_config=None):
     app = Flask(__name__)
     CORS(app)
 
+    if current_config is None:
+        current_config = os.getenv('TYPE', 'default')
+    
     app.config.from_object(configs[current_config])
 
     # authentication

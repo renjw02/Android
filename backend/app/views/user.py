@@ -5,9 +5,10 @@
 import os
 
 from flask import Blueprint, jsonify, request, g, make_response
-from services import UserService
-from checkers import register_params_check, change_params_check
-from utils import generate_jwt, login_required, remove_jwt
+from app.services import UserService
+from app.checkers import register_params_check, change_params_check
+from app.utils import generate_jwt, remove_jwt
+from .login_required import login_required
 
 bp = Blueprint('user', __name__, url_prefix='/api/user')
 
@@ -287,9 +288,9 @@ def get_followed_list(userId):
     
 
 # 获取关注我的用户列表
-@bp.route('/getfollowedlist', methods=['GET'])
+@bp.route('/getfollowerlist', methods=['GET'])
 @login_required
-def get_followed_list():
+def get_follower_list():
     try:
         follower_list, flag = service.get_my_follower_list(g.user_id)
         if flag:

@@ -6,9 +6,9 @@ import datetime
 
 from sqlalchemy import and_
 
-from utils import encrypt_password
-from models import User, Follow, Blacklist
-from extension import db
+from app.utils import encrypt_password
+from app.models import User, Follow, Blacklist
+from app.extension import db
 
 class UserService():
     ''' 

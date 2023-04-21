@@ -4,7 +4,7 @@
 # here put the import lib
 import datetime
 import base64
-import pyscrypt
+import scrypt
 
 import jwt
 from flask import current_app, g, request
@@ -76,5 +76,5 @@ def jwt_authentication():
 
 def encrypt_password(password):
     salt = current_app.config.get('SALT', '')
-    key = pyscrypt.hash(password, salt, 32768, 8, 1, 32)
+    key = scrypt.hash(password, salt, 32768, 8, 1, 32)
     return base64.b64encode(key).decode("ascii")

@@ -5,11 +5,11 @@
 import os
 
 from flask import Blueprint, jsonify, request, g
-from services import NoticeService
-from utils import login_required
-from checkers import notice_params_check
+from app.services import NoticeService
+from .login_required import login_required
+from app.checkers import notice_params_check
 
-bp = Blueprint('user', __name__, url_prefix='/api/notice')
+bp = Blueprint('notice', __name__, url_prefix='/api/notice')
 
 service = NoticeService()
 
@@ -119,7 +119,7 @@ def get_notice(noticeId):
 # 获取未读数量
 @bp.route('/getunreadnum/<int:userId>', methods=['GET'])
 @login_required
-def get_notice(userId):
+def get_unread_num(userId):
     try:
         num, flag = service.get_unread_num(userId)
         if flag:

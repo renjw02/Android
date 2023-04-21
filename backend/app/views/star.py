@@ -5,10 +5,10 @@
 import os
 
 from flask import Blueprint, jsonify, request, g
-from services import StarService
-from utils import login_required
+from app.services import StarService
+from .login_required import login_required
 
-bp = Blueprint('user', __name__, url_prefix='/api/star')
+bp = Blueprint('star', __name__, url_prefix='/api/star')
 
 service = StarService()
 
