@@ -52,7 +52,7 @@ class NoticeService():
         try:
             sql = """
             select id as noticeId, user_id as userId, type as noticeType, creator as noticeCreator,
-                created as noticeCreated, has_checked as hasChecked
+                created as created, has_checked as hasChecked
             from notice
             where user_id = {user_id}
             order by created desc

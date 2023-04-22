@@ -71,6 +71,7 @@ def login():
             })
 
             return jsonify({
+                "message": 'ok',
                 "jwt": jwt,
                 "userId": user.id,
                 "username": user.username,
@@ -187,7 +188,7 @@ def reset_password():
         if flag:
             return jsonify({
                 'message': "ok",
-                'user_id': user.id
+                'userId': user.id
                 }), 200
         else:
             return jsonify({'message': user}), 500
@@ -298,8 +299,8 @@ def get_follower_list():
         if flag:
             return jsonify({
                 'message': "ok",
-                'followed_list': follower_list,
-                'total_num': len(follower_list)
+                'followerList': follower_list,
+                'totalNum': len(follower_list)
             }), 200
         else: return jsonify({'message': "error"}), 500
     except:
@@ -319,7 +320,7 @@ def block_user(userId):
         if flag:
             return jsonify({
                 'message': "ok",
-                'followed': block                      
+                'blocked': block                      
                 }), 200
         else:
             return jsonify({'message': block}), 500
@@ -354,8 +355,8 @@ def get_blocked_list(userId):
         if flag:
             return jsonify({
                 'message': "ok",
-                'blocked_list': blocked_list,
-                'total_num': len(blocked_list)
+                'blockedList': blocked_list,
+                'totalNum': len(blocked_list)
             }), 200
         else: return jsonify({'message': "error"}), 500
     except:

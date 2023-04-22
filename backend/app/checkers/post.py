@@ -8,7 +8,7 @@ def post_params_check(title, content, type, position):
     '''
     title       小于128
     content     小于1024
-    type        0 1
+    type        1 2
     position    小于64
     '''    
     # title
@@ -26,7 +26,7 @@ def post_params_check(title, content, type, position):
         return "content", False
     
     if type is not None:
-        if type != 0 or type != 1:
+        if type != 1 or type != 2:
             return "content", False
     else:
         return "content", False

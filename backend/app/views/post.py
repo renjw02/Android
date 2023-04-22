@@ -103,7 +103,7 @@ def get_post_detail(postId):
                 'message': "ok",
                 'post': detail,
                 'images': images_data,
-                'video': videos_data
+                'videos': videos_data
                 }), 200
         else:
             return jsonify({'message': "error"}), 500
@@ -269,22 +269,23 @@ def delete_comment(commentId):
 
 
 # 获取回复
-@bp.route('/getcomment', methods=['GET'])
+@bp.route('/getcomment/<int:commentId>', methods=['GET'])
 @login_required
-def get_comment():
+def get_comment(commentId):
     try:
-        comment_id = request.args['comment_id']
-        if comment_id == 0:
+        if commentId == 0:
             return jsonify({'message': "not a comment"}), 400
-        comment, flag = service.get_comment(comment_id)
+        comment, flag = service.get_comment(commentId)
 
         if flag:
             return jsonify({
                 'message': "ok",
+                'id': comment.id,
                 "userId": comment.user_id,
                 "commentId": comment.comment_id,
                 "postId": comment.post_id,
-                "content": comment.content
+                "content": comment.content,
+                "created": comment.created
             }), 200
         else:
             return jsonify({'message': "error"}), 500

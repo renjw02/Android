@@ -49,20 +49,14 @@ def createnotice():
     
 
 # 删除通知
-@bp.route('/removenotice', methods=['POST'])
+@bp.route('/removenotice/<int:noticeId>', methods=['POST'])
 @login_required
-def remove_notice():
+def remove_notice(noticeId):
     try:
-        content = request.get_json()
-        if content is None:
-            return jsonify({'message': "no content"}), 400
-        
-        # TODO check content
-        
-        if not service.check_notice(content['notice_id']):
+        if not service.check_notice(noticeId):
             return jsonify({'message': "cannot remove unread notice"}), 400
 
-        flag = service.remove_notice(content['notice_id'])
+        flag = service.remove_notice(noticeId)
         if flag:
             return jsonify({
                 'message': "ok",
@@ -82,8 +76,8 @@ def get_notice_list(userId):
         if flag:
             return jsonify({
                 'message': "ok",
-                'collectionList': notice_list,
-                'totalNum': notice_list.length()
+                'noticeList': notice_list,
+                'totalNum': len(notice_list)
             }), 200
         else:
             return jsonify({'message': "error"}), 500

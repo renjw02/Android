@@ -16,4 +16,10 @@ def notice_params_check(content):
     else:
         return "content", False
     
+    if 'type' in content:
+        if content['type'] != 0 or content['type'] != 1:
+            return "type", False
+    else:
+        return "type", False
+    
     return "ok", True
