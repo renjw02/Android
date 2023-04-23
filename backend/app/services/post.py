@@ -6,17 +6,16 @@ import datetime
 from sqlalchemy import and_, or_, text
 
 from app.extension import db
-from app.models import Post, Comment, User
+from app.models import Post, Comment, User, Picture, Video
 
 class PostService():
     
-    def create_post(self, title, content, user_id, type, position, has_picture, has_video):
+    def create_post(self, title, content, user_id, type, position):
         try:
             now = datetime.datetime.now()
             p = Post(user_id=user_id, title=title, content=content, type=type, position=position,
                     last_replied_user_id=user_id, support_num=0, comment_num=0, star_num=0,
-                    last_replied_time=now, created=now, updated=now, has_picture=has_picture,
-                    has_video=has_video)
+                    last_replied_time=now, created=now, updated=now)
             db.session.add(p)
             db.session.commit()
             return p, True
@@ -220,8 +219,8 @@ class PostService():
                     post.id as id, post.user_id as userId, user.nickname as nickname,
                     post.title as title, post.content as content, post.support_num as supportNum,
                     post.star_num as starNum, post.commentNum as commentNum,
-                    post.created as created, post.updated as updated, post.has_picture as hasPicture,
-                    post.has_video as hasVideo, post.Last_replied_time as lastRepliedTime
+                    post.created as created, post.updated as updated, 
+                    post.Last_replied_time as lastRepliedTime
                 from
                     post
                 inner join user on post.user_id = user.id
@@ -329,8 +328,50 @@ class PostService():
             print(e)
             return 'errors', False
     
-    def upload_picture(self):
-        pass
+    def upload_picture(self, post_id, path):
+        try:
+            p = Picture(post_id=post_id, path=path)
+            db.session.add(p)
+            db.session.commit()
+            return p, True
+        except Exception as e:
+            print(e)
+            return "error", False
 
-    def upload_video(self):
-        pass
+    def upload_video(self, post_id, path):
+        try:
+            v = Video(post_id=post_id, path=path)
+            db.session.add(v)
+            db.session.commit()
+            return v, True
+        except Exception as e:
+            print(e)
+            return "error", False
+        
+    def get_pictures(self, post_id):
+        try:
+            sql = """
+            select *
+            from picture
+            where post_id = {post_id}
+            """
+            result = db.session.execute(text(sql.format(post_id=post_id)))
+            pictures = [dict(zip(result.keys(), result)) for result in result]
+            return pictures, True
+        except Exception as e:
+            print(e)
+            return [], False
+        
+    def get_videos(self, post_id):
+        try:
+            sql = """
+            select *
+            from video
+            where post_id = {post_id}
+            """
+            result = db.session.execute(text(sql.format(post_id=post_id)))
+            videos = [dict(zip(result.keys(), result)) for result in result]
+            return videos, True
+        except Exception as e:
+            print(e)
+            return [], False

@@ -996,3 +996,111 @@ def get_unread_num(userId):
   }
   ```
 
+
+
+## message部分
+
+```
+所有接口路径均以"/api/message"开头
+```
+
+> + id
+> + sender_id
+> + receiver_id
+> + content
+> + created
+
+### 创建私信
+
+```
+@bp.route('/createmessage', methods=['POST'])
+@login_required
+def create_message():
+```
+
++ 接收：json
+
+  ```
+  {
+  	"sender_id"
+  	"receiver_id"
+  	"content"
+  }
+  ```
+
++ 返回：json + 状态码
+
+  ```
+  {
+  	"message"
+  	"messageId"
+  	"content"
+  	"sendTime"
+  }
+  ```
+
+
+
+### 获取历史对话
+
+```
+@bp.route('/gethistory/<int:user1Id>/<int:user2Id>', methods=['GET'])
+@login_required
+def get_history(user1Id, user2Id):
+```
+
++ 接收：整形整数user1Id， user2Id
+
++ 返回：json + 状态码
+
+  ```
+  {
+  	"message"
+  	"history"
+  	"totalNum"
+  }
+  其中history是字典列表，每一项字典元素包含：
+  {
+  	"id"
+  	"sender_id"
+  	"receiver_id"
+  	"content"
+  	"created"
+  }
+  ```
+
+
+
+### 获取私信内容
+
+```
+@bp.route('/getnotice/<int:noticeId>', methods=['GET'])
+@login_required
+def get_notice(noticeId):
+```
+
++ 接收：整形整数noticeId
+
++ 返回：json + 状态码
+
+  ```
+  {
+  	"message"
+  	"noticeId"
+  	"content"
+  	"type"
+  	"creator"
+  	"created"
+  }
+  其中noticeList是字典列表，每一项字典元素包含：
+  {
+  	"noticeId"
+  	"userId"
+  	"noticeType"
+  	"noticeCreator"
+  	"created"
+  	"hasChecked"
+  }
+  ```
+
+
