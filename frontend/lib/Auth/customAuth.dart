@@ -10,7 +10,7 @@ class CustomAuth {
   // final http.Client _client = http.Client();
 
   // Use a StreamController to create a Stream<User>
-  final StreamController<User?> _controller = StreamController<User>();
+  static final StreamController<User?> _controller = StreamController<User>();
 
   // Use a singleton pattern to create an instance of CustomAuth
   static final CustomAuth _instance = CustomAuth._();
@@ -19,6 +19,16 @@ class CustomAuth {
 
   // Expose the Stream<User> as authStateChanges
   Stream<User?> get authStateChanges => _controller.stream;
+
+  static User currentUser = User(
+    username: 'username',
+    uid: 'uid',
+    photoUrl: 'photoUrl',
+    email: 'email',
+    bio: 'bio',
+    followers: [],
+    following: [],
+  );
 
   // Implement methods to sign in, sign out and register users
   Future<String> signIn(String email, String password) async {
@@ -41,7 +51,7 @@ class CustomAuth {
         'followers': [],
         'following': [],
       };
-      final user = User(
+      currentUser = User(
         username: data['username'] as String,
         uid: data['uid'] as String,
         photoUrl: data['photoUrl'] as String,
@@ -50,7 +60,7 @@ class CustomAuth {
         followers: data['followers'] as List,
         following: data['following'] as List,
       );
-      _controller.add(user);
+      _controller.add(currentUser);
       return 'Success';
     } catch (e) {
       // Handle errors as needed
@@ -119,13 +129,6 @@ class CustomAuth {
   }
 
   getUserDetails() {
-    return const User(
-      username: "username",
-      uid: "uid",
-      photoUrl: "photoUrl",
-      email: "email",
-      bio: "bio",
-      followers: [],
-      following: [],);
+    return currentUser;
   }
 }

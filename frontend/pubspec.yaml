@@ -39,7 +39,10 @@ dependencies:
   share: ^2.0.4
   url_launcher: ^6.0.12
   flutter_svg: ^1.0.0
-
+  image_picker: ^0.8.4+4
+  provider: ^6.0.1
+  uuid: ^3.0.5
+  
 dev_dependencies:
   flutter_test:
     sdk: flutter
