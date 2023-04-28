@@ -3,10 +3,11 @@
 //账号、密码、用户名、头像、简介
 class User {
   final String email;
+  final String password;
   final String uid;
   final String photoUrl;
   final String username;
-  final String bio;
+  final String nickname;
   final List followers;
   final List following;
 
@@ -15,7 +16,8 @@ class User {
         required this.uid,
         required this.photoUrl,
         required this.email,
-        required this.bio,
+        required this.password,
+        required this.nickname,
         required this.followers,
         required this.following});
 
@@ -37,8 +39,9 @@ class User {
     "username": username,
     "uid": uid,
     "email": email,
+    "password":password,
     "photoUrl": photoUrl,
-    "bio": bio,
+    "nickname": nickname,
     "followers": followers,
     "following": following,
   };

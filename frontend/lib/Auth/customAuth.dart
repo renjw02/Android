@@ -1,5 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
+import 'package:http/http.dart' as http;
+import 'package:http_parser/http_parser.dart';
 
 import '../models/user.dart';
 
@@ -25,7 +28,8 @@ class CustomAuth {
     uid: 'uid',
     photoUrl: 'photoUrl',
     email: 'email',
-    bio: 'bio',
+    password: "password",
+    nickname: 'nickname',
     followers: [],
     following: [],
   );
@@ -36,37 +40,83 @@ class CustomAuth {
     // Get the response and parse it as a User object
     // Add the User object to the StreamController
     // Handle errors as needed
-    try {
-      // final response = await _client.post(
-      //   Uri.parse('https://your-backend.com/signin'),
-      //   body: {'email': email, 'password': password},
-      // );
-      // final data = jsonDecode(response.body);
-      final data = {
-        'username': 'username',
-        'uid': 'uid',
-        'photoUrl': 'photoUrl',
-        'email': 'email',
-        'bio': 'bio',
-        'followers': [],
-        'following': [],
-      };
-      currentUser = User(
-        username: data['username'] as String,
-        uid: data['uid'] as String,
-        photoUrl: data['photoUrl'] as String,
-        email: data['email'] as String,
-        bio: data['bio'] as String,
-        followers: data['followers'] as List,
-        following: data['following'] as List,
-      );
-      _controller.add(currentUser);
-      return 'Success';
-    } catch (e) {
-      // Handle errors as needed
-      print(e);
-      return 'Failed';
+    //
+    var _client = http.Client();
+    var url = Uri.parse("http://127.0.0.1:5000/api/user/login");
+    Map<String, String> headersMap = new Map();
+    headersMap["content-type"] = ContentType.json.toString();
+    Map<String, String> bodyParams = new Map();
+    bodyParams["username"] = email;
+    bodyParams["password"] = password;
+    var result="False";
+    try{
+      print('post');
+      await _client.post(
+        url,
+        headers:headersMap,
+        // body: bodyParams,
+        body:jsonEncode({
+          "username":email,
+          "password":password,
+        }),
+        encoding: Utf8Codec()
+      ).then((http.Response response) {
+        print(response.statusCode);
+        print(response.body);
+        if (response.statusCode == 200) {
+          print(response.body);
+          result = "Success";
+          final data = {
+            'username': "username",
+            'uid': 'uid',
+            'photoUrl': 'photoUrl',
+            'email': email,
+            "password":password,
+            'nickname': 'nickname',
+            'followers': [],
+            'following': [],
+          };
+          currentUser = User(
+            username: data['username'] as String,
+            password: data['password'] as String,
+            uid: data['uid'] as String,
+            photoUrl: data['photoUrl'] as String,
+            email: data['email'] as String,
+            nickname: data['nickname'] as String,
+            followers: data['followers'] as List,
+            following: data['following'] as List,
+          );
+          _controller.add(currentUser);
+        } else {
+          print('error code');
+        }
+      }).catchError((error) {
+        print('error');
+      });
+    }catch(e){
+      print('second False');
     }
+    return result;
+    // final data = {
+    //   'username': 'username',
+    //   'uid': 'uid',
+    //   'photoUrl': 'photoUrl',
+    //   'email': email,
+    //   'nickname': 'nickname',
+    //   'followers': [],
+    //   'following': [],
+    // };
+    // currentUser = User(
+    //   username: data['username'] as String,
+    //   uid: data['uid'] as String,
+    //   photoUrl: data['photoUrl'] as String,
+    //   email: data['email'] as String,
+    //   nickname: data['nickname'] as String,
+    //   followers: data['followers'] as List,
+    //   following: data['following'] as List,
+    // );
+    // _controller.add(currentUser);
+    // return 'Success';
   }
 
   Future<String> signOut() async {
@@ -97,20 +147,22 @@ class CustomAuth {
       // final data = jsonDecode(response.body);
 
       final data = {
-        'username': 'username',
+        'username': "username",
         'uid': 'uid',
         'photoUrl': 'photoUrl',
-        'email': 'email',
-        'bio': 'bio',
+        'email': email,
+        "password":password,
+        'nickname': 'nickname',
         'followers': [],
         'following': [],
       };
       final user = User(
         username: data['username'] as String,
+        password: data['password'] as String,
         uid: data['uid'] as String,
         photoUrl: data['photoUrl'] as String,
         email: data['email'] as String,
-        bio: data['bio'] as String,
+        nickname: data['nickname'] as String,
         followers: data['followers'] as List,
         following: data['following'] as List,
       );
