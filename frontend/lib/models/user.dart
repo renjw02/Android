@@ -5,15 +5,17 @@ class User {
   final String email;
   final String password;
   final String uid;
+  final String jwt;
   final String photoUrl;
   final String username;
   final String nickname;
   final List followers;
   final List following;
 
-  const User(
+  User(
       {required this.username,
         required this.uid,
+        required this.jwt,
         required this.photoUrl,
         required this.email,
         required this.password,
@@ -40,6 +42,7 @@ class User {
     "uid": uid,
     "email": email,
     "password":password,
+    "jwt":jwt,
     "photoUrl": photoUrl,
     "nickname": nickname,
     "followers": followers,

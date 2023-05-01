@@ -26,6 +26,7 @@ class CustomAuth {
   static User currentUser = User(
     username: 'username',
     uid: 'uid',
+    jwt: 'jwt',
     photoUrl: 'photoUrl',
     email: 'email',
     password: "password",
@@ -65,44 +66,58 @@ class CustomAuth {
         print(response.body);
         if (response.statusCode == 200) {
           print(response.body);
-          result = "Success";
+          Map<String, dynamic> returndata = jsonDecode(response.body);
+          print(returndata);
           final data = {
-            'username': "username",
-            'uid': 'uid',
+            'username': returndata['username'],
+            'uid': returndata['userId'].toString(),
+            'jwt':returndata['jwt'],
             'photoUrl': 'photoUrl',
             'email': email,
             "password":password,
-            'nickname': 'nickname',
+            'nickname': returndata['nickname'],
             'followers': [],
             'following': [],
           };
+          _controller.add(currentUser);
+          print(data);
           currentUser = User(
             username: data['username'] as String,
             password: data['password'] as String,
             uid: data['uid'] as String,
+            jwt: data['jwt'] as String,
             photoUrl: data['photoUrl'] as String,
             email: data['email'] as String,
             nickname: data['nickname'] as String,
             followers: data['followers'] as List,
             following: data['following'] as List,
           );
+          var asd = currentUser.toJson();
+          print(asd['jwt']);
           _controller.add(currentUser);
+          result = "Success";
         } else {
           print('error code');
         }
       }).catchError((error) {
-        print('error');
+        print(error);
+        print('error 11');
       });
     }catch(e){
       print('second False');
     }
     return result;
+
+
+
     // final data = {
-    //   'username': 'username',
-    //   'uid': 'uid',
+    //   'username': 'test',
+    //   'uid': '1',
     //   'photoUrl': 'photoUrl',
     //   'email': email,
-    //   'nickname': 'nickname',
+    //   'jwt':'jwt',
+    //   'password':password,
+    //   'nickname': 'test',
     //   'followers': [],
     //   'following': [],
     // };
@@ -111,6 +126,8 @@ class CustomAuth {
     //   uid: data['uid'] as String,
     //   photoUrl: data['photoUrl'] as String,
     //   email: data['email'] as String,
+    //   jwt: data['jwt'] as String,
+    //   password: data['password'] as String,
     //   nickname: data['nickname'] as String,
     //   followers: data['followers'] as List,
     //   following: data['following'] as List,
@@ -149,6 +166,7 @@ class CustomAuth {
       final data = {
         'username': "username",
         'uid': 'uid',
+        'jwt':'jwt',
         'photoUrl': 'photoUrl',
         'email': email,
         "password":password,
@@ -160,6 +178,7 @@ class CustomAuth {
         username: data['username'] as String,
         password: data['password'] as String,
         uid: data['uid'] as String,
+        jwt: data['jwt'] as String,
         photoUrl: data['photoUrl'] as String,
         email: data['email'] as String,
         nickname: data['nickname'] as String,
