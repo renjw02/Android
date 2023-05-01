@@ -12,10 +12,18 @@ class CommentsScreen extends StatefulWidget {
 class _CommentsScreenState extends State<CommentsScreen> {
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      body: Center(
-        child: Text('comment screen'),
-      ),
+    return Scaffold(
+      body: Scaffold(
+        appBar: AppBar(
+          backgroundColor: mobileBackgroundColor,
+          title: const Text(
+            'Comments',
+          ),
+        ),
+        body: const Center(
+          child: Text('Comments Screen'),
+        ),
+      )
     );
   }
 }

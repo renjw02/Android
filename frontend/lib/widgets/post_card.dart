@@ -288,6 +288,7 @@ class _PostCardState extends State<PostCard> {
                 ),
                 InkWell(
                   child: Container(
+                    padding: const EdgeInsets.symmetric(vertical: 4),
                     child: Text(
                       'View all $commentLen comments',
                       style: const TextStyle(
@@ -295,7 +296,6 @@ class _PostCardState extends State<PostCard> {
                         color: secondaryColor,
                       ),
                     ),
-                    padding: const EdgeInsets.symmetric(vertical: 4),
                   ),
                   onTap: () => Navigator.of(context).push(
                     MaterialPageRoute(
@@ -306,6 +306,7 @@ class _PostCardState extends State<PostCard> {
                   ),
                 ),
                 Container(
+                  padding: const EdgeInsets.symmetric(vertical: 4),
                   child:
                   Text(
                     // DateFormat.yMMMd()
@@ -315,7 +316,6 @@ class _PostCardState extends State<PostCard> {
                       color: secondaryColor,
                     ),
                   ),
-                  padding: const EdgeInsets.symmetric(vertical: 4),
                 ),
               ],
             ),

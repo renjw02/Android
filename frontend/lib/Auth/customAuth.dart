@@ -3,6 +3,88 @@ import 'dart:convert';
 
 import '../models/user.dart';
 
+User fakeUser1 = User(
+  username: 'username1',
+  uid: 'uid1',
+  photoUrl: 'https://picsum.photos/200/311',
+  email: 'email1',
+  bio: 'bio1',
+  followers: [],
+  following: [],
+);
+User fakeUser2 = User(
+  username: 'username2',
+  uid: 'uid2',
+  photoUrl: 'https://picsum.photos/200/312',
+  email: 'email2',
+  bio: 'bio2',
+  followers: [],
+  following: [],
+);
+User fakeUser3 = User(
+  username: 'username3',
+  uid: 'uid3',
+  photoUrl: 'https://picsum.photos/200/313',
+  email: 'email3',
+  bio: 'bio3',
+  followers: [],
+  following: [],
+);
+User fakeUser4 = User(
+  username: 'username4',
+  uid: 'uid4',
+  photoUrl: 'https://picsum.photos/200/314',
+  email: 'email4',
+  bio: 'bio4',
+  followers: [],
+  following: [],
+);
+User fakeUser5 = User(
+  username: 'username5',
+  uid: 'uid5',
+  photoUrl: 'https://picsum.photos/200/315',
+  email: 'email5',
+  bio: 'bio5',
+  followers: [],
+  following: [],
+);
+User fakeUser6 = User(
+  username: 'username6',
+  uid: 'uid6',
+  photoUrl: 'https://picsum.photos/200/316',
+  email: 'email6',
+  bio: 'bio6',
+  followers: [],
+  following: [],
+);
+User fakeUser7 = User(
+  username: 'username7',
+  uid: 'uid7',
+  photoUrl: 'https://picsum.photos/200/317',
+  email: 'email7',
+  bio: 'bio7',
+  followers: [],
+  following: [],
+);
+User fakeUser8 = User(
+  username: 'username8',
+  uid: 'uid8',
+  photoUrl: 'https://picsum.photos/200/318',
+  email: 'email8',
+  bio: 'bio8',
+  followers: [],
+  following: [],
+);
+User fakeUser9 = User(
+  username: 'username9',
+  uid: 'uid9',
+  photoUrl: 'https://picsum.photos/200/319',
+  email: 'email9',
+  bio: 'bio9',
+  followers: [],
+  following: [],
+);
+
 
 // Define a CustomAuth class to communicate with your backend
 class CustomAuth {

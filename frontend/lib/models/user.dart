@@ -42,4 +42,15 @@ class User {
     "followers": followers,
     "following": following,
   };
+  data() {
+    return {
+      "username": username,
+      "uid": uid,
+      "email": email,
+      "photoUrl": photoUrl,
+      "bio": bio,
+      "followers": followers,
+      "following": following,
+    };
+  }
 }
