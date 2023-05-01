@@ -1,7 +1,11 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
+import 'package:http/http.dart' as http;
+import 'package:http_parser/http_parser.dart';
 
 import '../models/user.dart';
+import '../resources/database_methods.dart' as db;
 
 User fakeUser1 = User(
   username: 'username1',
@@ -105,9 +109,11 @@ class CustomAuth {
   static User currentUser = User(
     username: 'username',
     uid: 'uid',
+    jwt: 'jwt',
     photoUrl: 'photoUrl',
     email: 'email',
-    bio: 'bio',
+    password: "password",
+    nickname: 'nickname',
     followers: [],
     following: [],
   );
@@ -118,37 +124,41 @@ class CustomAuth {
     // Get the response and parse it as a User object
     // Add the User object to the StreamController
     // Handle errors as needed
-    try {
-      // final response = await _client.post(
-      //   Uri.parse('https://your-backend.com/signin'),
-      //   body: {'email': email, 'password': password},
-      // );
-      // final data = jsonDecode(response.body);
-      final data = {
-        'username': 'username',
-        'uid': 'uid',
-        'photoUrl': 'photoUrl',
-        'email': 'email',
-        'bio': 'bio',
-        'followers': [],
-        'following': [],
-      };
-      currentUser = User(
-        username: data['username'] as String,
-        uid: data['uid'] as String,
-        photoUrl: data['photoUrl'] as String,
-        email: data['email'] as String,
-        bio: data['bio'] as String,
-        followers: data['followers'] as List,
-        following: data['following'] as List,
-      );
+    //
+    var url = Uri.parse("http://127.0.0.1:5000/api/user/login");
+    String result;
+    result = await db.DataBaseManager().signIn(url, email, password);
+    if(result == "Success"){
       _controller.add(currentUser);
-      return 'Success';
-    } catch (e) {
-      // Handle errors as needed
-      print(e);
-      return 'Failed';
     }
+    return result;
+
+
+
+    // final data = {
+    //   'username': 'test',
+    //   'uid': '1',
+    //   'photoUrl': 'photoUrl',
+    //   'email': email,
+    //   'jwt':'jwt',
+    //   'password':password,
+    //   'nickname': 'test',
+    //   'followers': [],
+    //   'following': [],
+    // };
+    // currentUser = User(
+    //   username: data['username'] as String,
+    //   uid: data['uid'] as String,
+    //   photoUrl: data['photoUrl'] as String,
+    //   email: data['email'] as String,
+    //   jwt: data['jwt'] as String,
+    //   password: data['password'] as String,
+    //   nickname: data['nickname'] as String,
+    //   followers: data['followers'] as List,
+    //   following: data['following'] as List,
+    // );
+    // _controller.add(currentUser);
+    // return 'Success';
   }
 
   Future<String> signOut() async {
@@ -156,6 +166,11 @@ class CustomAuth {
     // Add null to the StreamController to indicate the user is signed out
     // Handle errors as needed
     try {
+      var _client = http.Client();
+      var url = Uri.parse("http://127.0.0.1:5000/api/user/logout");
+      await _client.post(url,headers: {
+        HttpHeaders.authorizationHeader: CustomAuth.currentUser.jwt,
+      },);
       // await _client.post(Uri.parse('https://your-backend.com/signout'));
       _controller.add(null);
       return 'Success';
@@ -179,20 +194,24 @@ class CustomAuth {
       // final data = jsonDecode(response.body);
 
       final data = {
-        'username': 'username',
+        'username': "username",
         'uid': 'uid',
+        'jwt':'jwt',
         'photoUrl': 'photoUrl',
-        'email': 'email',
-        'bio': 'bio',
+        'email': email,
+        "password":password,
+        'nickname': 'nickname',
         'followers': [],
         'following': [],
       };
       final user = User(
         username: data['username'] as String,
+        password: data['password'] as String,
         uid: data['uid'] as String,
+        jwt: data['jwt'] as String,
         photoUrl: data['photoUrl'] as String,
         email: data['email'] as String,
-        bio: data['bio'] as String,
+        nickname: data['nickname'] as String,
         followers: data['followers'] as List,
         following: data['following'] as List,
       );
