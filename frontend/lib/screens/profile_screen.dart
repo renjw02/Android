@@ -1,20 +1,3 @@
-// import 'package:flutter/material.dart';
-// class ProfileScreen extends StatefulWidget {
-//   const ProfileScreen({Key? key, required String uid}) : super(key: key);
-//   @override
-//   _ProfileScreenState createState() => _ProfileScreenState();
-// }
-// class _ProfileScreenState extends State<ProfileScreen> {
-//   @override
-//   Widget build(BuildContext context) {
-//     return const Scaffold(
-//       body: Center(
-//         child: Text('ProfileScreen'),
-//       ),
-//     );
-//   }
-// }
-
 import 'dart:convert';
 import 'dart:io';
 
@@ -27,6 +10,8 @@ import 'package:frontend/widgets/follow_button.dart';
 import 'package:http/http.dart' as http;
 
 import '../Auth/customAuth.dart';
+import '../resources/database_methods.dart' as db;
+import 'modify_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   final String uid;
@@ -61,67 +46,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
       //     .doc(widget.uid)
       //     .get();
       currentUserUid = CustomAuth.currentUser.uid;
-
+      db.DataBaseManager dbm = db.DataBaseManager();
       Map<String, dynamic> userinfo={};//获取用户信息
       var _client = http.Client();
       var url = Uri.parse("http://127.0.0.1:5000/api/user/user/"+widget.uid);
       //var url = Uri.parse("http://127.0.0.1:5000/api/user/user");
-      print(widget.uid);
-      print(CustomAuth.currentUser.jwt);
-      Map<String, String> requestHeaders = {
-        HttpHeaders.authorizationHeader: CustomAuth.currentUser.jwt,
-      };
-      await _client.get(
-          url,
-          headers: requestHeaders,
-      ).then((http.Response response) {
-        //处理响应信息
-        if (response.statusCode == 200) {
-          print("asd1");
-          print(response.body);
-          //userinfo = response.body;
-          userinfo = jsonDecode(response.body);
-          print(userinfo);
-        } else {
-          print('error');
-          print(response.body);
-        }
-      }).catchError((e){
-        print(e);
-      });
-      print("asd2");
+      userinfo = await dbm.getSomeMap(url,CustomAuth.currentUser.jwt);
       Map<String, dynamic> userFollowers={}; //获取关注我的人
       url = Uri.parse("http://127.0.0.1:5000/api/user/getfollowerlist");
-      await _client.get(
-        url,
-        headers: requestHeaders,
-      ).then((http.Response response) {
-        //处理响应信息
-        if (response.statusCode == 200) {
-          print(response.body);
-          // userFollowers = response.body;
-          userFollowers = jsonDecode(response.body);
-        } else {
-          print('error');
-        }
-      });
-      print("asd3");
+      userFollowers = await dbm.getSomeMap(url, CustomAuth.currentUser.jwt);
       Map<String, dynamic> userFollowed={}; //获取我关注的人
-      url = Uri.parse("http://127.0.0.1:5000/api/user/getfollowedlist/1");
-      await _client.get(
-        url,
-        headers: requestHeaders,
-      ).then((http.Response response) {
-        //处理响应信息
-        if (response.statusCode == 200) {
-          print(response.body);
-          // userFollowed = response.body;
-          userFollowed = jsonDecode(response.body);
-        } else {
-          print('error');
-        }
-      });
-      print("asd4");
+      url = Uri.parse("http://127.0.0.1:5000/api/user/getfollowedlist/"+widget.uid);
+      userFollowed = await dbm.getSomeMap(url, CustomAuth.currentUser.jwt);
 
       // get post lENGTH
       // var postSnap = await FirebaseFirestore.instance
@@ -132,13 +68,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
       //postLen = postSnap.docs.length;
       print(userinfo);
       userData = userinfo;
-      followers = 0;//userFollowers['totalNum'];
+      followers = userFollowers['totalNum'];
       //following = userSnap.data()!['following'].length;
-      followed = 0;//userFollowed['totalnum'];
+      followed = userFollowed['totalNum'];
       // isFollowed = userSnap
       //     .data()!['followers']
       //     .contains(FirebaseAuth.instance.currentUser!.uid);
-      isFollowed = false;
+      isFollowed = userFollowers['followerList'].indexOf(currentUserUid) != -1;
+      //isFollowed = true;
+
       setState(() {});
     } catch (e) {
       showSnackBar(
@@ -191,9 +129,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             MainAxisAlignment.spaceEvenly,
                             children: [
                               //buildStatColumn(postLen, "posts"),  //TODO
-                              buildStatColumn(111, "posts"),
-                              buildStatColumn(followers, "followers"),
-                              buildStatColumn(followed, "followed"),
+                              buildStatColumn(111, "发布数"),
+                              buildStatColumn(followers, "关注数"),
+                              buildStatColumn(followed, "粉丝数"),
                             ],
                           ),
                           Row(
@@ -203,13 +141,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               currentUserUid ==
                                   widget.uid
                                   ? FollowButton(
-                                text: 'Sign Out',
+                                text: '退出登录',
                                 backgroundColor:
                                 mobileBackgroundColor,
                                 textColor: primaryColor,
                                 borderColor: Colors.grey,
                                 function: () async {
-                                  // await AuthMethods().signOut();  //TODO
+                                  await CustomAuth().signOut();  //TODO
                                   Navigator.of(context)
                                       .pushReplacement(
                                     MaterialPageRoute(
@@ -288,9 +226,31 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     userData['nickname'], //TODO
                   ),
                 ),
-              ],
-            ),
-          ),
+                Container(
+                  alignment: Alignment.centerRight,
+                  padding: const EdgeInsets.only(
+                  top: 1,
+                  ),
+                  child:
+                    currentUserUid == widget.uid?
+                    FollowButton(
+                      text: '修改信息',
+                      backgroundColor:mobileBackgroundColor,
+                      textColor: primaryColor,
+                      borderColor: Colors.grey,
+                      function: () async {
+                      //TODO  修改信息
+                        Navigator.of(context).pushReplacement(
+                          MaterialPageRoute(
+                            builder: (context) =>
+                            const ModifyScreen(),
+                          ),
+                        );
+                      },
+                    ):Text("你谁啊")
+                ),
+              ]),
+    ),
           const Divider(),
           FutureBuilder(
             // future: FirebaseFirestore.instance

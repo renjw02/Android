@@ -5,6 +5,7 @@ import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
 
 import '../models/user.dart';
+import '../resources/database_methods.dart' as db;
 
 
 // Define a CustomAuth class to communicate with your backend
@@ -42,69 +43,11 @@ class CustomAuth {
     // Add the User object to the StreamController
     // Handle errors as needed
     //
-    var _client = http.Client();
     var url = Uri.parse("http://127.0.0.1:5000/api/user/login");
-    Map<String, String> headersMap = new Map();
-    headersMap["content-type"] = ContentType.json.toString();
-    Map<String, String> bodyParams = new Map();
-    bodyParams["username"] = email;
-    bodyParams["password"] = password;
-    var result="False";
-    try{
-      print('post');
-      await _client.post(
-        url,
-        headers:headersMap,
-        // body: bodyParams,
-        body:jsonEncode({
-          "username":email,
-          "password":password,
-        }),
-        encoding: Utf8Codec()
-      ).then((http.Response response) {
-        print(response.statusCode);
-        print(response.body);
-        if (response.statusCode == 200) {
-          print(response.body);
-          Map<String, dynamic> returndata = jsonDecode(response.body);
-          print(returndata);
-          final data = {
-            'username': returndata['username'],
-            'uid': returndata['userId'].toString(),
-            'jwt':returndata['jwt'],
-            'photoUrl': 'photoUrl',
-            'email': email,
-            "password":password,
-            'nickname': returndata['nickname'],
-            'followers': [],
-            'following': [],
-          };
-          _controller.add(currentUser);
-          print(data);
-          currentUser = User(
-            username: data['username'] as String,
-            password: data['password'] as String,
-            uid: data['uid'] as String,
-            jwt: data['jwt'] as String,
-            photoUrl: data['photoUrl'] as String,
-            email: data['email'] as String,
-            nickname: data['nickname'] as String,
-            followers: data['followers'] as List,
-            following: data['following'] as List,
-          );
-          var asd = currentUser.toJson();
-          print(asd['jwt']);
-          _controller.add(currentUser);
-          result = "Success";
-        } else {
-          print('error code');
-        }
-      }).catchError((error) {
-        print(error);
-        print('error 11');
-      });
-    }catch(e){
-      print('second False');
+    String result;
+    result = await db.DataBaseManager().signIn(url, email, password);
+    if(result == "Success"){
+      _controller.add(currentUser);
     }
     return result;
 
@@ -141,6 +84,11 @@ class CustomAuth {
     // Add null to the StreamController to indicate the user is signed out
     // Handle errors as needed
     try {
+      var _client = http.Client();
+      var url = Uri.parse("http://127.0.0.1:5000/api/user/logout");
+      await _client.post(url,headers: {
+        HttpHeaders.authorizationHeader: CustomAuth.currentUser.jwt,
+      },);
       // await _client.post(Uri.parse('https://your-backend.com/signout'));
       _controller.add(null);
       return 'Success';
