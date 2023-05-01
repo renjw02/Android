@@ -158,12 +158,13 @@ def get_user_info_by_id(userId):
   ```
   {
   	"id"
+  	“username"
   	"nickname"
   	"created"
   	"profile"
   }
   ```
-
+  
   
 
 ### 重置密码
@@ -305,9 +306,9 @@ def get_followed_list(userId):
 ### 获取关注我的用户列表
 
 ```
-@bp.route('/getfollowerlist', methods=['GET'])
+@bp.route('/getfollowerlist/<int:userId>', methods=['GET'])
 @login_required
-def get_follower_list():
+def get_follower_list(userId):
 ```
 
 + 接受：无
@@ -1102,5 +1103,4 @@ def get_notice(noticeId):
   	"hasChecked"
   }
   ```
-
 
