@@ -76,6 +76,7 @@ def login():
                 "userId": user.id,
                 "username": user.username,
                 "nickname": user.nickname,
+                "profile": user.profile
             }), 200
         else:
             return jsonify({'message': user}), 500
