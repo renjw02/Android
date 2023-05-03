@@ -120,7 +120,8 @@ class Picture(db.Model):
     id = db.Column(db.Integer, primary_key=True,
                    autoincrement=True, doc="id")
     
-    post_id = db.Column(db.Integer, doc="帖子id")
+    post_id = db.Column(db.Integer, db.ForeignKey("post.id", ondelete="CASCADE"), doc="帖子id")
+    post = db.relationship('Post', backref=db.backref('pictures', cascade='all, delete'))
     path = db.Column(db.String(64), doc="路径")
 
 class Video(db.Model):
@@ -131,7 +132,8 @@ class Video(db.Model):
     id = db.Column(db.Integer, primary_key=True,
                    autoincrement=True, doc="id")
     
-    post_id = db.Column(db.Integer, doc="帖子id")
+    post_id = db.Column(db.Integer, db.ForeignKey("post.id", ondelete="CASCADE"), doc="帖子id")
+    post = db.relationship('Post', backref=db.backref('videos', cascade='all, delete'))
     path = db.Column(db.String(64), doc="路径")
 
 class Notice(db.Model):

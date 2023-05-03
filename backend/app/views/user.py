@@ -78,6 +78,7 @@ def login():
                 "userId": user.id,
                 "username": user.username,
                 "nickname": user.nickname,
+                "profile": user.profile
             }), 200
         else:
             return jsonify({'message': user}), 500
@@ -164,6 +165,7 @@ def get_user_info_by_id(userId):
     if flag:
         return jsonify({
             "id":       user.id,
+            "username": user.username,
             "nickname": user.nickname,
             "created":  user.created,
             "profile": user.profile,
@@ -293,11 +295,11 @@ def get_followed_list(userId):
     
 
 # 获取关注我的用户列表
-@bp.route('/getfollowerlist', methods=['GET'])
+@bp.route('/getfollowerlist/<int:userId>', methods=['GET'])
 @login_required
-def get_follower_list():
+def get_follower_list(userId):
     try:
-        follower_list, flag = service.get_my_follower_list(g.user_id)
+        follower_list, flag = service.get_my_follower_list(userId)
         if flag:
             return jsonify({
                 'message': "ok",
