@@ -88,7 +88,7 @@ class UserService():
             return "errors", False
 
     
-    def reset_pw(self, username, mobile, password):
+    def reset_pw(self, username, password):
         try:
             pw = encrypt_password(password)
             db.session.query(User).filter(User.username == username).update({
