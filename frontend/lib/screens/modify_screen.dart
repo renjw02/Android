@@ -1,12 +1,15 @@
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import 'package:frontend/models/user.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:frontend/providers/user_provider.dart';
 import 'package:frontend/resources/textpost_methods.dart';
 import 'package:frontend/utils/colors.dart';
 import 'package:frontend/utils/utils.dart';
 import 'package:provider/provider.dart';
+
+import '../Auth/customAuth.dart';
 
 class ModifyScreen extends StatefulWidget {
   const ModifyScreen({Key? key}) : super(key: key);
@@ -18,7 +21,12 @@ class ModifyScreen extends StatefulWidget {
 class _ModifyScreenState extends State<ModifyScreen> {
   Uint8List? _file;
   bool isLoading = false;
-  final TextEditingController _descriptionController = TextEditingController();
+  final TextEditingController usernamec = new TextEditingController(text: CustomAuth.currentUser.username);
+  final TextEditingController profilec = new TextEditingController(text: CustomAuth.currentUser.profile);
+  final TextEditingController passwordc = new TextEditingController(text: CustomAuth.currentUser.password);
+  // const username = "原用户名："+CustomAuth.currentUser.username;
+  // final const profile = "原简介："+CustomAuth.currentUser.profile;
+  // final password = "原密码："+CustomAuth.currentUser.password;
 
   _selectImage(BuildContext parentContext) async {
     return showDialog(
@@ -104,10 +112,27 @@ class _ModifyScreenState extends State<ModifyScreen> {
     });
   }
 
+  void modifyInfo(String u,String p,String w){
+    var cu = CustomAuth.currentUser;
+    CustomAuth.currentUser = new User(
+        username: u,
+        uid: cu.uid,
+        jwt: cu.jwt,
+        photoUrl: cu.photoUrl,
+        email: cu.email,
+        password: w,
+        nickname: cu.nickname,
+        profile: p,
+        followers: cu.followers,
+        following: cu.following);
+  }
+
   @override
   void dispose() {
     super.dispose();
-    _descriptionController.dispose();
+    usernamec.dispose();
+    profilec.dispose();
+    passwordc.dispose();
   }
 
   @override
@@ -119,7 +144,7 @@ class _ModifyScreenState extends State<ModifyScreen> {
         backgroundColor: mobileBackgroundColor,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: clearImage,
+          onPressed: (){Navigator.of(context).pop();},
         ),
         title: const Text(
           '修改信息',
@@ -127,7 +152,12 @@ class _ModifyScreenState extends State<ModifyScreen> {
         centerTitle: false,
         actions: <Widget>[
           TextButton(
-            onPressed: () => {},
+            onPressed: (){modifyInfo(
+              usernamec.text,
+              profilec.text,
+              passwordc.text,
+            );
+              Navigator.of(context).pop();},
             // onPressed: () => postImage(
             //   userProvider.getUser.uid,
             //   userProvider.getUser.username,
@@ -143,7 +173,33 @@ class _ModifyScreenState extends State<ModifyScreen> {
           )
         ],
       ),
-      body: Text("asd"),
+      body: Column(
+        children: [
+          TextField(
+            controller: usernamec,
+            decoration: const InputDecoration(
+              labelText: "用户名",
+              prefixIcon: Icon(Icons.person),
+            )
+          ),
+          TextField(
+              controller: profilec,
+              decoration: const InputDecoration(
+                labelText: "简介",
+                prefixIcon: Icon(Icons.description),
+              ),
+              maxLines: null,
+              minLines: 1,
+          ),
+          TextField(
+              controller: usernamec,
+              decoration: const InputDecoration(
+                labelText: "密码",
+                prefixIcon: Icon(Icons.lock),
+              )
+          ),
+        ],
+      ),
     );
     // return _file == null
     //     ? Center(

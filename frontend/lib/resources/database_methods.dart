@@ -40,6 +40,7 @@ class DataBaseManager{
             'email': email,
             "password":password,
             'nickname': returndata['nickname'],
+            'profile':'profile',
             'followers': [],
             'following': [],
           };
@@ -51,6 +52,7 @@ class DataBaseManager{
             photoUrl: data['photoUrl'] as String,
             email: data['email'] as String,
             nickname: data['nickname'] as String,
+            profile:data['profile'] as String,
             followers: data['followers'] as List,
             following: data['following'] as List,
           );

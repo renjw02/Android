@@ -90,7 +90,7 @@ packages:
     dependency: transitive
     description:
       name: flutter_plugin_android_lifecycle
-      sha256: "2818f5233cf8fa5fc51f6d78ce0028feb4e7c18d0b6d40b57b91f366eea7e656"
+      sha256: c224ac897bed083dabf11f238dd11a239809b446740be0c2044608c50029ffdf
       url: "https://mirrors.sjtug.sjtu.edu.cn/dart-pub/"
     source: hosted
     version: "2.0.9"
@@ -99,7 +99,7 @@ packages:
     description:
       name: flutter_staggered_grid_view
       sha256: f0b6d8c0fa7b4b444985cdde68492c0138a4fb6fc57a641b24cb234b7ee0f5c4
-      url: "https://pub.dev"
+      url: "https://mirrors.sjtug.sjtu.edu.cn/dart-pub/"
     source: hosted
     version: "0.4.1"
   flutter_svg:

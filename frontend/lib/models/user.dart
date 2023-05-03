@@ -9,6 +9,7 @@ class User {
   final String photoUrl;
   final String username;
   final String nickname;
+  final String profile;
   final List followers;
   final List following;
 
@@ -20,6 +21,7 @@ class User {
         required this.email,
         required this.password,
         required this.nickname,
+        required this.profile,
         required this.followers,
         required this.following});
 
@@ -45,6 +47,7 @@ class User {
     "jwt":jwt,
     "photoUrl": photoUrl,
     "nickname": nickname,
+    "profile":profile,
     "followers": followers,
     "following": following,
   };
@@ -53,8 +56,11 @@ class User {
       "username": username,
       "uid": uid,
       "email": email,
+      "password":password,
+      "jwt":jwt,
       "photoUrl": photoUrl,
-      "bio": bio,
+      "nickname": nickname,
+      "profile":profile,
       "followers": followers,
       "following": following,
     };

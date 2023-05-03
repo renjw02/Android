@@ -240,7 +240,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       borderColor: Colors.grey,
                       function: () async {
                       //TODO  修改信息
-                        Navigator.of(context).pushReplacement(
+                        Navigator.of(context).push(
                           MaterialPageRoute(
                             builder: (context) =>
                             const ModifyScreen(),
