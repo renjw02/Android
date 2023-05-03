@@ -32,27 +32,28 @@ def create_post():
             return jsonify({'message': "invalid arguments: " + key}), 400
         
         files = request.files.getlist('file')
-        if not files:
-            post, result = service.create_post(title, content, g.user_id, type, position, False, False)
-        else:
-            has_picture = False
-            has_video = False
+        
+        post, result = service.create_post(title, content, g.user_id, type, position)
+        if files is not None:
             for file in files:
                 filename = file.filename
                 content_type = file.content_type
 
                 if content_type.startswith('image'):
                     save_path = './static/images/'
-                    has_picture = True
+                    path = os.path.join(save_path, filename)
+                    pic, flag = service.upload_picture(post.id, path)
+                    if not flag:
+                        return jsonify({'message': "upload images falied"}), 400
+
                 elif content_type.startswith('video'):
                     save_path = './static/videos/'
-                    has_video = True
+                    path = os.path.join(save_path, filename)
+                    vid, flag = service.upload_video(post.id, path)
+                    if not flag:
+                        return jsonify({'message': "upload videos falied"}), 400
                 
-                file.save(os.path.join(save_path, filename))
-
-
-            post, result = service.create_post(title, content, g.user_id, type, position,
-                                               has_picture, has_video)
+                file.save(path)
 
         if result:
             return jsonify({
@@ -60,8 +61,6 @@ def create_post():
                 'userId': post.user_id,
                 'title': post.title,
                 'content': post.content,
-                'hasPicture': post.has_picture,
-                'hasVideo': post.has_video,
                 'message': "ok"
             }), 200
         else:
@@ -75,27 +74,24 @@ def create_post():
 def get_post_detail(postId):
     try:        
         detail, result = service.get_post_detail(postId)
+        images, has_picture = service.get_pictures(postId)
+        videos, has_video = service.get_videos(postId)
+
         if result:
             images_data = []
             videos_data = []
-            if detail.hasPicture:
-                images_dir = './static/picture'
-                image_files = os.listdir(images_dir)
-
-                for file in image_files:
+            if has_picture:
+                for image in images:
+                    file = image['path']
                     if file.endswith('.jpg') or file.endswith('.jpeg') or file.endswith('.png'):
-                        file_path = os.path.join(images_dir, file)
-                        with open(file_path, 'rb') as f:
+                        with open(file, 'rb') as f:
                             image_data = base64.b64encode(f.read()).decode('utf-8')
                             images_data.append(image_data)
-            if detail.hasVideo:
-                videos_dir = './static/picture'
-                video_files = os.listdir(videos_dir)
-
-                for file in video_files:
+            if has_video:
+                for video in videos:
+                    file = video['path']
                     if file.endswith('.mp4'):
-                        file_path = os.path.join(videos_dir, file)
-                        with open(file_path, 'rb') as f:
+                        with open(file, 'rb') as f:
                             video_data = base64.b64encode(f.read()).decode('utf-8')
                             videos_data.append(video_data)
                 
