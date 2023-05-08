@@ -248,7 +248,7 @@ def follow_user(userId):
         if flag:
             return jsonify({
                 'message': "ok",
-                'followed': follow                       
+                'followed_id': follow.followed_id                       
                 }), 200
         else:
             return jsonify({'message': follow}), 500
