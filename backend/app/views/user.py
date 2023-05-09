@@ -205,15 +205,27 @@ def reset_password():
 @login_required
 def upload_avatar():
     try:
+        print(request,file=sys.stderr)
+        print(request.data,file=sys.stderr)
+        print(request.files,file=sys.stderr)
+        print(request.headers,file=sys.stderr)
+        print(request.form,file=sys.stderr)
+        print(request.input_stream,file=sys.stderr)
         file_obj = request.files.get('file')
+        print("success",file=sys.stderr)
         file_name = file_obj.filename
+        print(file_name)
+        print("success",file=sys.stderr)
         save_path = os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.pardir, "static", "avatar", str(file_name)))
+        print(save_path)
         file_obj.save(save_path)
+        print("success",file=sys.stderr)
         workpath = os.getcwd()
         dst = os.path.join(workpath, 'app', 'static', 'avatar', str(g.user_id)+'.jpg')
         if os.path.exists(dst):
             os.remove(dst)
         os.rename(save_path, dst)
+        print("success",file=sys.stderr)
         return jsonify({'message': "ok"}), 200
     except:
         return jsonify({'message': "exception!"}), 400  

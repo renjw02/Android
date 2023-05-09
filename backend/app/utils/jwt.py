@@ -31,14 +31,15 @@ def generate_jwt(payload, expiry=None):
 
         token = jwt.encode(_payload, secret, algorithm='HS256')
         print(payload)
-        tokens[payload['user_id']] = token
+        # tokens[payload['user_id']] = token
         return token
     except Exception as e:
         print(e)
         return None
 
 def remove_jwt(id):
-    tokens.pop(id)
+    # tokens.pop(id)
+    pass
 
 
 def verify_jwt(token):
@@ -74,9 +75,9 @@ def jwt_authentication():
             g.user_id = payload.get('user_id')
             g.user_name = payload.get('nickname')
 
-            if g.user_id not in tokens or tokens[g.user_id] != token:
-                print(tokens)
-                return {'message': "Login from a different location"}, 401
+            # if g.user_id not in tokens or tokens[g.user_id] != token:
+            #     print(tokens)
+            #     return {'message': "Login from a different location"}, 401
                 
 
 

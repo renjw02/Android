@@ -1,15 +1,14 @@
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
-import 'package:frontend/models/user.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:frontend/providers/user_provider.dart';
-import 'package:frontend/resources/textpost_methods.dart';
 import 'package:frontend/utils/colors.dart';
 import 'package:frontend/utils/utils.dart';
 import 'package:provider/provider.dart';
 
 import '../Auth/customAuth.dart';
+import '../resources/database_methods.dart' as db;
 
 class ModifyScreen extends StatefulWidget {
   const ModifyScreen({Key? key}) : super(key: key);
@@ -33,11 +32,11 @@ class _ModifyScreenState extends State<ModifyScreen> {
       context: parentContext,
       builder: (BuildContext context) {
         return SimpleDialog(
-          title: const Text('Create a Post'),
+          title: const Text('更换头像'),
           children: <Widget>[
             SimpleDialogOption(
                 padding: const EdgeInsets.all(20),
-                child: const Text('Take a photo'),
+                child: const Text('拍照'),
                 onPressed: () async {
                   Navigator.pop(context);
                   Uint8List file = await pickImage(ImageSource.camera);
@@ -47,7 +46,7 @@ class _ModifyScreenState extends State<ModifyScreen> {
                 }),
             SimpleDialogOption(
                 padding: const EdgeInsets.all(20),
-                child: const Text('Choose from Gallery'),
+                child: const Text('上传本地图片'),
                 onPressed: () async {
                   Navigator.of(context).pop();
                   Uint8List file = await pickImage(ImageSource.gallery);
@@ -57,7 +56,7 @@ class _ModifyScreenState extends State<ModifyScreen> {
                 }),
             SimpleDialogOption(
               padding: const EdgeInsets.all(20),
-              child: const Text("Cancel"),
+              child: const Text("取消"),
               onPressed: () {
                 Navigator.pop(context);
               },
@@ -68,43 +67,43 @@ class _ModifyScreenState extends State<ModifyScreen> {
     );
   }
 
-  void postImage(String uid, String username, String profImage) async {
-    setState(() {
-      isLoading = true;
-    });
-    // start the loading
-    try {
-      // upload to storage and db
-      String res = 'unimplemented';
-      // String res = await FireStoreMethods().uploadPost(
-      //   _descriptionController.text,
-      //   _file!,
-      //   uid,
-      //   username,
-      //   profImage,
-      // );
-      if (res == "success") {
-        setState(() {
-          isLoading = false;
-        });
-        showSnackBar(
-          context,
-          'Posted!',
-        );
-        clearImage();
-      } else {
-        showSnackBar(context, res);
-      }
-    } catch (err) {
-      setState(() {
-        isLoading = false;
-      });
-      showSnackBar(
-        context,
-        err.toString(),
-      );
-    }
-  }
+  // void postImage(String uid, String username, String profImage) async {
+  //   setState(() {
+  //     isLoading = true;
+  //   });
+  //   // start the loading
+  //   try {
+  //     // upload to storage and db
+  //     String res = 'unimplemented';
+  //     // String res = await FireStoreMethods().uploadPost(
+  //     //   _descriptionController.text,
+  //     //   _file!,
+  //     //   uid,
+  //     //   username,
+  //     //   profImage,
+  //     // );
+  //     if (res == "success") {
+  //       setState(() {
+  //         isLoading = false;
+  //       });
+  //       showSnackBar(
+  //         context,
+  //         'Posted!',
+  //       );
+  //       clearImage();
+  //     } else {
+  //       showSnackBar(context, res);
+  //     }
+  //   } catch (err) {
+  //     setState(() {
+  //       isLoading = false;
+  //     });
+  //     showSnackBar(
+  //       context,
+  //       err.toString(),
+  //     );
+  //   }
+  // }
 
   void clearImage() {
     setState(() {
@@ -112,19 +111,13 @@ class _ModifyScreenState extends State<ModifyScreen> {
     });
   }
 
-  void modifyInfo(String u,String p,String w){
+  void modifyInfo(String u,String p,String w)async {
     var cu = CustomAuth.currentUser;
-    CustomAuth.currentUser = new User(
-        username: u,
-        uid: cu.uid,
-        jwt: cu.jwt,
-        photoUrl: cu.photoUrl,
-        email: cu.email,
-        password: w,
-        nickname: cu.nickname,
-        profile: p,
-        followers: cu.followers,
-        following: cu.following);
+    db.DataBaseManager().changeInfo(u,cu.nickname,p,w);
+    if(_file != null){
+      print("upload photo");
+      db.DataBaseManager().uploadPhoto(_file!);
+    }
   }
 
   @override
@@ -192,12 +185,93 @@ class _ModifyScreenState extends State<ModifyScreen> {
               minLines: 1,
           ),
           TextField(
-              controller: usernamec,
+              controller: passwordc,
               decoration: const InputDecoration(
                 labelText: "密码",
                 prefixIcon: Icon(Icons.lock),
               )
           ),
+          _file == null
+          ? Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              SizedBox(
+                height: 45.0,
+                width: 45.0,
+                child: AspectRatio(
+                  aspectRatio: 487 / 451,
+                  child: Container(
+                    decoration: BoxDecoration(
+                        image: DecorationImage(
+                          fit: BoxFit.fill,
+                          alignment: FractionalOffset.topCenter,
+                          // image: MemoryImage(_file!),
+                          image : NetworkImage(
+                            // userProvider.getUser.photoUrl,
+                              "https://p0.itc.cn/q_70/images03/20230213/ca107acd0ee943a0ac9e8264a23b6ca4.jpeg"
+                          ),
+                        )),
+                  ),
+                ),
+              ),
+              Center(
+                child: IconButton(
+                  icon: const Icon(
+                    Icons.upload,
+                  ),
+                  onPressed: () => _selectImage(context),
+                ),
+              )
+            ],): Column(
+              children: <Widget>[
+                isLoading
+                    ? const LinearProgressIndicator()
+                    : const Padding(padding: EdgeInsets.only(top: 0.0)),
+                const Divider(),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    SizedBox(
+                      height: 45.0,
+                      width: 45.0,
+                      child: AspectRatio(
+                        aspectRatio: 487 / 451,
+                        child: Container(
+                          decoration: BoxDecoration(
+                              image: DecorationImage(
+                                fit: BoxFit.fill,
+                                alignment: FractionalOffset.topCenter,
+                                // image: MemoryImage(_file!),
+                                image : NetworkImage(
+                                  // userProvider.getUser.photoUrl,
+                                    "https://p0.itc.cn/q_70/images03/20230213/ca107acd0ee943a0ac9e8264a23b6ca4.jpeg"
+                                ),
+                              )),
+                        ),
+                      ),
+                    ),
+                    SizedBox(
+                      height: 45.0,
+                      width: 45.0,
+                      child: AspectRatio(
+                        aspectRatio: 487 / 451,
+                        child: Container(
+                          decoration: BoxDecoration(
+                              image: DecorationImage(
+                                fit: BoxFit.fill,
+                                alignment: FractionalOffset.topCenter,
+                                image: MemoryImage(_file!),
+                              )),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const Divider(),
+              ]
+            )
         ],
       ),
     );

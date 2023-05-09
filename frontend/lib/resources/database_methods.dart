@@ -1,7 +1,10 @@
 //   TODO
 import 'dart:async';
 import 'dart:convert';
+import 'dart:html';
 import 'dart:io';
+import 'dart:typed_data';
+import 'package:dio/dio.dart';
 import 'package:frontend/Auth/customAuth.dart';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
@@ -89,6 +92,161 @@ class DataBaseManager{
       print(e);
     });
     return info;
+  }
+  
+  void changeInfo(String username,String nickname,String profile,String password,)async {
+    Uri url = Uri.parse("http://127.0.0.1:5000/api/user/changeattr");
+    print(username);
+    print(profile);
+    print(password);
+    await _client.post(
+      url,
+      headers:{
+        HttpHeaders.authorizationHeader: CustomAuth.currentUser.jwt,
+        "content-type": ContentType.json.toString(),
+      },
+      // body: bodyParams,
+      body:jsonEncode({
+        "username":username,
+        "nickname":nickname,
+        "profile":profile,
+      }),
+    ).then((http.Response response){
+      print(response.statusCode);
+      print(jsonDecode(response.body)['message']);
+      if(response.statusCode == 200){
+        if(password == CustomAuth.currentUser.password){
+          CustomAuth.currentUser = new User(
+          username: username,
+          uid: CustomAuth.currentUser.uid,
+          jwt: CustomAuth.currentUser.jwt,
+          photoUrl: CustomAuth.currentUser.photoUrl,
+          email: CustomAuth.currentUser.email,
+          password: password,
+          nickname: nickname,
+          profile: profile,
+          followers: CustomAuth.currentUser.followers,
+          following: CustomAuth.currentUser.following);
+        }
+      }
+    });
+    if(password != CustomAuth.currentUser.password){
+      url = Uri.parse("http://127.0.0.1:5000/api/user/resetpw");
+      await _client.post(
+        url,
+        headers:{
+          HttpHeaders.authorizationHeader: CustomAuth.currentUser.jwt,
+          "content-type": ContentType.json.toString(),
+        },
+        // body: bodyParams,
+        body:jsonEncode({
+          "username":username,
+          "password":password,
+        }),
+      ).then((http.Response response){
+        print(jsonDecode(response.body)['message']);
+        if(response.statusCode==200) {
+          CustomAuth.currentUser = new User(
+            username: username,
+            uid: CustomAuth.currentUser.uid,
+            jwt: CustomAuth.currentUser.jwt,
+            photoUrl: CustomAuth.currentUser.photoUrl,
+            email: CustomAuth.currentUser.email,
+            password: password,
+            nickname: nickname,
+            profile: profile,
+            followers: CustomAuth.currentUser.followers,
+            following: CustomAuth.currentUser.following);
+
+        }
+      });
+    }
+  }
+
+  void uploadPhoto(Uint8List file) async {
+    try{
+      Uri url = Uri.parse("http://127.0.0.1:5000/api/user/uploadavatar");
+      // FormData fd = FormData();
+      // fd.appendBlob("photo", file as Blob);
+      FormData fd = FormData.fromMap({
+        "file":MultipartFile.fromBytes(file,filename:'asd.jpg',contentType: new MediaType("image", "jpeg")),
+      });
+      var dio = new Dio();
+      var headers = {
+        'Content-Type': 'multipart/form-data',
+        HttpHeaders.authorizationHeader:CustomAuth.currentUser.jwt,
+      };
+      dio.options.headers['Content-Type']='multipart/form-data';
+      dio.options.headers[HttpHeaders.authorizationHeader]=CustomAuth.currentUser.jwt;
+      var response = await dio.post("http://127.0.0.1:5000/api/user/uploadavatar",data:fd,);
+      String res = response.data.toString();
+
+      print(res);
+      print(res.runtimeType); // String
+
+      var resJson = jsonDecode(res); // 字符串反序列化为Map
+      print(resJson); // 此时\u5317\u4eac\u8317\u89c6\u5149的数据也被解码成了中文.
+      print(resJson.runtimeType); //  _InternalLinkedHashMap<String, dynamic>
+      // http.MultipartRequest request = new http.MultipartRequest('POST', url);
+      // http.MultipartFile multipartFile = http.MultipartFile.fromBytes("photo", file);
+      // request.files.add(multipartFile);
+      // var headers = {
+      //   'Content-Type': 'application/x-www-form-urlencoded',
+      //   HttpHeaders.authorizationHeader:CustomAuth.currentUser.jwt,
+      // };
+      // request.headers.addAll(headers);
+      //
+      // http.StreamedResponse response = await request.send();
+      // print(response.statusCode);
+      // String res = await response.stream.bytesToString();
+      // Map<String, dynamic> jsonResponse = jsonDecode(res) as Map<String, dynamic>;
+      // print(jsonResponse['message']);
+      if (response.statusCode == 200) {
+        //这里返回值用到了Stream回调
+        // String res = await response.stream.bytesToString();
+        // Map<String, dynamic> jsonResponse = jsonDecode(res) as Map<String, dynamic>;
+        // ResponseBase _responseBase = ResponseBase(
+        //   errorCode: jsonResponse['errorCode'],
+        //   action: jsonResponse['action'],
+        //   message: jsonResponse['message'],
+        //   value: jsonResponse['value'],
+        //   success: jsonResponse['success'],
+        // );
+        // return _responseBase;
+      }
+    }catch (exception) {
+      print("文件上传失败");
+    }
+  }
+
+  void followUser(String uid) async {
+    var url = Uri.parse("http://127.0.0.1:5000/api/user/register");
+    await _client.post(
+      url,
+      headers:{
+        HttpHeaders.authorizationHeader: CustomAuth.currentUser.jwt,
+        "content-type": ContentType.json.toString(),
+      },
+      // body: bodyParams,
+      body:jsonEncode({
+        "username":"username",
+        "nickname":"nickname",
+        "password":"password",
+      }),
+    ).then((http.Response response){
+      print(jsonDecode(response.body)['message']);
+      print(jsonDecode(response.body)['userId']);
+    });
+    url = Uri.parse("http://127.0.0.1:5000/api/user/followuser/"+uid);
+    await _client.post(
+      url,
+      headers:{
+        HttpHeaders.authorizationHeader: CustomAuth.currentUser.jwt,
+        "content-type": ContentType.json.toString(),
+      },
+    ).then((http.Response response){
+      print(jsonDecode(response.body)['message']);
+    });
   }
   // Future<Map<String, dynamic>> getFollowers(Uri url,String jwt) async{
   //   Map<String, dynamic> userFollowers = {};

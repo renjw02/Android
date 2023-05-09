@@ -88,7 +88,7 @@ class UserService():
             return "errors", False
 
     
-    def reset_pw(self, username, mobile, password):
+    def reset_pw(self, username, password):
         try:
             pw = encrypt_password(password)
             db.session.query(User).filter(User.username == username).update({
@@ -164,7 +164,7 @@ class UserService():
         
     def follow_user(self, user_id, m_id):
         try:
-            f = Follow(user_id=m_id, follow_id=user_id)
+            f = Follow(user_id=m_id, followed_id=user_id)
             db.session.add(f)
             db.session.commit()
             return f, True

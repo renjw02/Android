@@ -11,6 +11,7 @@ import 'package:http/http.dart' as http;
 
 import '../Auth/customAuth.dart';
 import '../resources/database_methods.dart' as db;
+import 'followed_screen.dart';
 import 'modify_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -25,7 +26,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   var userData = {};
   int postLen = 0;
   int followers = 0;
-  int followed = 0;
+  Map<String, dynamic> followed = {};
   bool isFollowed = false;
   bool isLoading = false;
   String currentUserUid = "";
@@ -53,7 +54,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       //var url = Uri.parse("http://127.0.0.1:5000/api/user/user");
       userinfo = await dbm.getSomeMap(url,CustomAuth.currentUser.jwt);
       Map<String, dynamic> userFollowers={}; //获取关注我的人
-      url = Uri.parse("http://127.0.0.1:5000/api/user/getfollowerlist");
+      url = Uri.parse("http://127.0.0.1:5000/api/user/getfollowerlist/"+widget.uid);
       userFollowers = await dbm.getSomeMap(url, CustomAuth.currentUser.jwt);
       Map<String, dynamic> userFollowed={}; //获取我关注的人
       url = Uri.parse("http://127.0.0.1:5000/api/user/getfollowedlist/"+widget.uid);
@@ -66,17 +67,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
       //     .get();
 
       //postLen = postSnap.docs.length;
-      print(userinfo);
+      print(userinfo['username']);
       userData = userinfo;
       followers = userFollowers['totalNum'];
       //following = userSnap.data()!['following'].length;
-      followed = userFollowed['totalNum'];
+      followed = userFollowed;
       // isFollowed = userSnap
       //     .data()!['followers']
       //     .contains(FirebaseAuth.instance.currentUser!.uid);
       isFollowed = userFollowers['followerList'].indexOf(currentUserUid) != -1;
       //isFollowed = true;
-
+      followtest();
       setState(() {});
     } catch (e) {
       showSnackBar(
@@ -88,7 +89,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
       isLoading = false;
     });
   }
-
+  void followtest() async {
+    db.DataBaseManager().followUser("2");
+  }
   @override
   Widget build(BuildContext context) {
     return isLoading
@@ -130,8 +133,42 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             children: [
                               //buildStatColumn(postLen, "posts"),  //TODO
                               buildStatColumn(111, "发布数"),
-                              buildStatColumn(followers, "关注数"),
-                              buildStatColumn(followed, "粉丝数"),
+                              GestureDetector(
+                                onTap: ()async {
+                                  Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                      FollowedScreen(followedList : followed['followedList'],),
+                                      //const LoginScreen(),
+                                    ),
+                                  );
+                                },
+                                child:Column(
+                                mainAxisSize: MainAxisSize.min,
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    followers.toString(),
+                                    style: const TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  Container(
+                                    margin: const EdgeInsets.only(top: 4),
+                                    child: Text(
+                                      "关注数",
+                                      style: const TextStyle(
+                                        fontSize: 15,
+                                        fontWeight: FontWeight.w400,
+                                        color: Colors.grey,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              )
+                              ),
+                              buildStatColumn(followers, "粉丝数"),
                             ],
                           ),
                           Row(
@@ -211,7 +248,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                   child: Text(
                     // userData['username'],  //TODO
-                    userData['nickname'],  //TODO
+                    userData['username'],  //TODO
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                     ),
