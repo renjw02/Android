@@ -114,7 +114,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               children: [
                 Row(
                   children: [
-                    CircleAvatar(
+                    const CircleAvatar(
                       backgroundColor: Colors.grey,
                       backgroundImage: NetworkImage(
                         //userData['photoUrl'],  //TODO

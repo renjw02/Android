@@ -9,6 +9,8 @@ import 'package:frontend/utils/colors.dart';
 // import 'package:frontend/utils/dimensions.dart';
 import 'package:frontend/widgets/text_field_input.dart';
 
+import '../Auth/customAuth.dart';
+
 class SignupScreen extends StatefulWidget {
   const SignupScreen({Key? key}) : super(key: key);
   @override
@@ -24,12 +26,10 @@ class _SignupScreenState extends State<SignupScreen> {
     setState(() {
       _isLoading = true;
     });
-    String res = await AuthMethods().signUpUser(
-      email: _emailController.text,
-      password: _passwordController.text,
-      username: _usernameController.text,
+    String res = await CustomAuth().register(
+      _usernameController.text,_emailController.text, _passwordController.text
     );
-    if (res == "success") {
+    if (res == "Success") {
       setState(() {
         _isLoading = false;
       });
@@ -107,6 +107,15 @@ class _SignupScreenState extends State<SignupScreen> {
             const SizedBox(height: 10),
             ElevatedButton(
               onPressed: signUpUser,
+              style: ButtonStyle(
+                backgroundColor: MaterialStateProperty.all(blueColor),
+                minimumSize: MaterialStateProperty.all(
+                  const Size(
+                    370,
+                    50,
+                  ),
+                ),
+              ),
               child: !_isLoading
                   ? const Text(
                 'Sign up',
@@ -117,15 +126,6 @@ class _SignupScreenState extends State<SignupScreen> {
                   : const Center(
                 child: CircularProgressIndicator(),
               ),
-              style: ButtonStyle(
-                backgroundColor: MaterialStateProperty.all(blueColor),
-                minimumSize: MaterialStateProperty.all(
-                  const Size(
-                    370,
-                    50,
-                  ),
-                ),
-              ),
             ),
             const SizedBox(height: 15),
             GestureDetector(
@@ -134,9 +134,9 @@ class _SignupScreenState extends State<SignupScreen> {
                   builder: (context) => const LoginScreen(),
                 ),
               ),
-              child: Row(
+              child: const Row(
                 mainAxisAlignment: MainAxisAlignment.center,
-                children: const [
+                children: [
                   Text("Already have an account?"),
                   Text(
                     " Login.",

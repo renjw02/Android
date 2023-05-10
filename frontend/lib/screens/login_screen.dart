@@ -96,6 +96,15 @@ class _LoginScreenState extends State<LoginScreen> {
             const SizedBox(height: 10),
             ElevatedButton(
               onPressed: loginUser,
+              style: ButtonStyle(
+                backgroundColor: MaterialStateProperty.all(blueColor),
+                minimumSize: MaterialStateProperty.all(
+                  const Size(
+                    370,
+                    50,
+                  ),
+                ),
+              ),
               child: !_isLoading
                   ? const Text(
                 'Log In',
@@ -106,15 +115,6 @@ class _LoginScreenState extends State<LoginScreen> {
                   : const Center(
                 child: CircularProgressIndicator(),
               ),
-              style: ButtonStyle(
-                backgroundColor: MaterialStateProperty.all(blueColor),
-                minimumSize: MaterialStateProperty.all(
-                  const Size(
-                    370,
-                    50,
-                  ),
-                ),
-              ),
             ),
             const SizedBox(height: 15),
             GestureDetector(
@@ -123,9 +123,9 @@ class _LoginScreenState extends State<LoginScreen> {
                   builder: (context) => const SignupScreen(),
                 ),
               ),
-              child: Row(
+              child: const Row(
                 mainAxisAlignment: MainAxisAlignment.center,
-                children: const [
+                children: [
                   Text("Don't have an account?"),
                   Text(
                     " Sign up.",

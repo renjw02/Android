@@ -61,8 +61,8 @@ def login():
             return jsonify({'message': "no content"}), 400
 
         user, flag = service.get_user_by_name_and_pass(content['username'], content['password'])
-        if user.status == 1:
-            return jsonify({'message': "user has already logged in"}), 300
+        # if user.status == 1:
+        #     return jsonify({'message': "user has already logged in"}), 300
         
         if flag:
             service.login(user.id)
