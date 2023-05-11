@@ -9,6 +9,7 @@ from app.services import UserService
 from app.checkers import register_params_check, change_params_check
 from app.utils import generate_jwt, remove_jwt
 from .login_required import login_required
+import sys
 
 bp = Blueprint('user', __name__, url_prefix='/api/user')
 
@@ -54,6 +55,7 @@ def login():
     登陆
     """
     try:
+        
         content = request.get_json()
         if not content:
             return jsonify({'message': "no content"}), 400
