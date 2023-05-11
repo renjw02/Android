@@ -71,6 +71,11 @@ class Post(db.Model):
     created = db.Column(db.DateTime, doc="创建时间")
     updated = db.Column(db.DateTime, doc="更新时间")
 
+    font_size = db.Column(db.Integer, doc="字体大小")
+    font_color = db.Column(db.String(64), doc="字体颜色")
+    font_weight = db.Column(db.String(64), doc="字体粗细")
+
+    # 废弃
     has_picture = db.Column(db.Boolean, doc="图片有无")
     has_video = db.Column(db.Boolean, doc="视频有无")
 

@@ -10,12 +10,14 @@ from app.models import Post, Comment, User, Picture, Video
 
 class PostService():
     
-    def create_post(self, title, content, user_id, type, position):
+    def create_post(self, title, content, user_id, type, position,
+                    font_size, font_color, font_weight):
         try:
             now = datetime.datetime.now()
             p = Post(user_id=user_id, title=title, content=content, type=type, position=position,
                     last_replied_user_id=user_id, support_num=0, comment_num=0, star_num=0,
-                    last_replied_time=now, created=now, updated=now)
+                    last_replied_time=now, created=now, updated=now, font_size=font_size,
+                    font_color=font_color, font_weight=font_weight)
             db.session.add(p)
             db.session.commit()
             return p, True
@@ -23,14 +25,17 @@ class PostService():
             print(e)
             return "error", False
 
-    def update_post(self, title, content, post_id, position):
+    def update_post(self, title, content, post_id, position, font_size, font_color, font_weight):
         try:
             now = datetime.datetime.now()
             db.session.query(Post).filter(Post.id == post_id).update({
                 "title": title,
                 "content": content,
                 "position": position,
-                "updated": now
+                "updated": now,
+                "font_size": int(font_size),
+                "font_color": font_color,
+                "font_weight": font_weight
             })
             db.session.commit()
             return True
@@ -138,7 +143,9 @@ class PostService():
                     post.last_replied_user_id as lastRepliedUserId, 
                     comment_user.nickname as lastRepliedNickname,
                     post.last_replied_time as lastRepliedTime, 
-                    post.created as created, post.updated as updated
+                    post.created as created, post.updated as updated,
+                    post.font_size as fontSize, post.font_color as fontColor, 
+                    post.font_weight as fontWeight
                 from
                     post
                 inner join user as create_user on post.user_id = create_user.id
@@ -220,7 +227,8 @@ class PostService():
                     post.title as title, post.content as content, post.support_num as supportNum,
                     post.star_num as starNum, post.commentNum as commentNum,
                     post.created as created, post.updated as updated, 
-                    post.Last_replied_time as lastRepliedTime
+                    post.last_replied_time as lastRepliedTime, post.font_size as fontSize,
+                    post.font_color as fontColor, post.font_weight as fontWeight
                 from
                     post
                 inner join user on post.user_id = user.id
