@@ -30,7 +30,7 @@ def generate_jwt(payload, expiry=None):
         secret = current_app.config.get('JWT_SECRET', '')
 
         token = jwt.encode(_payload, secret, algorithm='HS256')
-        print(payload)
+        # print(payload)
         # tokens[payload['user_id']] = token
         return token
     except Exception as e:
