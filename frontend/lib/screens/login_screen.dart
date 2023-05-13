@@ -1,3 +1,5 @@
+//import 'dart:html';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:frontend/Auth/customAuth.dart';
@@ -16,12 +18,22 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   bool _isLoading = false;
+  bool _isChecking = true;
 
   @override
   void dispose() {
     super.dispose();
     _emailController.dispose();
     _passwordController.dispose();
+  }
+
+  @override
+  void initState(){
+    setState(() {
+      _isChecking = true;
+    });
+    super.initState();
+    checkLogin();
   }
 
   void loginUser() async {
@@ -55,10 +67,25 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
+  void checkLogin()async{
+    String? state = await CustomAuth.storage.read(key: "loginState")?? "Fail";
+    print("checklogin"+state);
+    if(state! == "Success"){
+      loginUser();
+    }
+    setState(() {
+      _isChecking = false;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
-    return Scaffold(
+    return _isChecking?
+      const Center(
+        child: CircularProgressIndicator(),
+      ):
+      Scaffold(
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,

@@ -236,11 +236,14 @@ def upload_avatar():
 @login_required
 def download_avatar():
     try:
+        print(request,file=sys.stderr)
+        print(request.args,file=sys.stderr)
         file_name = request.args['name']
+        print(file_name,file=sys.stderr)
         if file_name is None:
              return jsonify({'message': "no file name"}), 400
         path = os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.pardir, "static", "avatar", str(file_name)))
-        # print(path)
+        print(path,file=sys.stderr)
         imageData = open(path, "rb").read()
         response = make_response(imageData)
         response.headers['Content-Type'] = 'image/jpeg'

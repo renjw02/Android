@@ -1,7 +1,7 @@
 //   TODO
 import 'dart:async';
 import 'dart:convert';
-import 'dart:html';
+//import 'dart:html';
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:dio/dio.dart';
@@ -10,6 +10,7 @@ import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
 
 import '../models/user.dart';
+import '../utils/global_variable.dart'as gv;
 
 class DataBaseManager{
   final http.Client _client = http.Client();
@@ -95,7 +96,7 @@ class DataBaseManager{
   }
   
   void changeInfo(String username,String nickname,String profile,String password,)async {
-    Uri url = Uri.parse("http://127.0.0.1:5000/api/user/changeattr");
+    Uri url = Uri.parse(gv.ip+"/api/user/changeattr");
     print(username);
     print(profile);
     print(password);
@@ -131,7 +132,7 @@ class DataBaseManager{
       }
     });
     if(password != CustomAuth.currentUser.password){
-      url = Uri.parse("http://127.0.0.1:5000/api/user/resetpw");
+      url = Uri.parse(gv.ip+"/api/user/resetpw");
       await _client.post(
         url,
         headers:{
@@ -165,20 +166,13 @@ class DataBaseManager{
 
   void uploadPhoto(Uint8List file) async {
     try{
-      Uri url = Uri.parse("http://127.0.0.1:5000/api/user/uploadavatar");
-      // FormData fd = FormData();
-      // fd.appendBlob("photo", file as Blob);
       FormData fd = FormData.fromMap({
         "file":MultipartFile.fromBytes(file,filename:'asd.jpg',contentType: new MediaType("image", "jpeg")),
       });
       var dio = new Dio();
-      var headers = {
-        'Content-Type': 'multipart/form-data',
-        HttpHeaders.authorizationHeader:CustomAuth.currentUser.jwt,
-      };
       dio.options.headers['Content-Type']='multipart/form-data';
       dio.options.headers[HttpHeaders.authorizationHeader]=CustomAuth.currentUser.jwt;
-      var response = await dio.post("http://127.0.0.1:5000/api/user/uploadavatar",data:fd,);
+      var response = await dio.post(gv.ip+"/api/user/uploadavatar",data:fd,);
       String res = response.data.toString();
 
       print(res);
@@ -219,8 +213,30 @@ class DataBaseManager{
     }
   }
 
+  Future<Uint8List?> getPhoto(String uid) async {
+    try{
+      var dio = new Dio();
+      dio.options.headers[HttpHeaders.authorizationHeader]=CustomAuth.currentUser.jwt;
+      Map<String,dynamic> paras = {"name":uid+".jpg"};
+      print(paras);
+      var response = await dio.get(gv.ip+"/api/user/downloadavatar",queryParameters: paras,
+        options: Options(responseType: ResponseType.stream),);
+      final stream = await (response.data as ResponseBody).stream.toList();
+      if (response.statusCode == 200) {
+        final result = BytesBuilder();
+        for (Uint8List subList in stream) {
+          result.add(subList);
+        }
+        return result.takeBytes();
+      }
+    }catch (exception) {
+      print("文件下载失败");
+    }
+    return null;
+  }
+
   void followUser(String uid) async {
-    var url = Uri.parse("http://127.0.0.1:5000/api/user/register");
+    var url = Uri.parse(gv.ip+"/api/user/register");
     await _client.post(
       url,
       headers:{
@@ -237,7 +253,7 @@ class DataBaseManager{
       print(jsonDecode(response.body)['message']);
       print(jsonDecode(response.body)['userId']);
     });
-    url = Uri.parse("http://127.0.0.1:5000/api/user/followuser/"+uid);
+    url = Uri.parse(gv.ip+"/api/user/followuser/"+uid);
     await _client.post(
       url,
       headers:{
@@ -248,44 +264,36 @@ class DataBaseManager{
       print(jsonDecode(response.body)['message']);
     });
   }
-  // Future<Map<String, dynamic>> getFollowers(Uri url,String jwt) async{
-  //   Map<String, dynamic> userFollowers = {};
-  //   await _client.get(
-  //     url,
-  //     headers: {
-  //       HttpHeaders.authorizationHeader: jwt,
-  //     },
-  //   ).then((http.Response response) {
-  //     //处理响应信息
-  //     if (response.statusCode == 200) {
-  //       userFollowers = jsonDecode(response.body);
-  //     } else {
-  //       print('error');
-  //       print(response.body);
-  //     }
-  //   }).catchError((e){
-  //     print(e);
-  //   });
-  //   return userFollowers;
-  // }
-  // Future<Map<String, dynamic>> getFollowed(Uri url,String uid,String jwt) async{
-  //   Map<String, dynamic> userFollowed = {};
-  //   await _client.get(
-  //     url,
-  //     headers: {
-  //       HttpHeaders.authorizationHeader: jwt,
-  //     },
-  //   ).then((http.Response response) {
-  //     //处理响应信息
-  //     if (response.statusCode == 200) {
-  //       userFollowed = jsonDecode(response.body);
-  //     } else {
-  //       print('error');
-  //       print(response.body);
-  //     }
-  //   }).catchError((e){
-  //     print(e);
-  //   });
-  //   return userFollowed;
-  // }
+
+  void createPost(String title,String content,int type,String position,List<Uint8List?> files) async {
+    try{
+      print(files);
+      FormData fd = FormData.fromMap({
+        "title":title,
+        "content":content,
+        "type":type,
+        "position":position,
+        "file":MultipartFile.fromBytes(files[0]!,filename:'asd.jpg',contentType: new MediaType("image", "jpeg")),
+      });
+      print("asd");
+      var dio = new Dio();
+      dio.options.headers['Content-Type']='multipart/form-data';
+      dio.options.headers[HttpHeaders.authorizationHeader]=CustomAuth.currentUser.jwt;
+      print("asd1");
+      var response = await dio.post(gv.ip+"/api/post/createpost",data:fd,);
+      print("asd2");
+      String res = response.data.toString();
+      print(res);
+      print(res.runtimeType); // String
+
+      var resJson = jsonDecode(res); // 字符串反序列化为Map
+      print(resJson); // 此时\u5317\u4eac\u8317\u89c6\u5149的数据也被解码成了中文.
+      print(resJson.runtimeType); //  _InternalLinkedHashMap<String, dynamic>
+      if (response.statusCode == 200) {
+      }
+    }catch (exception) {
+      print("动态上传失败");
+    }
+  }
+
 }

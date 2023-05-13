@@ -196,6 +196,8 @@ class _ModifyScreenState extends State<ModifyScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
+              const Padding(padding: EdgeInsets.only(top: 0.0)),
+              const Divider(),
               SizedBox(
                 height: 45.0,
                 width: 45.0,
@@ -222,7 +224,8 @@ class _ModifyScreenState extends State<ModifyScreen> {
                   ),
                   onPressed: () => _selectImage(context),
                 ),
-              )
+              ),
+              const Divider(),
             ],): Column(
               children: <Widget>[
                 isLoading

@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:frontend/resources/auth_methods.dart';
@@ -13,6 +14,7 @@ import '../Auth/customAuth.dart';
 import '../resources/database_methods.dart' as db;
 import 'followed_screen.dart';
 import 'modify_screen.dart';
+import '../utils/global_variable.dart' as gv;
 
 class ProfileScreen extends StatefulWidget {
   final String uid;
@@ -30,6 +32,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
   bool isFollowed = false;
   bool isLoading = false;
   String currentUserUid = "";
+  Uint8List? _photo;
+  dynamic photo;
 
   @override
   void initState() {
@@ -50,16 +54,25 @@ class _ProfileScreenState extends State<ProfileScreen> {
       db.DataBaseManager dbm = db.DataBaseManager();
       Map<String, dynamic> userinfo={};//获取用户信息
       var _client = http.Client();
-      var url = Uri.parse("http://127.0.0.1:5000/api/user/user/"+widget.uid);
+      var url = Uri.parse(gv.ip+"/api/user/user/"+widget.uid);
       //var url = Uri.parse("http://127.0.0.1:5000/api/user/user");
       userinfo = await dbm.getSomeMap(url,CustomAuth.currentUser.jwt);
       Map<String, dynamic> userFollowers={}; //获取关注我的人
-      url = Uri.parse("http://127.0.0.1:5000/api/user/getfollowerlist/"+widget.uid);
+      url = Uri.parse(gv.ip+"/api/user/getfollowerlist/"+widget.uid);
       userFollowers = await dbm.getSomeMap(url, CustomAuth.currentUser.jwt);
       Map<String, dynamic> userFollowed={}; //获取我关注的人
-      url = Uri.parse("http://127.0.0.1:5000/api/user/getfollowedlist/"+widget.uid);
+      url = Uri.parse(gv.ip+"/api/user/getfollowedlist/"+widget.uid);
       userFollowed = await dbm.getSomeMap(url, CustomAuth.currentUser.jwt);
 
+      print(userinfo);
+      print(userinfo['id']);
+      _photo = await dbm.getPhoto(userinfo['id'].toString());
+      if(_photo == null){
+        photo = NetworkImage("https://p0.itc.cn/q_70/images03/20230213/ca107acd0ee943a0ac9e8264a23b6ca4.jpeg");
+      }
+      else{
+        photo = MemoryImage(_photo!);
+      }
       // get post lENGTH
       // var postSnap = await FirebaseFirestore.instance
       //     .collection('posts')
@@ -116,10 +129,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   children: [
                     CircleAvatar(
                       backgroundColor: Colors.grey,
-                      backgroundImage: NetworkImage(
-                        //userData['photoUrl'],  //TODO
-                        "https://p0.itc.cn/q_70/images03/20230213/ca107acd0ee943a0ac9e8264a23b6ca4.jpeg"
-                      ),
+                      backgroundImage: photo,
                       radius: 40,
                     ),
                     Expanded(
@@ -184,14 +194,23 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 textColor: primaryColor,
                                 borderColor: Colors.grey,
                                 function: () async {
-                                  await CustomAuth().signOut();  //TODO
-                                  Navigator.of(context)
-                                      .pushReplacement(
-                                    MaterialPageRoute(
-                                      builder: (context) =>
-                                      const LoginScreen(),
-                                    ),
-                                  );
+                                  var res = await CustomAuth().signOut();  //TODO
+                                  if(res == "Success"){
+                                    Navigator.of(context)
+                                        .pushReplacement(
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                        const LoginScreen(),
+                                      ),
+                                    );
+                                  }
+                                  else{
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text("logout Fail"),
+                                      ),
+                                    );
+                                  }
                                 },
                               )
                                   : isFollowed

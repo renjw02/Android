@@ -8,6 +8,7 @@ import 'package:frontend/widgets/post_card.dart';
 
 import '../models/DocumentSnapshot.dart';
 import '../models/querySnapshot.dart';
+import '../models/post.dart';
 //初始化三个DocumentSnapshot对象
 //required this.description,
 //       required this.uid,

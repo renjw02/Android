@@ -3,9 +3,11 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 import '../models/user.dart';
 import '../resources/database_methods.dart' as db;
+import '../utils/global_variable.dart' as gv;
 
 User fakeUser1 = User(
   username: 'username1',
@@ -129,6 +131,7 @@ class CustomAuth {
   static final CustomAuth _instance = CustomAuth._();
   factory CustomAuth() => _instance;
   CustomAuth._();
+  static final storage = const FlutterSecureStorage(webOptions: WebOptions());
 
   // Expose the Stream<User> as authStateChanges
   Stream<User?> get authStateChanges => _controller.stream;
@@ -153,11 +156,52 @@ class CustomAuth {
     // Add the User object to the StreamController
     // Handle errors as needed
     //
-    var url = Uri.parse("http://127.0.0.1:5000/api/user/login");
+    print("asd1");
+    String state = await storage.read(key: "loginState") ?? "Fail";
+    print(state);
+    print("asd2");
+    if(state=="Success"){
+      var data = {
+        'username': await storage.read(key: "username"),
+        'uid': await storage.read(key: "uid"),
+        'jwt':await storage.read(key: "jwt"),
+        'photoUrl': await storage.read(key: "photoUrl"),
+        'email': await storage.read(key: "email"),
+        "password":await storage.read(key: "password"),
+        'nickname': await storage.read(key: "nickname"),
+        'profile':await storage.read(key: "profile"),
+        'followers': [],
+        'following': [],
+      };
+      CustomAuth.currentUser = User(
+        username: data['username'] as String,
+        password: data['password'] as String,
+        uid: data['uid'] as String,
+        jwt: data['jwt'] as String,
+        photoUrl: data['photoUrl'] as String,
+        email: data['email'] as String,
+        nickname: data['nickname'] as String,
+        profile:data['profile'] as String,
+        followers: data['followers'] as List,
+        following: data['following'] as List,
+      );
+      return state;
+    }
+    print("asd3");
+    var url = Uri.parse(gv.ip+"/api/user/login");
     String result;
     result = await db.DataBaseManager().signIn(url, email, password);
     if(result == "Success"){
       _controller.add(currentUser);
+      await storage.write(key: "loginState", value: "Success");
+      await storage.write(key: "username", value: currentUser.username);
+      await storage.write(key: "uid", value: currentUser.uid);
+      await storage.write(key: "jwt", value: currentUser.jwt);
+      await storage.write(key: "photoUrl", value: currentUser.photoUrl);
+      await storage.write(key: "email", value: currentUser.email);
+      await storage.write(key: "password", value: currentUser.password);
+      await storage.write(key: "nickname", value: currentUser.nickname);
+      await storage.write(key: "profile", value: currentUser.profile);
     }
     return result;
 
@@ -195,12 +239,12 @@ class CustomAuth {
     // Handle errors as needed
     try {
       var _client = http.Client();
-      var url = Uri.parse("http://127.0.0.1:5000/api/user/logout");
+      var url = Uri.parse(gv.ip+"/api/user/logout");
       await _client.post(url,headers: {
         HttpHeaders.authorizationHeader: CustomAuth.currentUser.jwt,
       },);
       // await _client.post(Uri.parse('https://your-backend.com/signout'));
-      _controller.add(null);
+      await storage.write(key: "loginState", value: "Fail");
       return 'Success';
     } catch (e) {
       // Handle errors as needed

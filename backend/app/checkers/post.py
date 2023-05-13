@@ -2,9 +2,9 @@
 # -*- encoding: utf-8 -*-
 
 # here put the import lib
+import sys
 
-
-def post_params_check(title, content, type, position):
+def post_params_check(title, content, typei, position):
     '''
     title       小于128
     content     小于1024
@@ -25,16 +25,17 @@ def post_params_check(title, content, type, position):
     else:
         return "content", False
     
-    if type is not None:
-        if type != 1 or type != 2:
-            return "content", False
+    if typei is not None:
+        if typei != 1 and typei != 2:
+            print(typei, type(typei),file=sys.stderr)
+            return "type", False
     else:
-        return "content", False
+        return "type", False
     
     if position is not None:
         if len(position) <= 0 or len(position) > 64:
-            return "content", False
+            return "position", False
     else:
-        return "content", False
+        return "position", False
     
     return "ok", True

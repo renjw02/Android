@@ -8,6 +8,7 @@ from flask import Blueprint, jsonify, request, g
 from .login_required import login_required
 from app.services import PostService
 from app.checkers import post_params_check, comment_params_check
+import sys
 
 bp = Blueprint('post', __name__, url_prefix='/api/post')
 
@@ -22,18 +23,24 @@ def index():
 @login_required
 def create_post():
     try:    
+        print(request,file=sys.stderr)
+        print(request.form,file=sys.stderr)
         title = request.form.get('title')
         content = request.form.get('content')
-        type = request.form.get('type')
+        typei = int(request.form.get('type'))
         position = request.form.get('position')
+        print(title,content,typei,position,file=sys.stderr)
 
-        key, passed = post_params_check(title, content, type, position)
+        key, passed = post_params_check(title, content, typei, position)
+        print(key,passed,file=sys.stderr)
         if not passed:
             return jsonify({'message': "invalid arguments: " + key}), 400
         
+        print(request.files,file=sys.stderr)
         files = request.files.getlist('file')
+        print(files,file=sys.stderr)
         
-        post, result = service.create_post(title, content, g.user_id, type, position)
+        post, result = service.create_post(title, content, g.user_id, typei, position)
         if files is not None:
             for file in files:
                 filename = file.filename
