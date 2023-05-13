@@ -51,8 +51,51 @@ DocumentSnapshot trend3 = DocumentSnapshot(
 );
 List<DocumentSnapshot> doc = [trend1, trend2, trend3];
 
+Post post1 = Post(
+  id: 1,
+  uid:"1",
+  title:"title1",
+  content: "content1",
+  last_replied_user_id: "1",
+  last_replied_time: "time",
+  created:"time",
+  updated: "time",
+  type:1,
+  position: "position",
+  support_num: 7,
+  comment_num: 7,
+  star_num: 7,
+  font_size:16,
+  font_color: "white",
+  font_weight: "适中",
+  supportList: ["-1"],
+  starList: ["-1"],
+);
+Post post2 = Post(
+  id: 2,
+  uid:"1",
+  title:"title2",
+  content: "content2",
+  last_replied_user_id: "1",
+  last_replied_time: "time",
+  created:"time",
+  updated: "time",
+  type:1,
+  position: "position",
+  support_num: 7,
+  comment_num: 7,
+  star_num: 7,
+  font_size:16,
+  font_color: "white",
+  font_weight: "适中",
+  supportList: ["-1"],
+  starList: ["-1"],
+);
+
+List<Post> doc1 = [post1,post2];
+
 //初始化一个QuerySnapshot对象
-QuerySnapshot querySnapshot = QuerySnapshot(docs: doc, readTime: DateTime.now());
+QuerySnapshot querySnapshot = QuerySnapshot(docs: doc1, readTime: DateTime.now());
 
 
 class FeedScreen extends StatefulWidget {

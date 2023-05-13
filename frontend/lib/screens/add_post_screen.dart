@@ -162,15 +162,33 @@ class _AddPostScreenState extends State<AddPostScreen> {
     });
   }
   
-  void post(){
+  void post() async {
     Map<String ,int> topic2type = {"校园资讯":1,"二手交易":2};
     if(_file == null){
       print("file is null");
     }
     List<Uint8List?> files = [_file];
     print(topic2type[topicContent]!);
-    print(files);
-    db.DataBaseManager().createPost(titlec.text, contentc.text, topic2type[topicContent]!, "position", files);
+    Map<Color,String> colors = {Colors.red:"red",Colors.white:"white",Colors.yellow:"yellow"};
+    Map<FontWeight,String> weights = {FontWeight.w300:"较细",FontWeight.w500:"适中",FontWeight.w700:"较粗"};
+    String res = await db.DataBaseManager().createPost(titlec.text, contentc.text, topic2type[topicContent]!, "position",
+        font_size,colors[font_color]!,weights[font_weight]!,files);
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(res),
+      ),
+    );
+    if(res=="动态上传成功"){
+      setState(() {
+        topicContent = "";
+        font_size = 16;
+        font_color = Colors.white;
+        font_weight = FontWeight.w500;
+        titlec.text = "";
+        contentc.text = "";
+        _file = null;
+      });
+    }
   }
 
   @override

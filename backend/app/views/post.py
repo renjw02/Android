@@ -8,6 +8,7 @@ from flask import Blueprint, jsonify, request, g
 from .login_required import login_required
 from app.services import PostService
 from app.checkers import post_params_check, comment_params_check
+import sys
 
 bp = Blueprint('post', __name__, url_prefix='/api/post')
 
@@ -22,32 +23,38 @@ def index():
 @login_required
 def create_post():
     try:    
+        print(request.form,file=sys.stderr)
         title = request.form.get('title')
         content = request.form.get('content')
-        type = int(request.form.get('type'))
+        typei = int(request.form.get('type'))
         position = request.form.get('position')
         font_size = int(request.form.get('font_size'))
         font_color = request.form.get('font_color')
         font_weight = request.form.get('font_weight')
 
-        key, passed = post_params_check(title, content, type, position, font_size)
+        key, passed = post_params_check(title, content, typei, position, font_size)
         if not passed:
             return jsonify({'message': "invalid arguments: " + key}), 400
         
+        print(request.files,file=sys.stderr)
         files = request.files.getlist('file')
         
-        post, result = service.create_post(title, content, g.user_id, type, position, font_size,
+        post, result = service.create_post(title, content, g.user_id, typei, position, font_size,
                                            font_color, font_weight)
         if files is not None:
             for file in files:
                 filename = file.filename
                 content_type = file.content_type
 
+                print(content_type,file=sys.stderr)
                 if content_type.startswith('image'):
                     # save_path = './static/images/'
                     save_path = os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.pardir, "static", "images"))
+                    print(content_type,file=sys.stderr)
                     path = os.path.join(save_path, filename)
+                    print(content_type,file=sys.stderr)
                     pic, flag = service.upload_picture(post.id, path)
+                    print(content_type,file=sys.stderr)
                     if not flag:
                         return jsonify({'message': "upload images falied"}), 400
 
@@ -60,7 +67,7 @@ def create_post():
                         return jsonify({'message': "upload videos falied"}), 400
                 
                 file.save(path)
-
+        print(123,file=sys.stderr)
         if result:
             return jsonify({
                 'postId': post.id,

@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:frontend/models/user.dart' as model;
 import 'package:frontend/providers/user_provider.dart';
@@ -9,6 +11,9 @@ import 'package:frontend/utils/utils.dart';
 import 'package:frontend/widgets/like_animation.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+
+import '../utils/global_variable.dart' as gv;
+import '../resources/database_methods.dart' as db;
 
 class PostCard extends StatefulWidget {
   final snap;
@@ -22,24 +27,25 @@ class PostCard extends StatefulWidget {
 }
 
 class _PostCardState extends State<PostCard> {
-  int commentLen = 0;
+  //int commentLen = 0;
   bool isLikeAnimating = false;
-
+  Map<String,dynamic> userinfo = {};
+  Uint8List? _file;
+  Map<String,Color> colors = {"red":Colors.red,"white":Colors.white,"yellow":Colors.yellow};
+  Map<String,FontWeight> weights = {"较细":FontWeight.w300,"适中":FontWeight.w500,"较粗":FontWeight.w700};
   @override
   void initState() {
     super.initState();
-    fetchCommentLen();
+    getData();
   }
 
-  fetchCommentLen() async {
+  getData() async {
     try {
-      // QuerySnapshot snap = await FirebaseFirestore.instance
-      //     .collection('posts')
-      //     .doc(widget.snap['postId'])
-      //     .collection('comments')
-      //     .get();
-      // commentLen = snap.docs.length;
-      commentLen = 5;
+      var snap = widget.snap;
+      db.DataBaseManager dbm = db.DataBaseManager();
+      var url = Uri.parse(gv.ip+"/api/user/user/"+snap['uid']);
+      userinfo = await dbm.getSomeMap(url);
+      _file = await dbm.getPhoto(snap['uid']);
     } catch (err) {
       showSnackBar(
         context,
@@ -49,7 +55,7 @@ class _PostCardState extends State<PostCard> {
     setState(() {});
   }
 
-  deletePost(String postId) async {
+  deletePost(String postId) async {  //TODO
     try {
       await TextPostMethods().deletePost(postId);
     } catch (err) {
@@ -88,9 +94,10 @@ class _PostCardState extends State<PostCard> {
               children: <Widget>[
                 CircleAvatar(
                   radius: 16,
-                  backgroundImage: NetworkImage(
-                    widget.snap['profImage'].toString(),
-                  ),
+                  backgroundImage: MemoryImage(_file!),
+                  // backgroundImage: NetworkImage(
+                  //   widget.snap['profImage'].toString(),
+                  // ),
                 ),
                 Expanded(
                   child: Padding(
@@ -102,7 +109,7 @@ class _PostCardState extends State<PostCard> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
                         Text(
-                          widget.snap['username'].toString(),
+                          userinfo['username'].toString(),
                           style: const TextStyle(
                             fontWeight: FontWeight.bold,
                           ),
@@ -137,7 +144,7 @@ class _PostCardState extends State<PostCard> {
                                               ),
                                               onTap: () {
                                                 deletePost(
-                                                  widget.snap['postId']
+                                                  widget.snap['id']
                                                       .toString(),
                                                 );
                                                 // remove the dialog box
@@ -159,9 +166,9 @@ class _PostCardState extends State<PostCard> {
           GestureDetector(
             onDoubleTap: () {
               TextPostMethods().likePost(
-                widget.snap['postId'].toString(),
+                widget.snap['id'].toString(),
                 user.uid,
-                widget.snap['likes'],
+                widget.snap['support_num'],
               );
               setState(() {
                 isLikeAnimating = true;
@@ -174,7 +181,8 @@ class _PostCardState extends State<PostCard> {
                   height: MediaQuery.of(context).size.height * 0.35,
                   width: double.infinity,
                   child: Image.network(
-                    widget.snap['postUrl'].toString(),
+                    //widget.snap['postUrl'].toString(),
+                    'https://picsum.photos/200/303',
                     fit: BoxFit.cover,
                   ),
                 ),
@@ -205,10 +213,10 @@ class _PostCardState extends State<PostCard> {
           Row(
             children: <Widget>[
               LikeAnimation(
-                isAnimating: widget.snap['likes'].contains(user.uid),
+                isAnimating: widget.snap['supportList'].contains(user.uid),
                 smallLike: true,
                 child: IconButton(
-                  icon: widget.snap['likes'].contains(user.uid)
+                  icon: widget.snap['supportList'].contains(user.uid)
                       ? const Icon(
                           Icons.favorite,
                           color: Colors.red,
@@ -217,9 +225,9 @@ class _PostCardState extends State<PostCard> {
                           Icons.favorite_border,
                         ),
                   onPressed: () => TextPostMethods().likePost(
-                    widget.snap['postId'].toString(),
+                    widget.snap['id'].toString(),
                     user.uid,
-                    widget.snap['likes'],
+                    widget.snap['supportList'],
                   ),
                 ),
               ),
@@ -230,12 +238,12 @@ class _PostCardState extends State<PostCard> {
                 onPressed: () => Navigator.of(context).push(
                   MaterialPageRoute(
                     builder: (context) => CommentsScreen(
-                      postId: widget.snap['postId'].toString(),
+                      postId: widget.snap['id'].toString(),
                     ),
                   ),
                 ),
               ),
-              IconButton(
+              IconButton(   //转发按钮
                   icon: const Icon(
                     Icons.send,
                   ),
@@ -243,8 +251,17 @@ class _PostCardState extends State<PostCard> {
               Expanded(
                   child: Align(
                 alignment: Alignment.bottomRight,
-                child: IconButton(
-                    icon: const Icon(Icons.bookmark_border), onPressed: () {}),
+                child:IconButton(
+                        icon: widget.snap['starList'].contains(user.uid)
+                        ? const Icon(
+                          Icons.star,
+                          color: Colors.red,
+                        )
+                        : const Icon(Icons.star_border,),
+                        onPressed:(){},
+                      ),
+                // child: IconButton(
+                //     icon: const Icon(Icons.star_border), onPressed: () {}),
               ))
             ],
           ),
@@ -261,7 +278,7 @@ class _PostCardState extends State<PostCard> {
                         .subtitle2!
                         .copyWith(fontWeight: FontWeight.w800),
                     child: Text(
-                      '${widget.snap['likes'].length} likes',
+                      '${widget.snap['supportList'].length} supports',
                       style: Theme.of(context).textTheme.bodyText2,
                     )),
                 Container(
@@ -274,13 +291,15 @@ class _PostCardState extends State<PostCard> {
                       style: const TextStyle(color: primaryColor),
                       children: [
                         TextSpan(
-                          text: widget.snap['username'].toString(),
+                          text: userinfo['username'].toString(),
                           style: const TextStyle(
                             fontWeight: FontWeight.bold,
                           ),
                         ),
                         TextSpan(
-                          text: ' ${widget.snap['description']}',
+                          text: ' ${widget.snap['content']}',
+                          style: TextStyle(fontSize: widget.snap['font_size'],color: colors[widget.snap['font_color']],
+                              fontWeight: weights[widget.snap['font_weight']]),
                         ),
                       ],
                     ),
@@ -290,7 +309,7 @@ class _PostCardState extends State<PostCard> {
                   child: Container(
                     padding: const EdgeInsets.symmetric(vertical: 4),
                     child: Text(
-                      'View all $commentLen comments',
+                      'View all ${widget.snap['commment_num']} comments',
                       style: const TextStyle(
                         fontSize: 16,
                         color: secondaryColor,
@@ -300,7 +319,7 @@ class _PostCardState extends State<PostCard> {
                   onTap: () => Navigator.of(context).push(
                     MaterialPageRoute(
                       builder: (context) => CommentsScreen(
-                        postId: widget.snap['postId'].toString(),
+                        postId: widget.snap['id'].toString(),
                       ),
                     ),
                   ),
@@ -311,7 +330,7 @@ class _PostCardState extends State<PostCard> {
                   Text(
                     // DateFormat.yMMMd()
                     //     .format(widget.snap['datePublished'].toDate()),
-                    widget.snap['datePublished'].toString(),
+                    widget.snap['created'].toString(),
                     style: const TextStyle(
                       color: secondaryColor,
                     ),

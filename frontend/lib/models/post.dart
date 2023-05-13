@@ -19,6 +19,8 @@ class Post {
   final int font_size;
   final String font_color;
   final String font_weight;
+  List<String> supportList;   //喜欢这个贴子的用户
+  List<String> starList;
   // final String username;
   // final likes;
   // final String postId;
@@ -42,6 +44,8 @@ class Post {
       required this.font_size,
       required this.font_color,
       required this.font_weight,
+      required this.supportList,
+      required this.starList,
       });
 
   // static Post fromSnap(DocumentSnapshot snap) {
@@ -78,6 +82,8 @@ class Post {
       "font_size":font_size,
       "font_color":font_color,
       "font_weight":font_weight,
+      "supportList":supportList,
+      "starList":starList,
     };
   }
    Map<String, dynamic> toJson() => {
@@ -97,5 +103,7 @@ class Post {
        "font_size":font_size,
        "font_color":font_color,
        "font_weight":font_weight,
+       "supportList":supportList,
+       "starList":starList,
       };
 }

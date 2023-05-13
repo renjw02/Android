@@ -26,7 +26,7 @@ def post_params_check(title, content, type_, position, font_size):
         return "content", False
     
     if type_ is not None:
-        if type_ != 1 or type_ != 2:
+        if type_ != 1 and type_ != 2:
             return "type", False
     else:
         return "type", False

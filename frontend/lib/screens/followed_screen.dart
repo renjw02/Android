@@ -83,7 +83,7 @@ Future<List<Row>> buildFollowed(List<dynamic> followedList) async {
   var jwt = CustomAuth.currentUser.jwt;
   for(var item in followedList){
     var url = Uri.parse("http://127.0.0.1:5000/api/user/user/"+item['followedUserId']);
-    Map<String,dynamic> userinfo = await db.DataBaseManager().getSomeMap(url, jwt);
+    Map<String,dynamic> userinfo = await db.DataBaseManager().getSomeMap(url);
     rows.add(Row(
       mainAxisSize: MainAxisSize.min,
       mainAxisAlignment: MainAxisAlignment.center,

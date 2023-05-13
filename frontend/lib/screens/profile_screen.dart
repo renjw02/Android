@@ -53,16 +53,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
       currentUserUid = CustomAuth.currentUser.uid;
       db.DataBaseManager dbm = db.DataBaseManager();
       Map<String, dynamic> userinfo={};//获取用户信息
-      var _client = http.Client();
       var url = Uri.parse(gv.ip+"/api/user/user/"+widget.uid);
       //var url = Uri.parse("http://127.0.0.1:5000/api/user/user");
-      userinfo = await dbm.getSomeMap(url,CustomAuth.currentUser.jwt);
+      userinfo = await dbm.getSomeMap(url);
       Map<String, dynamic> userFollowers={}; //获取关注我的人
       url = Uri.parse(gv.ip+"/api/user/getfollowerlist/"+widget.uid);
-      userFollowers = await dbm.getSomeMap(url, CustomAuth.currentUser.jwt);
+      userFollowers = await dbm.getSomeMap(url);
       Map<String, dynamic> userFollowed={}; //获取我关注的人
       url = Uri.parse(gv.ip+"/api/user/getfollowedlist/"+widget.uid);
-      userFollowed = await dbm.getSomeMap(url, CustomAuth.currentUser.jwt);
+      userFollowed = await dbm.getSomeMap(url);
 
       print(userinfo);
       print(userinfo['id']);

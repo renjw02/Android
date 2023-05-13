@@ -74,12 +74,12 @@ class DataBaseManager{
     return result;
   }
   //  使用ID获取指定user
-  Future<Map<String, dynamic>> getSomeMap(Uri url,String jwt) async{
+  Future<Map<String, dynamic>> getSomeMap(Uri url) async{
     Map<String, dynamic> info = {};
     await _client.get(
       url,
       headers: {
-        HttpHeaders.authorizationHeader: jwt,
+        HttpHeaders.authorizationHeader: CustomAuth.currentUser.jwt,
       },
     ).then((http.Response response) {
       //处理响应信息
@@ -265,14 +265,17 @@ class DataBaseManager{
     });
   }
 
-  void createPost(String title,String content,int type,String position,List<Uint8List?> files) async {
+  Future<String> createPost(String title,String content,int type,String position,int font_size,String font_color,
+  String font_weight,List<Uint8List?> files) async {
     try{
-      print(files);
       FormData fd = FormData.fromMap({
         "title":title,
         "content":content,
         "type":type,
         "position":position,
+        "font_size":font_size,
+        "font_color":font_color,
+        "font_weight":font_weight,
         "file":MultipartFile.fromBytes(files[0]!,filename:'asd.jpg',contentType: new MediaType("image", "jpeg")),
       });
       print("asd");
@@ -282,17 +285,21 @@ class DataBaseManager{
       print("asd1");
       var response = await dio.post(gv.ip+"/api/post/createpost",data:fd,);
       print("asd2");
-      String res = response.data.toString();
-      print(res);
-      print(res.runtimeType); // String
-
-      var resJson = jsonDecode(res); // 字符串反序列化为Map
-      print(resJson); // 此时\u5317\u4eac\u8317\u89c6\u5149的数据也被解码成了中文.
-      print(resJson.runtimeType); //  _InternalLinkedHashMap<String, dynamic>
+      print(response.data);
+      print(response.data.runtimeType);
+      var m = Map.from(response.data);
+      print(m);
+      print(m.runtimeType);
       if (response.statusCode == 200) {
+        return "动态上传成功";
+      }
+      else{
+        print("动态上传状态码错误");
+        return "动态上传失败";
       }
     }catch (exception) {
       print("动态上传失败");
+      return "动态上传失败";
     }
   }
 
