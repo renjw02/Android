@@ -11,7 +11,7 @@ import '../Auth/customAuth.dart';
 import '../resources/database_methods.dart' as db;
 
 class FollowedScreen extends StatefulWidget {
-  final List<dynamic> followedList;
+  final List<dynamic>? followedList;
   //final String uid;
   const FollowedScreen({Key? key,required this.followedList}) : super(key: key);
 
@@ -61,39 +61,35 @@ class _FollowedScreenState extends State<FollowedScreen> {
         ),
         centerTitle: false,
       ),
-      body: Column(
-        // children: widget.followedList.map((key, value) {
-        //   for (var item in post['zones']) {
-        //     print("title "+ item['title']);
-        //     Container(
-        //       child: Text(item["title"]),
-        //     ); //Container
-        //   }
-        //   throw ArgumentError();
-        //
-        // }).toList(),
+      body: followeds.length==0?
+      Text("没有关注的人，o.0"):
+      Column(
         children: followeds,
       ),
     );
   }
 }
 
-Future<List<Row>> buildFollowed(List<dynamic> followedList) async {
+Future<List<Row>> buildFollowed(List<dynamic>? followedList) async {
   List<Row> rows = [];
   var jwt = CustomAuth.currentUser.jwt;
+  if(followedList==null)return rows;
   for(var item in followedList){
     var url = Uri.parse("http://127.0.0.1:5000/api/user/user/"+item['followedUserId']);
     Map<String,dynamic> userinfo = await db.DataBaseManager().getSomeMap(url);
+    Uint8List _photo = await db.DataBaseManager().getPhoto(item['followedUserId']);
     rows.add(Row(
       mainAxisSize: MainAxisSize.min,
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         CircleAvatar(
           backgroundColor: Colors.grey,
-          backgroundImage: NetworkImage(
-            //userData['photoUrl'],  //TODO
-              "https://p0.itc.cn/q_70/images03/20230213/ca107acd0ee943a0ac9e8264a23b6ca4.jpeg"
-          ),
+          backgroundImage:
+              MemoryImage(_photo),
+          // NetworkImage(
+          //   //userData['photoUrl'],  //TODO
+          //     "https://p0.itc.cn/q_70/images03/20230213/ca107acd0ee943a0ac9e8264a23b6ca4.jpeg"
+          // ),
           radius: 40,
         ),
         Text(userinfo['username']),

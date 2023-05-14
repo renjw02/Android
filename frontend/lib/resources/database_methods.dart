@@ -32,7 +32,7 @@ class DataBaseManager{
             "password":password,
           }),
           encoding: Utf8Codec()
-      ).then((http.Response response) {
+      ).then((http.Response response) async {
         if (response.statusCode == 200) {
           Map<String, dynamic> returndata = jsonDecode(response.body);
           print(returndata);
@@ -54,6 +54,7 @@ class DataBaseManager{
             uid: data['uid'] as String,
             jwt: data['jwt'] as String,
             photoUrl: data['photoUrl'] as String,
+            photo: Uint8List(0),
             email: data['email'] as String,
             nickname: data['nickname'] as String,
             profile:data['profile'] as String,
@@ -122,6 +123,7 @@ class DataBaseManager{
           uid: CustomAuth.currentUser.uid,
           jwt: CustomAuth.currentUser.jwt,
           photoUrl: CustomAuth.currentUser.photoUrl,
+          photo: CustomAuth.currentUser.photo,
           email: CustomAuth.currentUser.email,
           password: password,
           nickname: nickname,
@@ -152,6 +154,7 @@ class DataBaseManager{
             uid: CustomAuth.currentUser.uid,
             jwt: CustomAuth.currentUser.jwt,
             photoUrl: CustomAuth.currentUser.photoUrl,
+            photo: CustomAuth.currentUser.photo,
             email: CustomAuth.currentUser.email,
             password: password,
             nickname: nickname,
@@ -213,10 +216,11 @@ class DataBaseManager{
     }
   }
 
-  Future<Uint8List?> getPhoto(String uid) async {
+  Future<Uint8List> getPhoto(String uid) async {
     try{
       var dio = new Dio();
       dio.options.headers[HttpHeaders.authorizationHeader]=CustomAuth.currentUser.jwt;
+      print("getphoto"+CustomAuth.currentUser.jwt);
       Map<String,dynamic> paras = {"name":uid+".jpg"};
       print(paras);
       var response = await dio.get(gv.ip+"/api/user/downloadavatar",queryParameters: paras,
@@ -229,10 +233,32 @@ class DataBaseManager{
         }
         return result.takeBytes();
       }
+      else{
+        paras = {"name":"shushu.jpg"};
+        var response = await dio.get(gv.ip+"/api/user/downloadavatar",queryParameters: paras,
+          options: Options(responseType: ResponseType.stream),);
+        final stream = await (response.data as ResponseBody).stream.toList();
+        final result = BytesBuilder();
+        for (Uint8List subList in stream) {
+          result.add(subList);
+        }
+        return result.takeBytes();
+      }
     }catch (exception) {
       print("文件下载失败");
+      var dio = new Dio();
+      dio.options.headers[HttpHeaders.authorizationHeader]=CustomAuth.currentUser.jwt;
+      Map<String,dynamic> paras;
+      paras = {"name":"shushu.jpg"};
+      var response = await dio.get(gv.ip+"/api/user/downloadavatar",queryParameters: paras,
+        options: Options(responseType: ResponseType.stream),);
+      final stream = await (response.data as ResponseBody).stream.toList();
+      final result = BytesBuilder();
+      for (Uint8List subList in stream) {
+        result.add(subList);
+      }
+      return result.takeBytes();
     }
-    return null;
   }
 
   void followUser(String uid) async {
@@ -268,6 +294,14 @@ class DataBaseManager{
   Future<String> createPost(String title,String content,int type,String position,int font_size,String font_color,
   String font_weight,List<Uint8List?> files) async {
     try{
+      List<MultipartFile> mfiles=[];
+      int count=0;
+      for(Uint8List? file in files){
+        if(file != null){
+          mfiles.add(MultipartFile.fromBytes(file,filename:'${title}${count}.jpg',contentType: new MediaType("image", "jpeg")));
+          count++;
+        }
+      }
       FormData fd = FormData.fromMap({
         "title":title,
         "content":content,
@@ -276,7 +310,7 @@ class DataBaseManager{
         "font_size":font_size,
         "font_color":font_color,
         "font_weight":font_weight,
-        "file":MultipartFile.fromBytes(files[0]!,filename:'asd.jpg',contentType: new MediaType("image", "jpeg")),
+        "file":mfiles,
       });
       print("asd");
       var dio = new Dio();

@@ -156,8 +156,14 @@ class _AddPostScreenState extends State<AddPostScreen> {
   }
 
 
-  void clearImage() {
+  void clearInfo() {
     setState(() {
+      topicContent = "选择一个话题";
+      font_size = 16;
+      font_color = Colors.white;
+      font_weight = FontWeight.w500;
+      titlec.text = "";
+      contentc.text = "";
       _file = null;
     });
   }
@@ -180,7 +186,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
     );
     if(res=="动态上传成功"){
       setState(() {
-        topicContent = "";
+        topicContent = "选择一个话题";
         font_size = 16;
         font_color = Colors.white;
         font_weight = FontWeight.w500;
@@ -198,8 +204,8 @@ class _AddPostScreenState extends State<AddPostScreen> {
           appBar: AppBar(
             backgroundColor: mobileBackgroundColor,
             leading: IconButton(
-              icon: const Icon(Icons.arrow_back),
-              onPressed: clearImage,
+              icon: const Icon(Icons.cleaning_services_rounded),
+              onPressed: clearInfo,
             ),
             title: const Text(
               '发布帖子',

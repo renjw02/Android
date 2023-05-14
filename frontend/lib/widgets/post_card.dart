@@ -33,8 +33,13 @@ class _PostCardState extends State<PostCard> {
   Uint8List? _file;
   Map<String,Color> colors = {"red":Colors.red,"white":Colors.white,"yellow":Colors.yellow};
   Map<String,FontWeight> weights = {"较细":FontWeight.w300,"适中":FontWeight.w500,"较粗":FontWeight.w700};
+  bool isLoading = false;
+
   @override
   void initState() {
+    setState(() {
+      isLoading = true;
+    });
     super.initState();
     getData();
   }
@@ -52,7 +57,9 @@ class _PostCardState extends State<PostCard> {
         err.toString(),
       );
     }
-    setState(() {});
+    setState(() {
+      isLoading = false;
+    });
   }
 
   deletePost(String postId) async {  //TODO
@@ -71,7 +78,10 @@ class _PostCardState extends State<PostCard> {
     final model.User user = Provider.of<UserProvider>(context).getUser;
     final width = MediaQuery.of(context).size.width;
 
-    return Container(
+    return isLoading
+        ? const Center(
+      child: CircularProgressIndicator(),
+    ):Container(
       // boundary needed for web
       decoration: BoxDecoration(
         border: Border.all(

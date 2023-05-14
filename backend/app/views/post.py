@@ -23,7 +23,10 @@ def index():
 @login_required
 def create_post():
     try:    
+        print(request,file=sys.stderr)
+        print("asd",file=sys.stderr)
         print(request.form,file=sys.stderr)
+        print("asd",file=sys.stderr)
         title = request.form.get('title')
         content = request.form.get('content')
         typei = int(request.form.get('type'))

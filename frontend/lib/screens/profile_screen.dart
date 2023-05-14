@@ -11,6 +11,7 @@ import 'package:frontend/widgets/follow_button.dart';
 import 'package:http/http.dart' as http;
 
 import '../Auth/customAuth.dart';
+import '../models/user.dart';
 import '../resources/database_methods.dart' as db;
 import 'followed_screen.dart';
 import 'modify_screen.dart';
@@ -66,12 +67,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       print(userinfo);
       print(userinfo['id']);
       _photo = await dbm.getPhoto(userinfo['id'].toString());
-      if(_photo == null){
-        photo = NetworkImage("https://p0.itc.cn/q_70/images03/20230213/ca107acd0ee943a0ac9e8264a23b6ca4.jpeg");
-      }
-      else{
-        photo = MemoryImage(_photo!);
-      }
+      photo = MemoryImage(_photo!);
       // get post lENGTH
       // var postSnap = await FirebaseFirestore.instance
       //     .collection('posts')
@@ -81,9 +77,23 @@ class _ProfileScreenState extends State<ProfileScreen> {
       //postLen = postSnap.docs.length;
       print(userinfo['username']);
       userData = userinfo;
+      userData['profile'] = CustomAuth.currentUser.profile;
       followers = userFollowers['totalNum'];
       //following = userSnap.data()!['following'].length;
       followed = userFollowed;
+      CustomAuth.currentUser = new User(
+        username: CustomAuth.currentUser.username,
+        uid: CustomAuth.currentUser.uid,
+        jwt: CustomAuth.currentUser.jwt,
+        photoUrl: CustomAuth.currentUser.photoUrl,
+        email: CustomAuth.currentUser.email,
+        password: CustomAuth.currentUser.password,
+        nickname: CustomAuth.currentUser.nickname,
+        profile:CustomAuth.currentUser.profile,
+        photo: CustomAuth.currentUser.photo,
+        followers: userFollowers['followedList'],
+        following: userFollowed['followerList'],
+      );
       // isFollowed = userSnap
       //     .data()!['followers']
       //     .contains(FirebaseAuth.instance.currentUser!.uid);
@@ -114,7 +124,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       appBar: AppBar(
         backgroundColor: mobileBackgroundColor,
         title: Text(
-          userData['nickname'], //TODO
+          userData['username'], //TODO
         ),
         centerTitle: false,
       ),
@@ -157,7 +167,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   Text(
-                                    followers.toString(),
+                                    CustomAuth.currentUser.following.length.toString(),
                                     style: const TextStyle(
                                       fontSize: 18,
                                       fontWeight: FontWeight.bold,
@@ -177,7 +187,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 ],
                               )
                               ),
-                              buildStatColumn(followers, "粉丝数"),
+                              buildStatColumn(CustomAuth.currentUser.followers.length, "粉丝数"),
                             ],
                           ),
                           Row(
@@ -186,7 +196,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             children: [
                               currentUserUid ==
                                   widget.uid
-                                  ? FollowButton(
+                                  ? Row(
+                                  mainAxisAlignment:
+                                  MainAxisAlignment.spaceEvenly,
+                                  children:[FollowButton(
                                 text: '退出登录',
                                 backgroundColor:
                                 mobileBackgroundColor,
@@ -211,8 +224,30 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     );
                                   }
                                 },
-                              )
-                                  : isFollowed
+                              ),Container(
+                                alignment: Alignment.centerRight,
+                                padding: const EdgeInsets.only(
+                                  top: 1,
+                                ),
+                                child:
+                                currentUserUid == widget.uid?
+                                FollowButton(
+                                  text: '修改信息',
+                                  backgroundColor:mobileBackgroundColor,
+                                  textColor: primaryColor,
+                                  borderColor: Colors.grey,
+                                  function: () async {
+                                    //TODO  修改信息
+                                    Navigator.of(context).pushReplacement(
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                        const ModifyScreen(),
+                                      ),
+                                    );
+                                  },
+                                ):Text("你谁啊")
+                              ) ,]
+                              ): isFollowed
                                   ? FollowButton(
                                 text: 'Unfollow',
                                 backgroundColor: Colors.white,
@@ -259,51 +294,29 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                   ],
                 ),
-                Container(
-                  alignment: Alignment.centerLeft,
-                  padding: const EdgeInsets.only(
-                    top: 15,
-                  ),
-                  child: Text(
-                    // userData['username'],  //TODO
-                    userData['username'],  //TODO
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
+                // Container(
+                //   alignment: Alignment.centerLeft,
+                //   padding: const EdgeInsets.only(
+                //     top: 15,
+                //   ),
+                //   child: Text(
+                //     // userData['username'],  //TODO
+                //     userData['nickname'],  //TODO
+                //     style: TextStyle(
+                //       fontWeight: FontWeight.bold,
+                //     ),
+                //   ),
+                // ),
                 Container(
                   alignment: Alignment.centerLeft,
                   padding: const EdgeInsets.only(
                     top: 1,
                   ),
                   child: Text(
-                    userData['nickname'], //TODO
+                    userData['profile'], //TODO
                   ),
                 ),
-                Container(
-                  alignment: Alignment.centerRight,
-                  padding: const EdgeInsets.only(
-                  top: 1,
-                  ),
-                  child:
-                    currentUserUid == widget.uid?
-                    FollowButton(
-                      text: '修改信息',
-                      backgroundColor:mobileBackgroundColor,
-                      textColor: primaryColor,
-                      borderColor: Colors.grey,
-                      function: () async {
-                      //TODO  修改信息
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (context) =>
-                            const ModifyScreen(),
-                          ),
-                        );
-                      },
-                    ):Text("你谁啊")
-                ),
+
               ]),
     ),
           const Divider(),

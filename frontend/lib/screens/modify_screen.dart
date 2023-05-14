@@ -8,7 +8,9 @@ import 'package:frontend/utils/utils.dart';
 import 'package:provider/provider.dart';
 
 import '../Auth/customAuth.dart';
+import '../models/user.dart';
 import '../resources/database_methods.dart' as db;
+import '../screens/profile_screen.dart';
 
 class ModifyScreen extends StatefulWidget {
   const ModifyScreen({Key? key}) : super(key: key);
@@ -23,9 +25,7 @@ class _ModifyScreenState extends State<ModifyScreen> {
   final TextEditingController usernamec = new TextEditingController(text: CustomAuth.currentUser.username);
   final TextEditingController profilec = new TextEditingController(text: CustomAuth.currentUser.profile);
   final TextEditingController passwordc = new TextEditingController(text: CustomAuth.currentUser.password);
-  // const username = "原用户名："+CustomAuth.currentUser.username;
-  // final const profile = "原简介："+CustomAuth.currentUser.profile;
-  // final password = "原密码："+CustomAuth.currentUser.password;
+  final Uint8List _photo = CustomAuth.currentUser.photo;
 
   _selectImage(BuildContext parentContext) async {
     return showDialog(
@@ -116,6 +116,18 @@ class _ModifyScreenState extends State<ModifyScreen> {
     db.DataBaseManager().changeInfo(u,cu.nickname,p,w);
     if(_file != null){
       print("upload photo");
+      CustomAuth.currentUser = new User(
+          username: u,
+          uid: CustomAuth.currentUser.uid,
+          jwt: CustomAuth.currentUser.jwt,
+          photoUrl: CustomAuth.currentUser.photoUrl,
+          photo: _file!,
+          email: CustomAuth.currentUser.email,
+          password: w,
+          nickname: CustomAuth.currentUser.nickname,
+          profile: p,
+          followers: CustomAuth.currentUser.followers,
+          following: CustomAuth.currentUser.following);
       db.DataBaseManager().uploadPhoto(_file!);
     }
   }
@@ -137,7 +149,10 @@ class _ModifyScreenState extends State<ModifyScreen> {
         backgroundColor: mobileBackgroundColor,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: (){Navigator.of(context).pop();},
+          onPressed: (){Navigator.of(context).pushReplacement(MaterialPageRoute(
+                        builder: (context) =>
+                        ProfileScreen(uid: CustomAuth.currentUser.uid),
+                        ));},
         ),
         title: const Text(
           '修改信息',
@@ -150,7 +165,10 @@ class _ModifyScreenState extends State<ModifyScreen> {
               profilec.text,
               passwordc.text,
             );
-              Navigator.of(context).pop();},
+              Navigator.of(context).pushReplacement(MaterialPageRoute(
+                builder: (context) =>
+                ProfileScreen(uid: CustomAuth.currentUser.uid),
+              ),);},
             // onPressed: () => postImage(
             //   userProvider.getUser.uid,
             //   userProvider.getUser.username,
@@ -208,11 +226,7 @@ class _ModifyScreenState extends State<ModifyScreen> {
                         image: DecorationImage(
                           fit: BoxFit.fill,
                           alignment: FractionalOffset.topCenter,
-                          // image: MemoryImage(_file!),
-                          image : NetworkImage(
-                            // userProvider.getUser.photoUrl,
-                              "https://p0.itc.cn/q_70/images03/20230213/ca107acd0ee943a0ac9e8264a23b6ca4.jpeg"
-                          ),
+                          image: MemoryImage(CustomAuth.currentUser.photo),
                         )),
                   ),
                 ),
@@ -246,11 +260,11 @@ class _ModifyScreenState extends State<ModifyScreen> {
                               image: DecorationImage(
                                 fit: BoxFit.fill,
                                 alignment: FractionalOffset.topCenter,
-                                // image: MemoryImage(_file!),
-                                image : NetworkImage(
-                                  // userProvider.getUser.photoUrl,
-                                    "https://p0.itc.cn/q_70/images03/20230213/ca107acd0ee943a0ac9e8264a23b6ca4.jpeg"
-                                ),
+                                image: MemoryImage(_photo),
+                                // image : NetworkImage(
+                                //   // userProvider.getUser.photoUrl,
+                                //     "https://p0.itc.cn/q_70/images03/20230213/ca107acd0ee943a0ac9e8264a23b6ca4.jpeg"
+                                // ),
                               )),
                         ),
                       ),

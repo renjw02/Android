@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
+import 'dart:ui';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -18,6 +20,7 @@ User fakeUser1 = User(
   nickname: 'bio1',
   jwt:'jwt',
   profile:'profile',
+  photo: new Uint8List(0),
   followers: [],
   following: [],
 );
@@ -30,6 +33,7 @@ User fakeUser2 = User(
   nickname: 'bio1',
   jwt:'jwt',
   profile:'profile',
+  photo: new Uint8List(0),
   followers: [],
   following: [],
 );
@@ -42,6 +46,7 @@ User fakeUser3 = User(
   nickname: 'bio1',
   jwt:'jwt',
   profile:'profile',
+  photo: new Uint8List(0),
   followers: [],
   following: [],
 );
@@ -54,6 +59,7 @@ User fakeUser4 = User(
   nickname: 'bio1',
   jwt:'jwt',
   profile:'profile',
+  photo: new Uint8List(0),
   followers: [],
   following: [],
 );
@@ -66,6 +72,7 @@ User fakeUser5 = User(
   nickname: 'bio1',
   jwt:'jwt',
   profile:'profile',
+  photo: new Uint8List(0),
   followers: [],
   following: [],
 );
@@ -78,6 +85,7 @@ User fakeUser6 = User(
   nickname: 'bio1',
   jwt:'jwt',
   profile:'profile',
+  photo: new Uint8List(0),
   followers: [],
   following: [],
 );
@@ -90,6 +98,7 @@ User fakeUser7 = User(
   nickname: 'bio1',
   jwt:'jwt',
   profile:'profile',
+  photo: new Uint8List(0),
   followers: [],
   following: [],
 );
@@ -102,6 +111,7 @@ User fakeUser8 = User(
   nickname: 'bio1',
   jwt:'jwt',
   profile:'profile',
+  photo: new Uint8List(0),
   followers: [],
   following: [],
 );
@@ -114,6 +124,7 @@ User fakeUser9 = User(
   nickname: 'bio1',
   jwt:'jwt',
   profile:'profile',
+  photo: new Uint8List(0),
   followers: [],
   following: [],
 );
@@ -145,6 +156,7 @@ class CustomAuth {
     password: "password",
     nickname: 'nickname',
     profile:'profile',
+    photo: Uint8List(0),
     followers: [],
     following: [],
   );
@@ -161,9 +173,10 @@ class CustomAuth {
     print(state);
     print("asd2");
     if(state=="Success"){
+      var uid = await storage.read(key: "uid");
       var data = {
         'username': await storage.read(key: "username"),
-        'uid': await storage.read(key: "uid"),
+        'uid': uid,
         'jwt':await storage.read(key: "jwt"),
         'photoUrl': await storage.read(key: "photoUrl"),
         'email': await storage.read(key: "email"),
@@ -182,6 +195,21 @@ class CustomAuth {
         email: data['email'] as String,
         nickname: data['nickname'] as String,
         profile:data['profile'] as String,
+        photo: Uint8List(0),
+        followers: data['followers'] as List,
+        following: data['following'] as List,
+      );
+      Uint8List? _photo = await db.DataBaseManager().getPhoto(uid!);
+      CustomAuth.currentUser = User(
+        username: data['username'] as String,
+        password: data['password'] as String,
+        uid: data['uid'] as String,
+        jwt: data['jwt'] as String,
+        photoUrl: data['photoUrl'] as String,
+        email: data['email'] as String,
+        nickname: data['nickname'] as String,
+        profile:data['profile'] as String,
+        photo: _photo!,
         followers: data['followers'] as List,
         following: data['following'] as List,
       );
@@ -191,6 +219,7 @@ class CustomAuth {
     var url = Uri.parse(gv.ip+"/api/user/login");
     String result;
     result = await db.DataBaseManager().signIn(url, email, password);
+    print("customAuth"+currentUser.jwt);
     if(result == "Success"){
       _controller.add(currentUser);
       await storage.write(key: "loginState", value: "Success");
@@ -277,12 +306,14 @@ class CustomAuth {
         'followers': [],
         'following': [],
       };
+      Uint8List? _photo = await db.DataBaseManager().getPhoto("-1");
       final user = User(
         username: data['username'] as String,
         password: data['password'] as String,
         uid: data['uid'] as String,
         jwt: data['jwt'] as String,
         photoUrl: data['photoUrl'] as String,
+        photo: _photo!,
         email: data['email'] as String,
         nickname: data['nickname'] as String,
         profile:data['profile'] as String,

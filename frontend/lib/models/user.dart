@@ -1,12 +1,15 @@
 
 
 //账号、密码、用户名、头像、简介
+import 'dart:typed_data';
+
 class User {
   final String email;
   final String password;
   final String uid;
   final String jwt;
   final String photoUrl;
+  final Uint8List photo;
   final String username;
   final String nickname;
   final String profile;
@@ -18,6 +21,7 @@ class User {
         required this.uid,
         required this.jwt,
         required this.photoUrl,
+        required this.photo,
         required this.email,
         required this.password,
         required this.nickname,
@@ -46,6 +50,7 @@ class User {
     "password":password,
     "jwt":jwt,
     "photoUrl": photoUrl,
+    "photo":photo,
     "nickname": nickname,
     "profile":profile,
     "followers": followers,
@@ -59,6 +64,7 @@ class User {
       "password":password,
       "jwt":jwt,
       "photoUrl": photoUrl,
+      "photo":photo,
       "nickname": nickname,
       "profile":profile,
       "followers": followers,
