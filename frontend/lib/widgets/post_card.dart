@@ -312,38 +312,46 @@ class _PostCardState extends State<PostCard> {
                         .subtitle2!
                         .copyWith(fontWeight: FontWeight.w800),
                     child: Text(
-                      '${widget.snap['supportList'].length} supports',
+                      '${widget.snap['support_num']} 点赞',
                       style: Theme.of(context).textTheme.bodyText2,
                     )),
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.only(
-                    top: 8,
-                  ),
-                  child: RichText(
-                    text: TextSpan(
-                      style: const TextStyle(color: primaryColor),
-                      children: [
-                        TextSpan(
-                          text: userinfo['username'].toString(),
+                Column(
+                  children:[
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.only(
+                        top: 8,
+                      ),
+                      child:RichText(
+                        text:TextSpan(
+                          text: "${userinfo['username']}",
                           style: const TextStyle(
+                            color: Colors.white,
                             fontWeight: FontWeight.bold,
                           ),
-                        ),
-                        TextSpan(
+                        )
+                      ),
+                    ),
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.only(
+                        top: 8,
+                      ),
+                      child: RichText(
+                        text: TextSpan(
                           text: ' ${widget.snap['content']}',
                           style: TextStyle(fontSize: widget.snap['font_size'],color: colors[widget.snap['font_color']],
                               fontWeight: weights[widget.snap['font_weight']]),
                         ),
-                      ],
-                    ),
-                  ),
+                      ),
+                    )
+                  ]
                 ),
                 InkWell(
                   child: Container(
                     padding: const EdgeInsets.symmetric(vertical: 4),
                     child: Text(
-                      'View all ${widget.snap['commment_num']} comments',
+                      '查看所有 ${widget.snap['comment_num']} 条评论',
                       style: const TextStyle(
                         fontSize: 16,
                         color: secondaryColor,

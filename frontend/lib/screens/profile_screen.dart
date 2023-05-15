@@ -34,7 +34,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   bool isLoading = false;
   String currentUserUid = "";
   Uint8List? _photo;
-  MemoryImage? photo;
+  dynamic photo;
 
   @override
   void initState() {
@@ -136,9 +136,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
               children: [
                 Row(
                   children: [
-                    const CircleAvatar(
+                    CircleAvatar(
                       backgroundColor: Colors.grey,
-                      backgroundImage: MemoryImage(_photo!),
+                      backgroundImage: photo,
                       radius: 40,
                     ),
                     Expanded(

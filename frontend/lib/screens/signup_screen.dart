@@ -18,8 +18,8 @@ class SignupScreen extends StatefulWidget {
 }
 class _SignupScreenState extends State<SignupScreen> {
   final TextEditingController _usernameController = TextEditingController();
-  final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _nicknameController = TextEditingController();
   bool _isLoading = false;
 
   void signUpUser() async {
@@ -27,7 +27,7 @@ class _SignupScreenState extends State<SignupScreen> {
       _isLoading = true;
     });
     String res = await CustomAuth().register(
-      _usernameController.text,_emailController.text, _passwordController.text
+      _usernameController.text, _passwordController.text,_nicknameController.text
     );
     if (res == "Success") {
       setState(() {
@@ -67,7 +67,7 @@ class _SignupScreenState extends State<SignupScreen> {
             SizedBox(
               width: size.height * 0.25,
               child: SvgPicture.asset(
-                'assets/ic_instagram.svg',
+                'logo.svg',
                 color: primaryColor,
                 height: 64,
               ),
@@ -78,30 +78,30 @@ class _SignupScreenState extends State<SignupScreen> {
               width: 370,
               height: 50,
               child: TextFieldInput(
-                hintText: 'Enter Username',
+                hintText: '输入用户名',
                 textEditingController: _usernameController,
                 textInputType: TextInputType.text,
               ),
             ),
             Container(
               margin: const EdgeInsets.only(top: 10),
-              width: 370,
               height: 50,
+              width: 370,
               child: TextFieldInput(
-                hintText: 'Enter Email',
-                textEditingController: _emailController,
-                textInputType: TextInputType.emailAddress,
+                hintText: '输入密码',
+                textEditingController: _passwordController,
+                textInputType: TextInputType.text,
+                isPass: true,
               ),
             ),
             Container(
               margin: const EdgeInsets.only(top: 10),
-              height: 50,
               width: 370,
+              height: 50,
               child: TextFieldInput(
-                hintText: 'Enter Password',
-                textEditingController: _passwordController,
+                hintText: '输入昵称',
+                textEditingController: _nicknameController,
                 textInputType: TextInputType.text,
-                isPass: true,
               ),
             ),
             const SizedBox(height: 10),
@@ -118,7 +118,7 @@ class _SignupScreenState extends State<SignupScreen> {
               ),
               child: !_isLoading
                   ? const Text(
-                'Sign up',
+                '注册',
                 style: TextStyle(
                   fontSize: 16,
                 ),
@@ -137,9 +137,9 @@ class _SignupScreenState extends State<SignupScreen> {
               child: const Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text("Already have an account?"),
+                  Text("已有账号?"),
                   Text(
-                    " Login.",
+                    "登陆",
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
                 ],

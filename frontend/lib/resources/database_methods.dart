@@ -390,13 +390,13 @@ class DataBaseManager{
   // "username"
   // "nickname"
   // }
-  register(Uri url, String name, String email, String password) async {
+  register(Uri url, String username, String password, String nickname) async {
     Map<String, String> headersMap = new Map();
     headersMap["content-type"] = ContentType.json.toString();
     Map<String, String> bodyParams = new Map();
-    bodyParams["nickname"] = name;
-    bodyParams["username"] = email;
+    bodyParams["username"] = username;
     bodyParams["password"] = password;
+    bodyParams["nickname"] = nickname;
     var result="Fail";
     try{
       await _client.post(
@@ -404,8 +404,8 @@ class DataBaseManager{
           headers:headersMap,
           // body: bodyParams,
           body:jsonEncode({
-            "nickname":name,
-            "username":email,
+            "nickname":nickname,
+            "username":username,
             "password":password,
           }),
           encoding: Utf8Codec()

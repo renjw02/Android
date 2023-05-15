@@ -258,7 +258,7 @@ class CustomAuth {
     }
   }
 
-  Future<String> register(String nickname, String email, String password) async {
+  Future<String> register(String username, String password, String nickname) async {
     // Make a request to your backend with name, email and password
     // Get the response and parse it as a User object
     // Add the User object to the StreamController
@@ -270,39 +270,11 @@ class CustomAuth {
       // );
       // final data = jsonDecode(response.body);
       String result;
-      result = await db.DataBaseManager().register(userRegister, nickname, email, password);
+      result = await db.DataBaseManager().register(userRegister, username, password,nickname);
       if(result == "Success"){
         _controller.add(currentUser);
       }
       return result;
-      final data = {
-        'username': "username",
-        'uid': 'uid',
-        'jwt':'jwt',
-        'photoUrl': 'photoUrl',
-        'email': email,
-        "password":password,
-        'nickname': 'nickname',
-        'profile':'profile',
-        'followers': [],
-        'following': [],
-      };
-      Uint8List? _photo = await db.DataBaseManager().getPhoto("-1");
-      final user = User(
-        username: data['username'] as String,
-        password: data['password'] as String,
-        uid: data['uid'] as String,
-        jwt: data['jwt'] as String,
-        photoUrl: data['photoUrl'] as String,
-        photo: _photo!,
-        email: data['email'] as String,
-        nickname: data['nickname'] as String,
-        profile:data['profile'] as String,
-        followers: data['followers'] as List,
-        following: data['following'] as List,
-      );
-      _controller.add(user);
-      return 'Success';
     } catch (e) {
       // Handle errors as needed
       print(e);
