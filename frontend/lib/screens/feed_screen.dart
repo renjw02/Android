@@ -20,32 +20,32 @@ import '../models/post.dart';
 //       required this.profImage,
 DocumentSnapshot trend1 = DocumentSnapshot(
   uid: '1',
-  username: 'username1',
-  likes: [],
+  username: 'test',
+  likes: ['1'],
   postId: '1',
   datePublished: DateTime.now(),
-  description: 'description1',
+  description: '啊！啊！啊~~~~，114514 114514',
   postUrl: 'https://picsum.photos/200/300',
-  profImage: 'https://picsum.photos/200/500',
+  profImage: 'https://p0.itc.cn/q_70/images03/20230213/ca107acd0ee943a0ac9e8264a23b6ca4.jpeg',
 );
 
 DocumentSnapshot trend2 = DocumentSnapshot(
   uid: '2',
-  username: 'username2',
+  username: '王境泽',
   likes: [],
   postId: '2',
   datePublished: DateTime.now(),
-  description: 'description2',
+  description: '诶呀，真香',
   postUrl: 'https://picsum.photos/200/302',
   profImage: 'https://picsum.photos/200/502',
 );
 DocumentSnapshot trend3 = DocumentSnapshot(
   uid: '3',
-  username: 'username3',
+  username: '李永乐老师',
   likes: [],
   postId: '3',
   datePublished: DateTime.now(),
-  description: 'description3',
+  description: '今天我们来看看这个东西是怎么样的',
   postUrl: 'https://picsum.photos/200/303',
   profImage: 'https://picsum.photos/200/503',
 );

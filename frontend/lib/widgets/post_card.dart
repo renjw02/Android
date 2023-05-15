@@ -88,12 +88,19 @@ class _PostCardState extends State<PostCard> {
           color: width > webScreenSize ? secondaryColor : mobileBackgroundColor,
         ),
         color: mobileBackgroundColor,
+        borderRadius: BorderRadius.circular(10.0), // 设置圆角半径
       ),
       padding: const EdgeInsets.symmetric(
         vertical: 10,
       ),
       child: Column(
         children: [
+          //分割线
+          const Divider(
+            height: 1,
+            thickness: 1,
+            color: Colors.grey,
+          ),
           // HEADER SECTION OF THE POST
           Container(
             padding: const EdgeInsets.symmetric(
@@ -187,13 +194,18 @@ class _PostCardState extends State<PostCard> {
             child: Stack(
               alignment: Alignment.center,
               children: [
-                SizedBox(
-                  height: MediaQuery.of(context).size.height * 0.35,
-                  width: double.infinity,
-                  child: Image.network(
-                    //widget.snap['postUrl'].toString(),
-                    'https://picsum.photos/200/303',
-                    fit: BoxFit.cover,
+                Container(
+                  margin: const EdgeInsets.all(10.0), // 设置边距
+                  child: SizedBox(
+                    height: MediaQuery.of(context).size.height * 0.35,
+                    width: double.infinity,
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(10.0), // 设置圆角半径
+                      child: Image.network(
+                        //widget.snap['postUrl'].toString(),
+                        'https://picsum.photos/200/303',
+                        fit: BoxFit.cover),
+                    ),
                   ),
                 ),
                 AnimatedOpacity(
@@ -201,11 +213,6 @@ class _PostCardState extends State<PostCard> {
                   opacity: isLikeAnimating ? 1 : 0,
                   child: LikeAnimation(
                     isAnimating: isLikeAnimating,
-                    child: const Icon(
-                      Icons.favorite,
-                      color: Colors.white,
-                      size: 100,
-                    ),
                     duration: const Duration(
                       milliseconds: 400,
                     ),
@@ -214,66 +221,83 @@ class _PostCardState extends State<PostCard> {
                         isLikeAnimating = false;
                       });
                     },
+                    child: const Icon(
+                      Icons.favorite,
+                      color: Colors.white,
+                      size: 100,
+                    ),
                   ),
                 ),
               ],
             ),
           ),
-          // LIKE, COMMENT SECTION OF THE POST
-          Row(
-            children: <Widget>[
-              LikeAnimation(
-                isAnimating: widget.snap['supportList'].contains(user.uid),
-                smallLike: true,
-                child: IconButton(
-                  icon: widget.snap['supportList'].contains(user.uid)
-                      ? const Icon(
-                          Icons.favorite,
-                          color: Colors.red,
-                        )
-                      : const Icon(
-                          Icons.favorite_border,
-                        ),
-                  onPressed: () => TextPostMethods().likePost(
-                    widget.snap['id'].toString(),
-                    user.uid,
-                    widget.snap['supportList'],
-                  ),
-                ),
-              ),
-              IconButton(
-                icon: const Icon(
-                  Icons.comment_outlined,
-                ),
-                onPressed: () => Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (context) => CommentsScreen(
-                      postId: widget.snap['id'].toString(),
+          Container(
+            margin: const EdgeInsets.all(10.0),
+            child: Row(
+              children: <Widget>[
+                LikeAnimation(
+                  isAnimating: widget.snap['supportList'].contains(user.uid),
+                  smallLike: true,
+                  child: IconButton(
+                    icon: widget.snap['supportList'].contains(user.uid)//判断是否点赞
+                    ? const Icon(
+                      Icons.favorite,
+                      color: Colors.red,)
+                    : const Icon(Icons.favorite_border,),
+                    onPressed: () => TextPostMethods().likePost(
+                      widget.snap['postId'].toString(),
+                      user.uid,
+                      widget.snap['supportList'],
                     ),
                   ),
                 ),
-              ),
-              IconButton(   //转发按钮
-                  icon: const Icon(
-                    Icons.send,
+                DefaultTextStyle(
+                  style: Theme.of(context)
+                      .textTheme
+                      .titleSmall!
+                      .copyWith(fontWeight: FontWeight.w800),
+                  child: Text(
+                  '${widget.snap['support_num']} ',
+                  style: Theme.of(context).textTheme.bodyMedium,)
+                ),
+                IconButton(
+                  icon: const Icon(Icons.comment_outlined,),
+                  onPressed: () => Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => CommentsScreen(
+                        postId: widget.snap['postId'].toString(),
+                      ),
+                    ),
                   ),
-                  onPressed: () {}),
-              Expanded(
-                  child: Align(
-                alignment: Alignment.bottomRight,
-                child:IconButton(
+                ),
+                DefaultTextStyle(
+                  style: Theme.of(context)
+                      .textTheme
+                      .titleSmall!
+                      .copyWith(fontWeight: FontWeight.w800),
+                  child: Text(
+                  '${widget.snap['comment_num']}',
+                  style: Theme.of(context).textTheme.bodyText2,
+                )),
+                  IconButton( //转发按钮
+                    icon: const Icon(Icons.send,),
+                    onPressed: () {}
+                  ),
+                  Expanded(
+                    child: Align(
+                      alignment: Alignment.bottomRight,
+                      child:IconButton(
                         icon: widget.snap['starList'].contains(user.uid)
-                        ? const Icon(
+                            ? const Icon(
                           Icons.star,
                           color: Colors.red,
-                        )
-                        : const Icon(Icons.star_border,),
+                        ) : const Icon(Icons.star_border),
                         onPressed:(){},
                       ),
-                // child: IconButton(
-                //     icon: const Icon(Icons.star_border), onPressed: () {}),
-              ))
-            ],
+                    )
+                  )
+                ],
+              ),
           ),
           //DESCRIPTION AND NUMBER OF COMMENTS
           Container(

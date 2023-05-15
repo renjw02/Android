@@ -10,13 +10,14 @@ import 'package:provider/provider.dart';
 import 'Auth/customAuth.dart';
 
 void main() async {
+  final CustomAuth _auth = CustomAuth();
   WidgetsFlutterBinding.ensureInitialized();
-  runApp(MyApp());
+  runApp(MyApp(auth: _auth,));
 }
 
 class MyApp extends StatelessWidget {
-  MyApp({super.key});
-  final CustomAuth _auth = CustomAuth();
+  MyApp({super.key, required this.auth});
+  final CustomAuth auth;
 
   // This widget is the root of your application.
   @override
@@ -33,7 +34,8 @@ class MyApp extends StatelessWidget {
           ),
           // home: LoginScreen(),
           home: StreamBuilder(
-            stream: _auth.authStateChanges,
+            stream: auth.authStateChanges,
+            initialData: false,
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.active) {
                 // Checking if the snapshot has any data or not
@@ -50,7 +52,7 @@ class MyApp extends StatelessWidget {
                 }
               }
 
-              // // means connection to future hasnt been made yet
+              // means connection to future hasnt been made yet
               // if (snapshot.connectionState == ConnectionState.waiting) {
               //   return const Center(
               //     child: CircularProgressIndicator(),
