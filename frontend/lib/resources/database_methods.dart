@@ -6,6 +6,7 @@ import 'dart:io';
 import 'dart:typed_data';
 import 'package:dio/dio.dart';
 import 'package:frontend/Auth/customAuth.dart';
+import 'package:frontend/models/post.dart';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
 
@@ -334,6 +335,41 @@ class DataBaseManager{
     }catch (exception) {
       print("动态上传失败");
       return "动态上传失败";
+    }
+  }
+
+  Future<List<Post>> getPost([int page=0,int size=10,int userId=0,String? orderByWhat=null,int type=0,bool onlyFollowing=false,
+    bool hot=false]) async {
+    try{
+      var dio = new Dio();
+      dio.options.headers[HttpHeaders.authorizationHeader]=CustomAuth.currentUser.jwt;
+      Map<String,dynamic> paras = {
+        "page":page,
+        "size":size,
+        "userId":userId,
+        "orderByWhat":orderByWhat,
+        "type":type,
+        "onlyFollowing":onlyFollowing,
+        "hot":hot,
+      };
+      print(paras);
+      var response = await dio.get(gv.ip+"/api/post/getpostlist",queryParameters: paras);
+      print("asd1");
+      print(response.data);
+      print(response.data.runtimeType);
+      var m = Map.from(response.data);
+      print(m);
+      print(m.runtimeType);
+      if (response.statusCode == 200) {
+        return m['posts'];
+      }
+      else{
+        print("获取动态失败");
+        return [];
+      }
+    }catch (exception) {
+      print("获取动态错误");
+      return [];
     }
   }
 
