@@ -6,7 +6,7 @@ import datetime
 from sqlalchemy import and_, or_, text
 
 from app.extension import db
-from app.models import Post, Comment, User, Picture, Video
+from app.models import Post, Comment, User, Picture, Video, Support
 
 class PostService():
     
@@ -308,12 +308,31 @@ class PostService():
             return [], False
 
 
-    def support_post(self, post_id, type):
+    def support_post(self, user_id, post_id):
         try:
             now = datetime.datetime.now()
+            tmp = Support.query.filter(and_(Support.user_id == user_id, Support.post_id == post_id)).first()
+            if tmp is not None:
+                return "already exist", False
+            
+            s = Support(post_id=post_id, user_id=user_id, created=now)
+            db.session.add(s)
             db.session.query(Post).filter(Post.id == post_id).update({
-                "support_num": Post.favor_num+type,
+                "support_num": Post.favor_num+1,
                 "updated": now
+            })
+            db.session.commit()
+            return 'ok', True
+        except Exception as e:
+            print(e)
+            db.session.rollback()
+            return 'errors', False
+        
+    def cancel_support_post(self, user_id, post_id):
+        try:
+            db.session.query(Support).filter(and_(Support.user_id == user_id, Support.post_id == post_id)).delete()
+            db.session.query(Post).filter(Post.id == post_id).update({
+                "support_num": Post.favor_num-1
             })
             db.session.commit()
             return 'ok', True
@@ -363,8 +382,8 @@ class PostService():
             from picture
             where post_id = {post_id}
             """
-            result = db.session.execute(text(sql.format(post_id=post_id)))
-            pictures = [dict(zip(result.keys(), result)) for result in result]
+            results = db.session.execute(text(sql.format(post_id=post_id)))
+            pictures = [dict(zip(result.keys(), result)) for result in results]
             return pictures, True
         except Exception as e:
             print(e)
@@ -377,9 +396,37 @@ class PostService():
             from video
             where post_id = {post_id}
             """
-            result = db.session.execute(text(sql.format(post_id=post_id)))
-            videos = [dict(zip(result.keys(), result)) for result in result]
+            results = db.session.execute(text(sql.format(post_id=post_id)))
+            videos = [dict(zip(result.keys(), result)) for result in results]
             return videos, True
+        except Exception as e:
+            print(e)
+            return [], False
+        
+    def get_star_list(self, post_id):
+        try:
+            sql = """
+            select user_id
+            from star
+            where post_id = {post_id}
+            """
+            results = db.session.execute(text(sql.format(post_id=post_id)))
+            star_list = [dict(zip(result.keys(), result)) for result in results]
+            return star_list, True
+        except Exception as e:
+            print(e)
+            return [], False
+    
+    def get_support_list(self, post_id):
+        try:
+            sql = """
+            select user_id
+            from support
+            where post_id = {post_id}
+            """
+            results = db.session.execute(text(sql.format(post_id=post_id)))
+            support_list = [dict(zip(result.keys(), result)) for result in results]
+            return support_list, True
         except Exception as e:
             print(e)
             return [], False

@@ -142,6 +142,18 @@ def get_post_list():
         post_list, count, result = service.get_post_list(user_id, page, size, order_by_what, type, 
                                                         only_following, hot)
 
+        # add supportList and starList
+        for post in post_list:
+            post_id = post['id']
+            flag1, star_list = service.get_star_list(post_id)
+            if not flag1:
+                return jsonify({'message': "get star list failed"}), 500
+            post['starList'] = star_list
+            flag2, support_list = service.get_support_list(post_id)
+            if not flag2:
+                return jsonify({'message': "get support list failed"}), 500
+            post['supportList'] = support_list
+
         # count 帖子总数
         if result:
             return jsonify({
@@ -367,12 +379,15 @@ def support_post(postId):
             return jsonify({'message': "no content"}), 400
 
         if 'type' in content:
-            if content['type'] != 1 and content['type'] != -1:
+            if content['type'] == 1:
+                msg, result = service.support_post(g.user_id, postId)
+            elif content['type'] == -1:
+                msg, result = service.cancel_support_post(g.user_id, postId)
+            else:
                 return jsonify({'message': "error type input"}), 400
         else:
             return jsonify({'message': "no type"}), 400
 
-        msg, result = service.support_post(postId, content['type'])
 
         if result:
             return jsonify({'message': msg}), 200
