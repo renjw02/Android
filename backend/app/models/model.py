@@ -117,6 +117,22 @@ class Star(db.Model):
 
     created = db.Column(db.DateTime, doc="创建时间")
 
+class Support(db.Model):
+    """
+    点赞
+    """
+    __tablename__ = 'support'
+
+    id = db.Column(db.Integer, primary_key=True,
+                   autoincrement=True, doc="点赞id")
+
+    user_id = db.Column(db.Integer, doc="用户id")
+    post_id = db.Column(db.Integer, db.ForeignKey("post.id", ondelete="SET NULL"), doc="帖子id")
+    post = db.relationship('Post', backref=db.backref('supports', cascade='all, delete'))
+    
+    created = db.Column(db.DateTime, doc="创建时间")
+
+    
 class Picture(db.Model):
     """
     图片

@@ -1,1 +1,1 @@
-from .model import User, Post, Comment, Blacklist, Follow, Video, Picture, Message, Notice, Star
+from .model import User, Post, Comment, Blacklist, Follow, Video, Picture, Message, Notice, Star, Support
