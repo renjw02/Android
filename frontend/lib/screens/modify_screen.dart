@@ -67,55 +67,28 @@ class _ModifyScreenState extends State<ModifyScreen> {
     );
   }
 
-  // void postImage(String uid, String username, String profImage) async {
-  //   setState(() {
-  //     isLoading = true;
-  //   });
-  //   // start the loading
-  //   try {
-  //     // upload to storage and db
-  //     String res = 'unimplemented';
-  //     // String res = await FireStoreMethods().uploadPost(
-  //     //   _descriptionController.text,
-  //     //   _file!,
-  //     //   uid,
-  //     //   username,
-  //     //   profImage,
-  //     // );
-  //     if (res == "success") {
-  //       setState(() {
-  //         isLoading = false;
-  //       });
-  //       showSnackBar(
-  //         context,
-  //         'Posted!',
-  //       );
-  //       clearImage();
-  //     } else {
-  //       showSnackBar(context, res);
-  //     }
-  //   } catch (err) {
-  //     setState(() {
-  //       isLoading = false;
-  //     });
-  //     showSnackBar(
-  //       context,
-  //       err.toString(),
-  //     );
-  //   }
-  // }
-
-  void clearImage() {
-    setState(() {
-      _file = null;
-    });
-  }
-
-  void modifyInfo(String u,String p,String w)async {
+  Future<String> modifyInfo(String u,String p,String w)async {
     var cu = CustomAuth.currentUser;
-    db.DataBaseManager().changeInfo(u,cu.nickname,p,w);
+    String res = await db.DataBaseManager().changeInfo(u,cu.nickname,p,w);
+    if(res == "Fail"){
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("修改失败"),
+        ),
+      );
+      return res;
+    }
     if(_file != null){
       print("upload photo");
+      String res = await db.DataBaseManager().uploadPhoto(_file!);
+      if(res == "Fail"){
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("修改失败"),
+          ),
+        );
+        return res;
+      }
       CustomAuth.currentUser = new User(
           username: u,
           uid: CustomAuth.currentUser.uid,
@@ -128,8 +101,8 @@ class _ModifyScreenState extends State<ModifyScreen> {
           profile: p,
           followers: CustomAuth.currentUser.followers,
           following: CustomAuth.currentUser.following);
-      db.DataBaseManager().uploadPhoto(_file!);
     }
+    return res;
   }
 
   @override
@@ -149,10 +122,15 @@ class _ModifyScreenState extends State<ModifyScreen> {
         backgroundColor: mobileBackgroundColor,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: (){Navigator.of(context).pushReplacement(MaterialPageRoute(
-                        builder: (context) =>
-                        ProfileScreen(uid: CustomAuth.currentUser.uid),
-                        ));},
+          onPressed: (){
+            Navigator.of(context).pop();
+            setState(() {
+            });
+          },
+          // onPressed: (){Navigator.of(context).pushReplacement(MaterialPageRoute(
+          //               builder: (context) =>
+          //               ProfileScreen(uid: CustomAuth.currentUser.uid),
+          //               ));},
         ),
         title: const Text(
           '修改信息',
@@ -160,20 +138,31 @@ class _ModifyScreenState extends State<ModifyScreen> {
         centerTitle: false,
         actions: <Widget>[
           TextButton(
-            onPressed: (){modifyInfo(
-              usernamec.text,
-              profilec.text,
-              passwordc.text,
-            );
-              Navigator.of(context).pushReplacement(MaterialPageRoute(
-                builder: (context) =>
-                ProfileScreen(uid: CustomAuth.currentUser.uid),
-              ),);},
-            // onPressed: () => postImage(
-            //   userProvider.getUser.uid,
-            //   userProvider.getUser.username,
-            //   userProvider.getUser.photoUrl,
-            // ),
+            onPressed: ()async {
+              String res = await modifyInfo(
+                usernamec.text,
+                profilec.text,
+                passwordc.text,
+              );
+              print(res);
+              if(res == "Success"){
+                Map<String,dynamic> result = {};
+                result["username"] = usernamec.text;
+                result["profile"] = profilec.text;
+                if(_file != null){
+                  result["photo"] = _file;
+                }
+                else{
+                  result["photo"] = _photo;
+                }
+                Navigator.of(context).pop(result);
+              }
+
+              // Navigator.of(context).pushReplacement(MaterialPageRoute(
+              //   builder: (context) =>
+              //   ProfileScreen(uid: CustomAuth.currentUser.uid),
+              // ),);
+            },
             child: const Text(
               "完成",
               style: TextStyle(

@@ -27,7 +27,7 @@ def user_register():
   {
   	"username"    只能大小写字母、数字、*-_@
   	"password"    必须字母+数字，不能有其他
-  	"nickname"    任意，不超过14字符
+  	"nickname"    任意，不超过14字符、
   }
   ```
 

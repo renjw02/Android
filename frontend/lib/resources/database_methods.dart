@@ -45,7 +45,7 @@ class DataBaseManager{
             'email': email,
             "password":password,
             'nickname': returndata['nickname'],
-            'profile':'profile',
+            'profile':returndata['profile'],
             'followers': [],
             'following': [],
           };
@@ -97,11 +97,12 @@ class DataBaseManager{
     return info;
   }
   
-  void changeInfo(String username,String nickname,String profile,String password,)async {
+  Future<String> changeInfo(String username,String nickname,String profile,String password,)async {
     Uri url = Uri.parse(gv.ip+"/api/user/changeattr");
     print(username);
     print(profile);
     print(password);
+    String res = "Fail";
     await _client.post(
       url,
       headers:{
@@ -131,6 +132,7 @@ class DataBaseManager{
           profile: profile,
           followers: CustomAuth.currentUser.followers,
           following: CustomAuth.currentUser.following);
+          res = "Success";
         }
       }
     });
@@ -162,13 +164,17 @@ class DataBaseManager{
             profile: profile,
             followers: CustomAuth.currentUser.followers,
             following: CustomAuth.currentUser.following);
-
+          res = "Success";
+        }
+        else{
         }
       });
     }
+    return res;
   }
 
-  void uploadPhoto(Uint8List file) async {
+  Future<String> uploadPhoto(Uint8List file) async {
+    String res="Success";
     try{
       FormData fd = FormData.fromMap({
         "file":MultipartFile.fromBytes(file,filename:'asd.jpg',contentType: new MediaType("image", "jpeg")),
@@ -177,44 +183,17 @@ class DataBaseManager{
       dio.options.headers['Content-Type']='multipart/form-data';
       dio.options.headers[HttpHeaders.authorizationHeader]=CustomAuth.currentUser.jwt;
       var response = await dio.post(gv.ip+"/api/user/uploadavatar",data:fd,);
-      String res = response.data.toString();
-
-      print(res);
-      print(res.runtimeType); // String
-
-      var resJson = jsonDecode(res); // 字符串反序列化为Map
-      print(resJson); // 此时\u5317\u4eac\u8317\u89c6\u5149的数据也被解码成了中文.
-      print(resJson.runtimeType); //  _InternalLinkedHashMap<String, dynamic>
-      // http.MultipartRequest request = new http.MultipartRequest('POST', url);
-      // http.MultipartFile multipartFile = http.MultipartFile.fromBytes("photo", file);
-      // request.files.add(multipartFile);
-      // var headers = {
-      //   'Content-Type': 'application/x-www-form-urlencoded',
-      //   HttpHeaders.authorizationHeader:CustomAuth.currentUser.jwt,
-      // };
-      // request.headers.addAll(headers);
-      //
-      // http.StreamedResponse response = await request.send();
-      // print(response.statusCode);
-      // String res = await response.stream.bytesToString();
-      // Map<String, dynamic> jsonResponse = jsonDecode(res) as Map<String, dynamic>;
-      // print(jsonResponse['message']);
       if (response.statusCode == 200) {
-        //这里返回值用到了Stream回调
-        // String res = await response.stream.bytesToString();
-        // Map<String, dynamic> jsonResponse = jsonDecode(res) as Map<String, dynamic>;
-        // ResponseBase _responseBase = ResponseBase(
-        //   errorCode: jsonResponse['errorCode'],
-        //   action: jsonResponse['action'],
-        //   message: jsonResponse['message'],
-        //   value: jsonResponse['value'],
-        //   success: jsonResponse['success'],
-        // );
-        // return _responseBase;
+        res = "Success";
+      }
+      else{
+        res = "Fail";
       }
     }catch (exception) {
       print("文件上传失败");
+      res = "Fail";
     }
+    return res;
   }
 
   Future<Uint8List> getPhoto(String uid) async {
@@ -262,7 +241,7 @@ class DataBaseManager{
     }
   }
 
-  void followUser(String uid) async {
+  Future<void> followUser(String uid) async {
     var url = Uri.parse(gv.ip+"/api/user/register");
     await _client.post(
       url,
@@ -288,6 +267,10 @@ class DataBaseManager{
         "content-type": ContentType.json.toString(),
       },
     ).then((http.Response response){
+      print(jsonDecode(response.body));
+      if(CustomAuth.currentUser.following.indexOf(jsonDecode(response.body)['followed_id']) == -1){
+        CustomAuth.currentUser.following.add(jsonDecode(response.body)['followed_id']);
+      }
       print(jsonDecode(response.body)['message']);
     });
   }
@@ -338,8 +321,8 @@ class DataBaseManager{
     }
   }
 
-  Future<List<Post>> getPost([int page=0,int size=10,int userId=0,String? orderByWhat=null,int type=0,bool onlyFollowing=false,
-    bool hot=false]) async {
+  Future<List<dynamic>> getPost([int page=1,int size=10,int userId=0,String? orderByWhat=null,int type=0,bool? onlyFollowing=null,
+    bool? hot=null]) async {
     try{
       var dio = new Dio();
       dio.options.headers[HttpHeaders.authorizationHeader]=CustomAuth.currentUser.jwt;
@@ -347,11 +330,17 @@ class DataBaseManager{
         "page":page,
         "size":size,
         "userId":userId,
-        "orderByWhat":orderByWhat,
         "type":type,
-        "onlyFollowing":onlyFollowing,
-        "hot":hot,
       };
+      if(orderByWhat != null){
+        paras["orderByWhat"] = orderByWhat;
+      }
+      if(onlyFollowing != null){
+        paras["onlyFollowing"] = onlyFollowing;
+      }
+      if(hot != null){
+        paras["hot"] = hot;
+      }
       print(paras);
       var response = await dio.get(gv.ip+"/api/post/getpostlist",queryParameters: paras);
       print("asd1");
@@ -360,6 +349,8 @@ class DataBaseManager{
       var m = Map.from(response.data);
       print(m);
       print(m.runtimeType);
+      print(response.statusCode);
+      print(response.statusCode.runtimeType);
       if (response.statusCode == 200) {
         return m['posts'];
       }
@@ -368,6 +359,7 @@ class DataBaseManager{
         return [];
       }
     }catch (exception) {
+      print(exception);
       print("获取动态错误");
       return [];
     }

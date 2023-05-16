@@ -135,25 +135,28 @@ def get_post_list():
         size = 10 if request.args.get('size') is None else int(request.args.get('size'))
         user_id = 0 if request.args.get('userId') is None else request.args.get('userId')
         order_by_what = None if request.args.get('orderByWhat') is None else request.args.get('orderByWhat')
-        type = 0 if request.args.get('type') is None else int(request.args.get('type'))
+        typei = 0 if request.args.get('type') is None else int(request.args.get('type'))
         only_following = False if request.args.get('onlyFollowing') is None else True
         hot = False if request.args.get('hot') is None else True
 
-        post_list, count, result = service.get_post_list(user_id, page, size, order_by_what, type, 
+        post_list, count, result = service.get_post_list(user_id, page, size, order_by_what, typei, 
                                                         only_following, hot)
 
+        print(count)
         # add supportList and starList
         for post in post_list:
             post_id = post['id']
-            flag1, star_list = service.get_star_list(post_id)
+            star_list ,flag1 = service.get_star_list(post_id)
+            print(flag1, star_list)
             if not flag1:
                 return jsonify({'message': "get star list failed"}), 500
             post['starList'] = star_list
-            flag2, support_list = service.get_support_list(post_id)
+            support_list, flag2 = service.get_support_list(post_id)
             if not flag2:
                 return jsonify({'message': "get support list failed"}), 500
             post['supportList'] = support_list
 
+        print(post_list)
         # count 帖子总数
         if result:
             return jsonify({

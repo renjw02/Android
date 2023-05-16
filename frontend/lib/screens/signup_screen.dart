@@ -67,7 +67,7 @@ class _SignupScreenState extends State<SignupScreen> {
             SizedBox(
               width: size.height * 0.25,
               child: SvgPicture.asset(
-                'logo.svg',
+                'assets/logo.svg',
                 color: primaryColor,
                 height: 64,
               ),

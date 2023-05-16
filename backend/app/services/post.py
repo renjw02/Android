@@ -7,6 +7,7 @@ from sqlalchemy import and_, or_, text
 
 from app.extension import db
 from app.models import Post, Comment, User, Picture, Video, Support
+import sys
 
 class PostService():
     
@@ -108,9 +109,10 @@ class PostService():
 
 
     # 默认按帖子更新时间排序
-    def get_post_list(self, user_id=0, page=1, size=10, order_by_what=None, type=0, 
+    def get_post_list(self, user_id=0, page=1, size=10, order_by_what=None, typei=0, 
                       only_following=False, hot=False):
         try:  
+            # print(order_by_what, typei, only_following, hot)
             # order_by_what := ["post.support_num", "post.comment_num"]
             if order_by_what is None:
                 order_col = "post.created"
@@ -118,11 +120,11 @@ class PostService():
                 order_col = order_by_what
 
             where_clause = ""
-            if user_id != 0:
+            if int(user_id) != 0:
                 where_clause = "where post.user_id = " + str(user_id)
             
-            if type != 0:
-                where_clause = "where post.type = " + str(type)
+            if typei != 0:
+                where_clause = "where post.type = " + str(typei)
 
             if only_following:
                 where_clause = '''
@@ -133,13 +135,13 @@ class PostService():
                         )
                         '''
             if hot:
-                where_clause = "where post.support > 10 and post.comment_num > 5"
+                where_clause = "where post.support_num > 10 and post.comment_num > 5"
 
             content_base = '''
                 select
                     post.id as id, post.user_id as userId, create_user.nickname as nickname,
                     post.title as title, post.content as content, post.support_num as supportNum,
-                    post.star_num as starNum, post.commentNum as commentNum, 
+                    post.star_num as starNum, post.comment_num as commentNum, post.type as type,
                     post.last_replied_user_id as lastRepliedUserId, 
                     comment_user.nickname as lastRepliedNickname,
                     post.last_replied_time as lastRepliedTime, 
@@ -162,20 +164,31 @@ class PostService():
                     post
                 {where}
             '''
+            
             sql_content = content_base.format(limit=size, offset=(
                 page-1)*size, order=order_col, where=where_clause)
+            # print(sql_content)
             sql_count = count_base.format(where=where_clause)
 
-            content_result = db.session.execute(text(sql_content))
-            count_result = db.session.execute(text(sql_count))
 
-            post_list = [dict(zip(result.keys(), result))
-                         for result in content_result]
-            count = [dict(zip(result.keys(), result))
-                     for result in count_result]
+            content_result = db.session.execute(text(sql_content))
+            column_names = content_result.keys()
+            post_list = []
+
+            for row in content_result.fetchall():
+                post_dict = dict(zip(column_names, row))
+                post_list.append(post_dict)
+
+            count_result = db.session.execute(text(sql_count))
+            column_names = count_result.keys()
+            count = []
+            for row in count_result.fetchall():
+                post_dict = dict(zip(column_names, row))
+                count.append(post_dict)
 
             return post_list, count[0]['count'], True
         except Exception as e:
+            print("asd")
             print(e)
             return [], 0, False
     
@@ -405,15 +418,23 @@ class PostService():
         
     def get_star_list(self, post_id):
         try:
+            print("star")
             sql = """
             select user_id
             from star
             where post_id = {post_id}
             """
+
             results = db.session.execute(text(sql.format(post_id=post_id)))
-            star_list = [dict(zip(result.keys(), result)) for result in results]
+            column_names = results.keys()
+            star_list = []
+
+            for row in results.fetchall():
+                star_dict = dict(zip(column_names, row))
+                star_list.append(star_dict)
             return star_list, True
         except Exception as e:
+            print("star exception",file=sys.stderr)
             print(e)
             return [], False
     
@@ -425,8 +446,14 @@ class PostService():
             where post_id = {post_id}
             """
             results = db.session.execute(text(sql.format(post_id=post_id)))
-            support_list = [dict(zip(result.keys(), result)) for result in results]
+            column_names = results.keys()
+            support_list = []
+
+            for row in results.fetchall():
+                support_dict = dict(zip(column_names, row))
+                support_list.append(support_dict)
             return support_list, True
         except Exception as e:
+            print("support exception",file=sys.stderr)
             print(e)
             return [], False

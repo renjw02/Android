@@ -216,7 +216,12 @@ class UserService():
                 follow.user_id = {user_id}
             """
             followed_result = db.session.execute(text(followed_sql.format(user_id=user_id)))
-            followed_list = [dict(zip(result.keys(), result)) for result in followed_result]
+            column_names = followed_result.keys()
+            followed_list = []
+
+            for row in followed_result.fetchall():
+                followed_dict = dict(zip(column_names, row))
+                followed_list.append(followed_dict)
             return followed_list, True
         except Exception as e:
             print(e)
@@ -232,7 +237,12 @@ class UserService():
             where follow.followed_id = {user_id}
             """
             follower_result = db.session.execute(text(follower_sql.format(user_id=user_id)))
-            follower_list = [dict(zip(result.keys(), result)) for result in follower_result]
+            column_names = follower_result.keys()
+            follower_list = []
+
+            for row in follower_result.fetchall():
+                follower_dict = dict(zip(column_names, row))
+                follower_list.append(follower_dict)
             return follower_list, True
         except Exception as e:
             print(e)

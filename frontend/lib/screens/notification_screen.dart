@@ -23,7 +23,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
         backgroundColor: mobileBackgroundColor,
         centerTitle: false,
         title: SvgPicture.asset(
-        'assets/ic_instagram.svg',
+        'assets/logo.svg',
         color: primaryColor,
         height: 32,
         ),

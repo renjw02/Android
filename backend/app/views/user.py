@@ -78,7 +78,7 @@ def login():
                 "userId": user.id,
                 "username": user.username,
                 "nickname": user.nickname,
-                "profile": user.profile
+                "profile": user.profile if user.profile != None else "profile"
             }), 200
         else:
             return jsonify({'message': user}), 500
@@ -221,9 +221,11 @@ def upload_avatar():
         file_obj.save(save_path)
         print("success",file=sys.stderr)
         workpath = os.getcwd()
-        dst = os.path.join(workpath, 'app', 'static', 'avatar', str(g.user_id)+'.jpg')
+        dst = os.path.join(workpath, 'backend','app', 'static', 'avatar', str(g.user_id)+'.jpg')
+        print(dst)
         if os.path.exists(dst):
             os.remove(dst)
+        print("success",file=sys.stderr)
         os.rename(save_path, dst)
         print("success",file=sys.stderr)
         return jsonify({'message': "ok"}), 200

@@ -5,6 +5,7 @@ import 'package:frontend/models/user.dart' as model;
 import 'package:frontend/providers/user_provider.dart';
 import 'package:frontend/resources/textpost_methods.dart';
 import 'package:frontend/screens/comments_screen.dart';
+import 'package:frontend/screens/profile_screen.dart';
 import 'package:frontend/utils/colors.dart';
 import 'package:frontend/utils/global_variable.dart';
 import 'package:frontend/utils/utils.dart';
@@ -29,8 +30,9 @@ class PostCard extends StatefulWidget {
 class _PostCardState extends State<PostCard> {
   //int commentLen = 0;
   bool isLikeAnimating = false;
-  Map<String,dynamic> userinfo = {};
-  Uint8List? _file;
+  late final Map<String,dynamic> userinfo;
+  late final Uint8List _file;
+  Map<int,String> types = {1:"校园资讯",2:"二手交易"};
   Map<String,Color> colors = {"red":Colors.red,"white":Colors.white,"yellow":Colors.yellow};
   Map<String,FontWeight> weights = {"较细":FontWeight.w300,"适中":FontWeight.w500,"较粗":FontWeight.w700};
   bool isLoading = false;
@@ -109,12 +111,23 @@ class _PostCardState extends State<PostCard> {
             ).copyWith(right: 0),
             child: Row(
               children: <Widget>[
-                CircleAvatar(
-                  radius: 16,
-                  backgroundImage: MemoryImage(_file!),
-                  // backgroundImage: NetworkImage(
-                  //   widget.snap['profImage'].toString(),
-                  // ),
+                GestureDetector(
+                  onTap:(){
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                      builder: (context) =>
+                        ProfileScreen(uid: widget.snap['uid']),
+                        //const LoginScreen(),
+                      ),
+                    );
+                  },
+                  child:CircleAvatar(
+                    radius: 16,
+                    backgroundImage: MemoryImage(_file!),
+                    // backgroundImage: NetworkImage(
+                    //   widget.snap['profImage'].toString(),
+                    // ),
+                  )
                 ),
                 Expanded(
                   child: Padding(
@@ -135,59 +148,105 @@ class _PostCardState extends State<PostCard> {
                     ),
                   ),
                 ),
-                widget.snap['uid'].toString() == user.uid
-                    ? IconButton(
-                        onPressed: () {
-                          showDialog(
-                            useRootNavigator: false,
-                            context: context,
-                            builder: (context) {
-                              return Dialog(
-                                child: ListView(
-                                    padding: const EdgeInsets.symmetric(
-                                        vertical: 16),
-                                    shrinkWrap: true,
-                                    children: [
-                                      'Delete',
-                                    ]
-                                        .map(
-                                          (e) => InkWell(
-                                              child: Container(
-                                                padding:
-                                                    const EdgeInsets.symmetric(
-                                                        vertical: 12,
-                                                        horizontal: 16),
-                                                child: Text(e),
-                                              ),
-                                              onTap: () {
-                                                deletePost(
-                                                  widget.snap['id']
-                                                      .toString(),
-                                                );
-                                                // remove the dialog box
-                                                Navigator.of(context).pop();
-                                              }),
-                                        )
-                                        .toList()),
-                              );
-                            },
-                          );
-                        },
-                        icon: const Icon(Icons.more_vert),
-                      )
-                    : Container(),
+                Text(
+                  types[widget.snap['type']].toString(),
+                  style: const TextStyle(
+                    color:secondaryColor,
+                  ),
+                ),
+                widget.snap['uid'].toString() == user.uid?
+                IconButton(
+                  onPressed: () {
+                    showDialog(
+                      useRootNavigator: false,
+                      context: context,
+                      builder: (context) {
+                        return Dialog(
+                          child: ListView(
+                              padding: const EdgeInsets.symmetric(
+                                  vertical: 16),
+                              shrinkWrap: true,
+                              children: [
+                                'Delete',
+                              ]
+                                  .map(
+                                    (e) => InkWell(
+                                        child: Container(
+                                          padding:
+                                              const EdgeInsets.symmetric(
+                                                  vertical: 12,
+                                                  horizontal: 16),
+                                          child: Text(e),
+                                        ),
+                                        onTap: () {
+                                          deletePost(
+                                            widget.snap['id']
+                                                .toString(),
+                                          );
+                                          // remove the dialog box
+                                          Navigator.of(context).pop();
+                                        }),
+                                  )
+                                  .toList()),
+                        );
+                      },
+                    );
+                  },
+                  icon: const Icon(Icons.more_vert),
+                )
+              : Container(),
               ],
             ),
           ),
+          Column(
+              children:[
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.only(
+                    top: 8,
+                    left: 8,
+                  ),
+                  child:RichText(
+                      text:TextSpan(
+                        text: "${widget.snap['title']}",
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      )
+                  ),
+                ),
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.only(
+                    top: 8,
+                  ),
+                  child: RichText(
+                    text: TextSpan(
+                      text: ' ${widget.snap['content']}',
+                      style: TextStyle(fontSize: widget.snap['font_size'].toDouble() , color: colors[widget.snap['font_color']],
+                          fontWeight: weights[widget.snap['font_weight']]),
+                    ),
+                  ),
+                )
+              ]
+          ),
           // IMAGE SECTION OF THE POST
           GestureDetector(
-            onDoubleTap: () {
-              TextPostMethods().likePost(
+            onDoubleTap: () async {
+              String res = await TextPostMethods().supportPost(   //TODO
                 widget.snap['id'].toString(),
                 user.uid,
-                widget.snap['support_num'],
+                widget.snap['supportList'],
               );
               setState(() {
+                if(res=="Success"){
+                  widget.snap['support_num']++;
+                  print(widget.snap['supportList']);
+                }
+                else{
+                  widget.snap['support_num']--;
+                }
                 isLikeAnimating = true;
               });
             },
@@ -244,11 +303,22 @@ class _PostCardState extends State<PostCard> {
                       Icons.favorite,
                       color: Colors.red,)
                     : const Icon(Icons.favorite_border,),
-                    onPressed: () => TextPostMethods().likePost(
-                      widget.snap['postId'].toString(),
-                      user.uid,
-                      widget.snap['supportList'],
-                    ),
+                    onPressed: () async {
+                      String res = await TextPostMethods().supportPost(
+                        widget.snap['postId'].toString(),
+                        user.uid,
+                        widget.snap['supportList'],
+                      );
+                      print(widget.snap['supportList']);
+                      if(res=="Success"){
+                        widget.snap['support_num']++;
+                      }
+                      else{
+                        widget.snap['support_num']--;
+                      }
+                      setState(() {
+                      });
+                    },
                   ),
                 ),
                 DefaultTextStyle(
@@ -265,7 +335,7 @@ class _PostCardState extends State<PostCard> {
                   onPressed: () => Navigator.of(context).push(
                     MaterialPageRoute(
                       builder: (context) => CommentsScreen(
-                        postId: widget.snap['postId'].toString(),
+                        postId: widget.snap['id'].toString(),
                       ),
                     ),
                   ),
@@ -301,60 +371,30 @@ class _PostCardState extends State<PostCard> {
           ),
           //DESCRIPTION AND NUMBER OF COMMENTS
           Container(
+            width: double.infinity,
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
-                DefaultTextStyle(
-                    style: Theme.of(context)
-                        .textTheme
-                        .subtitle2!
-                        .copyWith(fontWeight: FontWeight.w800),
-                    child: Text(
-                      '${widget.snap['support_num']} 点赞',
-                      style: Theme.of(context).textTheme.bodyText2,
-                    )),
-                Column(
-                  children:[
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.only(
-                        top: 8,
-                      ),
-                      child:RichText(
-                        text:TextSpan(
-                          text: "${userinfo['username']}",
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        )
-                      ),
-                    ),
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.only(
-                        top: 8,
-                      ),
-                      child: RichText(
-                        text: TextSpan(
-                          text: ' ${widget.snap['content']}',
-                          style: TextStyle(fontSize: widget.snap['font_size'],color: colors[widget.snap['font_color']],
-                              fontWeight: weights[widget.snap['font_weight']]),
-                        ),
-                      ),
-                    )
-                  ]
-                ),
+                // DefaultTextStyle(
+                //   style: Theme.of(context)
+                //       .textTheme
+                //       .subtitle2!
+                //       .copyWith(fontWeight: FontWeight.w800),
+                //   child: Text(
+                //     '${widget.snap['support_num']} 点赞',
+                //     style: Theme.of(context).textTheme.bodyText2,
+                //   )
+                // ),
+
                 InkWell(
                   child: Container(
                     padding: const EdgeInsets.symmetric(vertical: 4),
                     child: Text(
                       '查看所有 ${widget.snap['comment_num']} 条评论',
                       style: const TextStyle(
-                        fontSize: 16,
-                        color: secondaryColor,
+                        color: blueColor,
                       ),
                     ),
                   ),

@@ -9,93 +9,8 @@ import 'package:frontend/widgets/post_card.dart';
 import '../models/DocumentSnapshot.dart';
 import '../models/querySnapshot.dart';
 import '../models/post.dart';
-//初始化三个DocumentSnapshot对象
-//required this.description,
-//       required this.uid,
-//       required this.username,
-//       required this.likes,
-//       required this.postId,
-//       required this.datePublished,
-//       required this.postUrl,
-//       required this.profImage,
-DocumentSnapshot trend1 = DocumentSnapshot(
-  uid: '1',
-  username: 'test',
-  likes: ['1'],
-  postId: '1',
-  datePublished: DateTime.now(),
-  description: '啊！啊！啊~~~~，114514 114514',
-  postUrl: 'https://picsum.photos/200/300',
-  profImage: 'https://p0.itc.cn/q_70/images03/20230213/ca107acd0ee943a0ac9e8264a23b6ca4.jpeg',
-);
+import '../resources/database_methods.dart' as db;
 
-DocumentSnapshot trend2 = DocumentSnapshot(
-  uid: '2',
-  username: '王境泽',
-  likes: [],
-  postId: '2',
-  datePublished: DateTime.now(),
-  description: '诶呀，真香',
-  postUrl: 'https://picsum.photos/200/302',
-  profImage: 'https://picsum.photos/200/502',
-);
-DocumentSnapshot trend3 = DocumentSnapshot(
-  uid: '3',
-  username: '李永乐老师',
-  likes: [],
-  postId: '3',
-  datePublished: DateTime.now(),
-  description: '今天我们来看看这个东西是怎么样的',
-  postUrl: 'https://picsum.photos/200/303',
-  profImage: 'https://picsum.photos/200/503',
-);
-List<DocumentSnapshot> doc = [trend1, trend2, trend3];
-
-Post post1 = Post(
-  id: 1,
-  uid:"1",
-  title:"title1",
-  content: "content1",
-  last_replied_user_id: "1",
-  last_replied_time: "time",
-  created:"time",
-  updated: "time",
-  type:1,
-  position: "position",
-  support_num: 7,
-  comment_num: 7,
-  star_num: 7,
-  font_size:16,
-  font_color: "white",
-  font_weight: "适中",
-  supportList: ["-1"],
-  starList: ["-1"],
-);
-Post post2 = Post(
-  id: 2,
-  uid:"1",
-  title:"title2",
-  content: "content2",
-  last_replied_user_id: "1",
-  last_replied_time: "time",
-  created:"time",
-  updated: "time",
-  type:1,
-  position: "position",
-  support_num: 7,
-  comment_num: 7,
-  star_num: 7,
-  font_size:16,
-  font_color: "white",
-  font_weight: "适中",
-  supportList: ["-1"],
-  starList: ["-1"],
-);
-
-List<Post> doc1 = [post1,post2];
-
-//初始化一个QuerySnapshot对象
-QuerySnapshot querySnapshot = QuerySnapshot(docs: doc1, readTime: DateTime.now());
 
 
 class FeedScreen extends StatefulWidget {
@@ -108,15 +23,61 @@ class FeedScreen extends StatefulWidget {
 class _FeedScreenState extends State<FeedScreen> {
   late Stream<QuerySnapshot> test;
   late StreamController<QuerySnapshot> _streamController;
+  bool isLoading = false;
 
   @override
   void initState() {
+    setState(() {
+      isLoading = true;
+    });
     super.initState();
+    getData();
+    // _streamController = CustomStore.instance.collection<QuerySnapshot>("posts");
+  }
+
+  getData() async {
+    List<dynamic> data = await db.DataBaseManager().getPost();
+    List<Post> doc = convertPost(data);
+    QuerySnapshot querySnapshot = QuerySnapshot(docs: doc, readTime: DateTime.now());
     test = Stream<QuerySnapshot>.value(querySnapshot);
     _streamController = StreamController<QuerySnapshot>();
     //将test加入到_streamController中
     _streamController.addStream(test);
-    // _streamController = CustomStore.instance.collection<QuerySnapshot>("posts");
+    setState(() {
+      isLoading = false;
+    });
+  }
+
+  List<Post> convertPost(List<dynamic> data){
+    List<Post> doc = [];
+    print(data);
+    for(var item in data){
+      print(item);
+      print(item.runtimeType);
+      doc.add(
+        Post(
+          id:item["id"],
+          uid:item["userId"].toString(),
+          title:item["title"],
+          content:item["content"],
+          last_replied_user_id: item["lastRepliedUserId"].toString(),
+          last_replied_time:item["lastRepliedTime"],
+          created: item["created"],
+          updated: item["updated"],
+          type: item['type'] ,
+          position: "position",  //TODO
+          support_num: item["supportNum"],
+          comment_num: item["commentNum"],
+          star_num: item["starNum"],
+          font_size: item["fontSize"],
+          font_color:item["fontColor"],
+          font_weight: item["fontWeight"],
+          supportList: item["supportList"],
+          starList: item["starList"],
+        )
+      );
+    }
+    return doc;
   }
 
   @override
@@ -133,7 +94,10 @@ class _FeedScreenState extends State<FeedScreen> {
 
     final width = MediaQuery.of(context).size.width;
 
-    return Scaffold(
+    return isLoading?
+      const Center(
+        child: CircularProgressIndicator(),
+      ):Scaffold(
       backgroundColor:
       width > webScreenSize ? webBackgroundColor : mobileBackgroundColor,
       appBar: width > webScreenSize
@@ -142,7 +106,7 @@ class _FeedScreenState extends State<FeedScreen> {
         backgroundColor: mobileBackgroundColor,
         centerTitle: false,
         title: SvgPicture.asset(
-          'assets/ic_instagram.svg',
+          'assets/logo.svg',
           color: primaryColor,
           height: 32,
         ),

@@ -220,6 +220,20 @@ class CustomAuth {
     var url = Uri.parse(gv.ip+"/api/user/login");
     String result;
     result = await db.DataBaseManager().signIn(url, email, password);
+    Uint8List? _photo = await db.DataBaseManager().getPhoto(currentUser.uid);
+    currentUser = User(
+        username: currentUser.username,
+        uid: currentUser.uid,
+        jwt: currentUser.jwt,
+        photoUrl: currentUser.photoUrl,
+        photo: _photo,
+        email: currentUser.email,
+        password: currentUser.password,
+        nickname: currentUser.nickname,
+        profile: currentUser.profile,
+        followers: currentUser.followers,
+        following: currentUser.following
+    );
     print("customAuth"+currentUser.jwt);
     if(result == "Success"){
       _controller.add(currentUser);
@@ -248,6 +262,14 @@ class CustomAuth {
       },);
       // await _client.post(Uri.parse('https://your-backend.com/signout'));
       await storage.write(key: "loginState", value: "Fail");
+      await storage.write(key: "username", value: currentUser.username);
+      await storage.write(key: "uid", value: currentUser.uid);
+      await storage.write(key: "jwt", value: currentUser.jwt);
+      await storage.write(key: "photoUrl", value: currentUser.photoUrl);
+      await storage.write(key: "email", value: currentUser.email);
+      await storage.write(key: "password", value: currentUser.password);
+      await storage.write(key: "nickname", value: currentUser.nickname);
+      await storage.write(key: "profile", value: currentUser.profile);
       // _controller.add(null);
       // _controller.close();
       return 'Success';

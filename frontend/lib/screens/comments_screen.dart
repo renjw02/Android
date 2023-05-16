@@ -8,42 +8,53 @@ import 'package:frontend/utils/global_variable.dart';
 import 'package:frontend/widgets/post_card.dart';
 
 import '../models/DocumentSnapshot.dart';
+import '../models/post.dart';
 import '../models/querySnapshot.dart';
-DocumentSnapshot trend3 = DocumentSnapshot(
-  uid: '1',
-  username: 'test',
-  likes: [],
-  postId: '1',
-  datePublished: DateTime.now(),
-  description: '114514 114514',
-  postUrl: 'https://picsum.photos/200/301',
-  profImage: 'https://p0.itc.cn/q_70/images03/20230213/ca107acd0ee943a0ac9e8264a23b6ca4.jpeg',
+Post post1 = Post(
+  id: 1,
+  uid:"1",
+  title:"title1",
+  content: "content1",
+  last_replied_user_id: "1",
+  last_replied_time: "time",
+  created:"time",
+  updated: "time",
+  type:1,
+  position: "position",
+  support_num: 7,
+  comment_num: 7,
+  star_num: 7,
+  font_size:16,
+  font_color: "white",
+  font_weight: "适中",
+  supportList: ["-1"],
+  starList: ["-1"],
+);
+Post post2 = Post(
+  id: 2,
+  uid:"1",
+  title:"title2",
+  content: "content2",
+  last_replied_user_id: "1",
+  last_replied_time: "time",
+  created:"time",
+  updated: "time",
+  type:1,
+  position: "position",
+  support_num: 7,
+  comment_num: 7,
+  star_num: 7,
+  font_size:16,
+  font_color: "white",
+  font_weight: "适中",
+  supportList: ["-1"],
+  starList: ["-1"],
 );
 
-DocumentSnapshot trend2 = DocumentSnapshot(
-  uid: '2',
-  username: '李永乐老师',
-  likes: [],
-  postId: '2',
-  datePublished: DateTime.now(),
-  description: '今天我们来看看这个东西是怎么样的，这....',
-  postUrl: 'https://picsum.photos/200/304',
-  profImage: 'https://picsum.photos/200/504',
-);
-DocumentSnapshot trend1 = DocumentSnapshot(
-  uid: '3',
-  username: '王境泽',
-  likes: [],
-  postId: '3',
-  datePublished: DateTime.now(),
-  description: '诶呀，真香',
-  postUrl: 'https://picsum.photos/200/305',
-  profImage: 'https://picsum.photos/200/505',
-);
-List<DocumentSnapshot> doc = [trend1, trend2, trend3];
+List<Post> doc1 = [post1,post2];
 
 //初始化一个QuerySnapshot对象
-QuerySnapshot querySnapshot = QuerySnapshot(docs: doc, readTime: DateTime.now());
+QuerySnapshot querySnapshot = QuerySnapshot(docs: doc1, readTime: DateTime.now());
 
 
 
