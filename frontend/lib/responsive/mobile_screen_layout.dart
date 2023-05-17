@@ -1,7 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:frontend/Auth/customAuth.dart';
 import 'package:frontend/utils/colors.dart';
 import 'package:frontend/utils/global_variable.dart';
+
+import '../screens/add_post_screen.dart';
+import '../screens/feed_screen.dart';
+import '../screens/notification_screen.dart';
+import '../screens/profile_screen.dart';
+import '../screens/search_screen.dart';
 
 class MobileScreenLayout extends StatefulWidget {
   const MobileScreenLayout({Key? key}) : super(key: key);
@@ -39,9 +46,17 @@ class _MobileScreenLayoutState extends State<MobileScreenLayout> {
 
   @override
   Widget build(BuildContext context) {
+    print("moible:"+CustomAuth.currentUser.uid);
     return Scaffold(
       body: PageView(
-        children: homeScreenItems,
+        children:
+        [
+          const FeedScreen(),
+          const SearchScreen(),
+          const AddPostScreen(),
+          const NotificationScreen(),
+          ProfileScreen(uid: CustomAuth.currentUser.uid,),
+        ],
         controller: pageController,
         onPageChanged: onPageChanged,
       ),

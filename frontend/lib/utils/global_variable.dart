@@ -8,14 +8,5 @@ import 'package:frontend/screens/search_screen.dart';
 
 const webScreenSize = 600;
 
-const ip = "http://183.172.197.218:5000";
+const ip = "http://183.172.193.147:5000";
 
-List<Widget> homeScreenItems = [
-  const FeedScreen(),
-  const SearchScreen(),
-  const AddPostScreen(),
-  const NotificationScreen(),
-  ProfileScreen(
-    uid: CustomAuth.currentUser!.uid,
-  ),
-];

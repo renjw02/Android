@@ -277,6 +277,7 @@ class DataBaseManager{
 
   Future<String> createPost(String title,String content,int type,String position,int font_size,String font_color,
   String font_weight,List<Uint8List?> files) async {
+    String res = "动态上传失败";
     try{
       List<MultipartFile> mfiles=[];
       int count=0;
@@ -309,16 +310,15 @@ class DataBaseManager{
       print(m);
       print(m.runtimeType);
       if (response.statusCode == 200) {
-        return "动态上传成功";
+        res = "动态上传成功";
       }
       else{
         print("动态上传状态码错误");
-        return "动态上传失败";
       }
     }catch (exception) {
-      print("动态上传失败");
-      return "动态上传失败";
+      print("动态上传exception");
     }
+    return res;
   }
 
   Future<List<dynamic>> getPost([int page=1,int size=10,int userId=0,String? orderByWhat=null,int type=0,bool? onlyFollowing=null,
@@ -365,6 +365,36 @@ class DataBaseManager{
     }
   }
 
+  Future<Map<String,dynamic>?> getThePost(int id) async{
+    try{
+      var dio = new Dio();
+      dio.options.headers[HttpHeaders.authorizationHeader]=CustomAuth.currentUser.jwt;
+      var response = await dio.get(gv.ip+"/api/post/getpost/"+id.toString());
+      print("getthepost asd1");
+      // print(response.data);
+      // print(response.data.runtimeType);
+      var m = Map.from(response.data);
+      //print(m);
+      print(m.runtimeType);
+      print(response.statusCode);
+      print(response.statusCode.runtimeType);
+      Map<String,dynamic> result = {};
+      if (response.statusCode == 200) {
+        result['images'] = m['images'];
+        result['videos'] = m['videos'];
+        return result;
+      }
+      else{
+        print("获取动态失败");
+        return null;
+      }
+    }catch (exception) {
+      print(exception);
+      print("获取动态错误");
+      return null;
+    }
+  }
+
   // ### 注册
   // @bp.route('register', methods=['POST'])
   // def user_register():
@@ -382,13 +412,10 @@ class DataBaseManager{
   // "username"
   // "nickname"
   // }
-  register(Uri url, String username, String password, String nickname) async {
+  Future<String> register(String username, String password, String nickname) async {
+    var url = Uri.parse(gv.ip+"/api/user/register");
     Map<String, String> headersMap = new Map();
     headersMap["content-type"] = ContentType.json.toString();
-    Map<String, String> bodyParams = new Map();
-    bodyParams["username"] = username;
-    bodyParams["password"] = password;
-    bodyParams["nickname"] = nickname;
     var result="Fail";
     try{
       await _client.post(

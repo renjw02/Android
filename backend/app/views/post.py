@@ -41,6 +41,7 @@ def create_post():
         
         print(request.files,file=sys.stderr)
         files = request.files.getlist('file')
+        print(files)
         
         post, result = service.create_post(title, content, g.user_id, typei, position, font_size,
                                            font_color, font_weight)
@@ -71,6 +72,7 @@ def create_post():
                 
                 file.save(path)
         print(123,file=sys.stderr)
+        print(post.id)
         if result:
             return jsonify({
                 'postId': post.id,
@@ -92,7 +94,9 @@ def get_post_detail(postId):
         detail, result = service.get_post_detail(postId)
         images, has_picture = service.get_pictures(postId)
         videos, has_video = service.get_videos(postId)
-
+        print("asd")
+        print(images, has_picture)
+        print(videos, has_video)
         if result:
             images_data = []
             videos_data = []
@@ -102,6 +106,7 @@ def get_post_detail(postId):
                     if file.endswith('.jpg') or file.endswith('.jpeg') or file.endswith('.png'):
                         with open(file, 'rb') as f:
                             image_data = base64.b64encode(f.read()).decode('utf-8')
+                            # image_data = string(f.read())
                             images_data.append(image_data)
             if has_video:
                 for video in videos:
@@ -109,6 +114,7 @@ def get_post_detail(postId):
                     if file.endswith('.mp4'):
                         with open(file, 'rb') as f:
                             video_data = base64.b64encode(f.read()).decode('utf-8')
+                            # video_data = f.read()
                             videos_data.append(video_data)
                 
             return jsonify({

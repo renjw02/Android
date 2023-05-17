@@ -235,6 +235,8 @@ class CustomAuth {
         following: currentUser.following
     );
     print("customAuth"+currentUser.jwt);
+    print(currentUser.username);
+    print(currentUser.uid);
     if(result == "Success"){
       _controller.add(currentUser);
       await storage.write(key: "loginState", value: "Success");
@@ -262,14 +264,14 @@ class CustomAuth {
       },);
       // await _client.post(Uri.parse('https://your-backend.com/signout'));
       await storage.write(key: "loginState", value: "Fail");
-      await storage.write(key: "username", value: currentUser.username);
-      await storage.write(key: "uid", value: currentUser.uid);
-      await storage.write(key: "jwt", value: currentUser.jwt);
-      await storage.write(key: "photoUrl", value: currentUser.photoUrl);
-      await storage.write(key: "email", value: currentUser.email);
-      await storage.write(key: "password", value: currentUser.password);
-      await storage.write(key: "nickname", value: currentUser.nickname);
-      await storage.write(key: "profile", value: currentUser.profile);
+      // await storage.write(key: "username", value: currentUser.username);
+      // await storage.write(key: "uid", value: currentUser.uid);
+      // await storage.write(key: "jwt", value: currentUser.jwt);
+      // await storage.write(key: "photoUrl", value: currentUser.photoUrl);
+      // await storage.write(key: "email", value: currentUser.email);
+      // await storage.write(key: "password", value: currentUser.password);
+      // await storage.write(key: "nickname", value: currentUser.nickname);
+      // await storage.write(key: "profile", value: currentUser.profile);
       // _controller.add(null);
       // _controller.close();
       return 'Success';
@@ -292,9 +294,11 @@ class CustomAuth {
       // );
       // final data = jsonDecode(response.body);
       String result;
-      result = await db.DataBaseManager().register(userRegister, username, password,nickname);
+      result = await db.DataBaseManager().register(username, password,nickname);
+      print(result);
       if(result == "Success"){
-        _controller.add(currentUser);
+        result = await signIn(username, password);
+        print(result);
       }
       return result;
     } catch (e) {

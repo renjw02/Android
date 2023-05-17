@@ -29,6 +29,8 @@ Post post1 = Post(
   font_weight: "适中",
   supportList: ["-1"],
   starList: ["-1"],
+  images: [],
+  videos: [],
 );
 Post post2 = Post(
   id: 2,
@@ -49,6 +51,8 @@ Post post2 = Post(
   font_weight: "适中",
   supportList: ["-1"],
   starList: ["-1"],
+  images: [],
+  videos: [],
 );
 
 List<Post> doc1 = [post1,post2];

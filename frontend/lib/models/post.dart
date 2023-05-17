@@ -1,3 +1,4 @@
+import 'dart:typed_data';
 import 'dart:ui';
 
 import 'documentSnapshot.dart';
@@ -21,6 +22,8 @@ class Post {
   final String font_weight;
   List<dynamic> supportList;   //喜欢这个贴子的用户
   List<dynamic> starList;
+  List<dynamic> images;
+  List<dynamic> videos;
   // final String username;
   // final likes;
   // final String postId;
@@ -46,6 +49,8 @@ class Post {
       required this.font_weight,
       required this.supportList,
       required this.starList,
+      required this.images,
+      required this.videos,
       });
 
   // static Post fromSnap(DocumentSnapshot snap) {

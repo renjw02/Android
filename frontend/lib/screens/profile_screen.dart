@@ -52,6 +52,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
       //     .doc(widget.uid)
       //     .get();
       currentUserUid = CustomAuth.currentUser.uid;
+      print(widget.uid);
+      print(currentUserUid);
       db.DataBaseManager dbm = db.DataBaseManager();
       Map<String, dynamic> userinfo={};//获取用户信息
       var url = Uri.parse(gv.ip+"/api/user/user/"+widget.uid);
@@ -120,11 +122,32 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
   @override
   Widget build(BuildContext context) {
-    return isLoading
-        ? const Center(
-      child: CircularProgressIndicator(),
-    )
-        : Scaffold(
+    // return StreamBuilder(
+    //   stream: CustomAuth().authStateChanges,
+    //   initialData: CustomAuth.currentUser,
+    //   builder:(context,snapshot){
+    //     if (snapshot.connectionState == ConnectionState.active) {
+    //       // Checking if the snapshot has any data or not
+    //       if (snapshot.hasData) {
+    //         // if snapshot has data which means user is logged in then we check the width of screen and accordingly display the screen layout
+    //         return const ResponsiveLayout(
+    //           mobileScreenLayout: MobileScreenLayout(),
+    //           webScreenLayout: WebScreenLayout(),
+    //         );
+    //       } else if (snapshot.hasError) {
+    //         return Center(
+    //           child: Text('${snapshot.error}'),
+    //         );
+    //       }
+    //     }
+    //     isLoading ? return const Center(
+    //       child: CircularProgressIndicator(),
+    //     ):return Container();
+    //   }
+    // )
+    return isLoading ? const Center(
+      child: CircularProgressIndicator()):
+      Scaffold(
       appBar: AppBar(
         backgroundColor: mobileBackgroundColor,
         title: Text(
@@ -137,236 +160,223 @@ class _ProfileScreenState extends State<ProfileScreen> {
           Padding(
             padding: const EdgeInsets.all(16),
             child: Column(
-              children: [
-                Row(
-                  children: [
-                    CircleAvatar(
-                      backgroundColor: Colors.grey,
-                      backgroundImage: photo,
-                      radius: 40,
-                    ),
-                    Expanded(
-                      flex: 1,
-                      child: Column(
-                        children: [
-                          Row(
-                            mainAxisSize: MainAxisSize.max,
-                            mainAxisAlignment:
-                            MainAxisAlignment.spaceEvenly,
-                            children: [
-                              //buildStatColumn(postLen, "posts"),  //TODO
-                              buildStatColumn(111, "发布数"),
-                              userData['id'].toString() == currentUserUid?
-                              GestureDetector(
-                                onTap: ()async {
-                                  Navigator.of(context).push(
-                                    MaterialPageRoute(
-                                      builder: (context) =>
-                                      FollowedScreen(followedList : CustomAuth.currentUser.following,),
-                                      //const LoginScreen(),
-                                    ),
-                                  );
-                                },
-                                child:Column(
-                                mainAxisSize: MainAxisSize.min,
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Text(
-                                    CustomAuth.currentUser.following.length.toString(),
-                                    style: const TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  Container(
-                                    margin: const EdgeInsets.only(top: 4),
-                                    child: Text(
-                                      "关注数",
-                                      style: const TextStyle(
-                                        fontSize: 15,
-                                        fontWeight: FontWeight.w400,
-                                        color: Colors.grey,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              )
-                              ):GestureDetector(
-                                  onTap: ()async {
-                                    Navigator.of(context).push(
-                                      MaterialPageRoute(
-                                        builder: (context) =>
-                                            FollowedScreen(followedList : followed['followedList'],),
-                                        //const LoginScreen(),
-                                      ),
-                                    );
-                                  },
-                                  child:Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Text(
-                                        followed['followedList'].length.toString(),
-                                        style: const TextStyle(
-                                          fontSize: 18,
-                                          fontWeight: FontWeight.bold,
+                children: [
+                  Row(
+                    children: [
+                      CircleAvatar(
+                        backgroundColor: Colors.grey,
+                        backgroundImage: photo,
+                        radius: 40,
+                      ),
+                      Expanded(
+                        flex: 1,
+                        child: Column(
+                          children: [
+                            Row(
+                              mainAxisSize: MainAxisSize.max,
+                              mainAxisAlignment:
+                              MainAxisAlignment.spaceEvenly,
+                              children: [
+                                //buildStatColumn(postLen, "posts"),  //TODO
+                                buildStatColumn(111, "发布数"),
+                                userData['id'].toString() == currentUserUid?
+                                GestureDetector(
+                                    onTap: ()async {
+                                      Navigator.of(context).push(
+                                        MaterialPageRoute(
+                                          builder: (context) =>
+                                              FollowedScreen(followedList : CustomAuth.currentUser.following,),
+                                          //const LoginScreen(),
                                         ),
-                                      ),
-                                      Container(
-                                        margin: const EdgeInsets.only(top: 4),
-                                        child: Text(
-                                          "关注数",
+                                      );
+                                    },
+                                    child:Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+                                        Text(
+                                          CustomAuth.currentUser.following.length.toString(),
                                           style: const TextStyle(
-                                            fontSize: 15,
-                                            fontWeight: FontWeight.w400,
-                                            color: Colors.grey,
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.bold,
                                           ),
                                         ),
-                                      ),
-                                    ],
-                                  )
-                              ),
-                              buildStatColumn(CustomAuth.currentUser.followers.length, "粉丝数"),
-                            ],
-                          ),
-                          Row(
-                            mainAxisAlignment:
-                            MainAxisAlignment.spaceEvenly,
-                            children: [
-                              currentUserUid ==
-                                  widget.uid
-                                  ? Row(
-                                  mainAxisAlignment:
-                                  MainAxisAlignment.spaceEvenly,
-                                  children:[FollowButton(
-                                text: '退出登录',
-                                backgroundColor:
-                                mobileBackgroundColor,
-                                textColor: primaryColor,
-                                borderColor: Colors.grey,
-                                function: () async {
-                                  var res = await CustomAuth().signOut();  //TODO
-                                  if(res == "Success"){
-                                    Navigator.of(context)
-                                        .pushReplacement(
-                                      MaterialPageRoute(
-                                        builder: (context) =>
-                                        const LoginScreen(),
-                                      ),
-                                    );
-                                  }
-                                  else{
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                        content: Text("登出失败"),
-                                      ),
-                                    );
-                                  }
-                                },
-                              ),Container(
-                                alignment: Alignment.centerRight,
-                                padding: const EdgeInsets.only(
-                                  top: 1,
+                                        Container(
+                                          margin: const EdgeInsets.only(top: 4),
+                                          child: Text(
+                                            "关注数",
+                                            style: const TextStyle(
+                                              fontSize: 15,
+                                              fontWeight: FontWeight.w400,
+                                              color: Colors.grey,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    )
+                                ):GestureDetector(
+                                    onTap: ()async {
+                                      Navigator.of(context).push(
+                                        MaterialPageRoute(
+                                          builder: (context) =>
+                                              FollowedScreen(followedList : followed['followedList'],),
+                                          //const LoginScreen(),
+                                        ),
+                                      );
+                                    },
+                                    child:Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+                                        Text(
+                                          followed['followedList'].length.toString(),
+                                          style: const TextStyle(
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                        Container(
+                                          margin: const EdgeInsets.only(top: 4),
+                                          child: Text(
+                                            "关注数",
+                                            style: const TextStyle(
+                                              fontSize: 15,
+                                              fontWeight: FontWeight.w400,
+                                              color: Colors.grey,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    )
                                 ),
-                                child:
-                                currentUserUid == widget.uid?
-                                FollowButton(
-                                  text: '修改信息',
-                                  backgroundColor:mobileBackgroundColor,
-                                  textColor: primaryColor,
+                                buildStatColumn(CustomAuth.currentUser.followers.length, "粉丝数"),
+                              ],
+                            ),
+                            Row(
+                              mainAxisAlignment:
+                              MainAxisAlignment.spaceEvenly,
+                              children: [
+                                currentUserUid ==
+                                    widget.uid
+                                    ? Row(
+                                    mainAxisAlignment:
+                                    MainAxisAlignment.spaceEvenly,
+                                    children:[FollowButton(
+                                      text: '退出登录',
+                                      backgroundColor:
+                                      mobileBackgroundColor,
+                                      textColor: primaryColor,
+                                      borderColor: Colors.grey,
+                                      function: () async {
+                                        var res = await CustomAuth().signOut();  //TODO
+                                        if(res == "Success"){
+                                          Navigator.of(context)
+                                              .pushReplacement(
+                                            MaterialPageRoute(
+                                              builder: (context) =>
+                                              const LoginScreen(),
+                                            ),
+                                          );
+                                        }
+                                        else{
+                                          ScaffoldMessenger.of(context).showSnackBar(
+                                            SnackBar(
+                                              content: Text("登出失败"),
+                                            ),
+                                          );
+                                        }
+                                      },
+                                    ),Container(
+                                        alignment: Alignment.centerRight,
+                                        padding: const EdgeInsets.only(
+                                          top: 1,
+                                        ),
+                                        child:
+                                        currentUserUid == widget.uid?
+                                        FollowButton(
+                                          text: '修改信息',
+                                          backgroundColor:mobileBackgroundColor,
+                                          textColor: primaryColor,
+                                          borderColor: Colors.grey,
+                                          function: () async {
+                                            //TODO  修改信息
+                                            Navigator.of(context).push(
+                                              MaterialPageRoute(
+                                                builder: (context) =>
+                                                const ModifyScreen(),
+                                              ),
+                                            ).then((val){
+                                              setState(() {
+                                                print(val);
+                                                print(val.runtimeType);
+                                                userData['username'] = val['username'];
+                                                userData['profile'] = val['profile'];
+                                                photo = MemoryImage(val['photo']);
+                                              });
+                                            });
+
+                                          },
+                                        ):Text("你谁啊")
+                                    ) ,]
+                                ): isFollowed
+                                    ? FollowButton(
+                                  text: '取消关注',
+                                  backgroundColor: Colors.white,
+                                  textColor: Colors.black,
                                   borderColor: Colors.grey,
                                   function: () async {
-                                    //TODO  修改信息
-                                    Navigator.of(context).push(
-                                      MaterialPageRoute(
-                                        builder: (context) =>
-                                        const ModifyScreen(),
-                                      ),
-                                    ).then((val){
-                                      setState(() {
-                                        print(val);
-                                        print(val.runtimeType);
-                                        userData['username'] = val['username'];
-                                        userData['profile'] = val['profile'];
-                                        photo = MemoryImage(val['photo']);
-                                      });
+                                    // await FireStoreMethods()
+                                    //     .followUser(
+                                    //   FirebaseAuth.instance
+                                    //       .currentUser!.uid,
+                                    //   userData['uid'],
+                                    // );
+                                    //  取消对当前信息页面用户的关注
+                                    setState(() {
+                                      isFollowed = false;
+                                      followers--;
                                     });
-
                                   },
-                                ):Text("你谁啊")
-                              ) ,]
-                              ): isFollowed
-                                  ? FollowButton(
-                                text: '取消关注',
-                                backgroundColor: Colors.white,
-                                textColor: Colors.black,
-                                borderColor: Colors.grey,
-                                function: () async {
-                                  // await FireStoreMethods()
-                                  //     .followUser(
-                                  //   FirebaseAuth.instance
-                                  //       .currentUser!.uid,
-                                  //   userData['uid'],
-                                  // );
-                                  //  取消对当前信息页面用户的关注
-                                  setState(() {
-                                    isFollowed = false;
-                                    followers--;
-                                  });
-                                },
-                              )
-                                  : FollowButton(
-                                text: '关注',
-                                backgroundColor: Colors.blue,
-                                textColor: Colors.white,
-                                borderColor: Colors.blue,
-                                function: () async {
-                                  // await FireStoreMethods()
-                                  //     .followUser(
-                                  //   FirebaseAuth.instance
-                                  //       .currentUser!.uid,
-                                  //   userData['uid'],
-                                  // );
-                                  //  关注当前信息页面用户
+                                )
+                                    : FollowButton(
+                                  text: '关注',
+                                  backgroundColor: Colors.blue,
+                                  textColor: Colors.white,
+                                  borderColor: Colors.blue,
+                                  function: () async {
+                                    // await FireStoreMethods()
+                                    //     .followUser(
+                                    //   FirebaseAuth.instance
+                                    //       .currentUser!.uid,
+                                    //   userData['uid'],
+                                    // );
+                                    //  关注当前信息页面用户
 
-                                  setState(() {
-                                    isFollowed = true;
-                                    followers++;
-                                  });
-                                },
-                              )
-                            ],
-                          ),
-                        ],
+                                    setState(() {
+                                      isFollowed = true;
+                                      followers++;
+                                    });
+                                  },
+                                )
+                              ],
+                            ),
+                          ],
+                        ),
                       ),
+                    ],
+                  ),
+                  Container(
+                    alignment: Alignment.centerLeft,
+                    padding: const EdgeInsets.only(
+                      top: 1,
                     ),
-                  ],
-                ),
-                // Container(
-                //   alignment: Alignment.centerLeft,
-                //   padding: const EdgeInsets.only(
-                //     top: 15,
-                //   ),
-                //   child: Text(
-                //     // userData['username'],  //TODO
-                //     userData['nickname'],  //TODO
-                //     style: TextStyle(
-                //       fontWeight: FontWeight.bold,
-                //     ),
-                //   ),
-                // ),
-                Container(
-                  alignment: Alignment.centerLeft,
-                  padding: const EdgeInsets.only(
-                    top: 1,
+                    child: Text(
+                      userData['profile'], //TODO
+                    ),
                   ),
-                  child: Text(
-                    userData['profile'], //TODO
-                  ),
-                ),
 
-              ]),
-    ),
+                ]),
+          ),
           const Divider(),
           // FutureBuilder(
           //   // future: FirebaseFirestore.instance
