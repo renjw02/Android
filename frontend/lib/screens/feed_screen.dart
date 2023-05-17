@@ -13,6 +13,8 @@ import '../models/DocumentSnapshot.dart';
 import '../models/querySnapshot.dart';
 import '../models/post.dart';
 import '../resources/database_methods.dart' as db;
+import 'Message_screen.dart';
+import 'comments_screen.dart';
 
 
 
@@ -26,7 +28,7 @@ class FeedScreen extends StatefulWidget {
 class _FeedScreenState extends State<FeedScreen> {
   // late Stream<QuerySnapshot> test;
   // late StreamController<QuerySnapshot> _streamController;
-
+  bool isLoading = false;
   @override
   void initState() {
     setState(() {
@@ -53,10 +55,10 @@ class _FeedScreenState extends State<FeedScreen> {
     // debugPrint(querySnapshot.docs[0].data());
 
     final width = MediaQuery.of(context).size.width;
-    final bloc = FeedBloc();
+    final bloc = FeedsBloc();
     // bloc?.selectQuery(querySnapshot);
     bloc.submitQuery();
-    return BlocProvider<FeedBloc>(
+    return BlocProvider<FeedsBloc>(
       key: UniqueKey(),//UniqueKey()是一个flutter提供的用于生成唯一key的类，它的原理是通过时间戳来生成key，所以每次生成的key都是不同的，这样就可以保证每次生成的key都是唯一的。
       bloc: bloc,
       child: Scaffold(
@@ -68,19 +70,23 @@ class _FeedScreenState extends State<FeedScreen> {
           backgroundColor: mobileBackgroundColor,
           centerTitle: false,
           title: SvgPicture.asset(
-            'assets/ic_instagram.svg',
+            'assets/logo.svg',
             color: primaryColor,
             height: 32,
           ),
-          actions: [
-            IconButton(
-              icon: const Icon(
-                Icons.messenger_outline,
-                color: primaryColor,
-              ),
-              onPressed: () {},
-            ),
-          ],
+          // actions: [
+          //   IconButton(
+          //     icon: const Icon(
+          //       Icons.messenger_outline,
+          //       color: primaryColor,
+          //     ),
+          //     onPressed: () => Navigator.of(context).push(
+          //       MaterialPageRoute(
+          //         builder: (context) => MessageScreen(),
+          //       ),
+          //     ),
+          //   ),
+          // ],
         ),
         body: StreamBuilder(//StreamBuilder是一个数据包装器，它可以将stream中的数据包装成一个widget，然后将这个widget返回给builder，builder就是一个回调函数，它接收两个参数，第一个参数是context，第二个参数是AsyncSnapshot，AsyncSnapshot是一个泛型，它可以接收任何类型的数据，我们可以通过AsyncSnapshot.data来获取数据。
           // stream: _streamController.stream,//stream是一种数据结构，可以理解为一个队列，数据是一个个的包，每次只能取一个包，取完后就会被删除，然后再取下一个包，以此类推。stream的数据是异步的，也就是说，当我们取完一个包后，不会立即取下一个包，而是要等待一段时间，这段时间就是延迟时间，延迟时间的长短取决于数据包的大小，数据包越大，延迟时间越长。stream的数据是有序的，也就是说，我们取出的数据包是按照顺序取出的，不会出现跳跃的情况。

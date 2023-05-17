@@ -17,7 +17,7 @@ def notice_params_check(content):
         return "content", False
     
     if 'type' in content:
-        if content['type'] != 0 or content['type'] != 1:
+        if content['type'] != 0 and content['type'] != 1 and content['type'] != 2 and content['type'] != 3:
             return "type", False
     else:
         return "type", False

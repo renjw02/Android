@@ -13,7 +13,7 @@ class NoticeService():
     def create_notice(self, user_id, type, content, creator_id=0):
         try:
             now = datetime.datetime.now()
-            n = Notice(user_id=user_id, type=type, content=content, creato_id=creator_id, 
+            n = Notice(user_id=user_id, type=type, content=content, creator_id=creator_id, 
                        created=now, has_checked=False)
             db.session.add(n)
             db.session.commit()
@@ -51,20 +51,26 @@ class NoticeService():
     def get_notice_list(self, user_id):
         try:
             sql = """
-            select id as noticeId, user_id as userId, type as noticeType, creator as noticeCreator,
+            select id as noticeId, user_id as userId, type as noticeType, creator_id as noticeCreator,
                 created as created, has_checked as hasChecked
             from notice
             where user_id = {user_id}
             order by created desc
             """
-            sql_content = sql.format(user_id=user_id)
+            # sql_content = sql.format(user_id=user_id)
 
-            content_result = db.session.execute(text(sql_content))
-
-            notice_list = [dict(zip(result.keys(), result)) for result in content_result]
-
+            content_result = db.session.execute(text(sql.format(user_id=user_id)))
+            column_names = content_result.keys()
+            notice_list = []
+            
+            for row in content_result:
+                notice_dict = dict(zip(column_names, row))
+                notice_list.append(notice_dict)
+            # notice_list = [dict(zip(result.keys(), result)) for result in content_result]
+            
             return notice_list, True
         except Exception as e:
+            print("sql error")
             print(e)
             return [], False
 

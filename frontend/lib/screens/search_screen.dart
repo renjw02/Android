@@ -164,17 +164,46 @@ class _SearchScreenState extends State<SearchScreen> {
     return Scaffold(
         appBar: AppBar(
           backgroundColor: mobileBackgroundColor,
-          title: Form(
-            child: TextFormField(
-              controller: searchController,
-              decoration:
-              const InputDecoration(labelText: 'Search for a user...'),
-              onFieldSubmitted: (String _) {
-                setState(() {
-                  isShowUsers = true;
-                });
-                print(_);
-              },
+          // title: Form(
+          //   child: TextFormField(
+          //     controller: searchController,
+          //     decoration:
+          //     const InputDecoration(labelText: 'Search for a user...'),
+          //     onFieldSubmitted: (String _) {
+          //       setState(() {
+          //         isShowUsers = true;
+          //       });
+          //       print(_);
+          //     },
+          //   ),
+          // ),
+          title: Container(
+            margin: EdgeInsets.only(top: 10.0,bottom:5.0),
+            child: Form(
+              child: TextFormField(
+                controller: searchController,
+                decoration: InputDecoration(
+                  labelText: 'Search for a user...',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(20.0),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(20.0),
+                    borderSide: BorderSide(color: Colors.grey),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(20.0),
+                    borderSide: BorderSide(color: Colors.blue),
+                  ),
+                  contentPadding: EdgeInsets.symmetric(vertical: 4.0),
+                ),
+                onFieldSubmitted: (String _) {
+                  setState(() {
+                    isShowUsers = true;
+                  });
+                  print(_);
+                },
+              ),
             ),
           ),
         ),

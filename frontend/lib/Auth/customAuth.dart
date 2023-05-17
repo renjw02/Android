@@ -292,7 +292,7 @@ class CustomAuth {
       // );
       // final data = jsonDecode(response.body);
       String result;
-      result = await db.DataBaseManager().register(userRegister, username, password,nickname);
+      result = await db.DataBaseManager().register( username, password, nickname);
       if(result == "Success"){
         _controller.add(currentUser);
       }

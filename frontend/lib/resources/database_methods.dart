@@ -10,6 +10,7 @@ import 'package:frontend/models/post.dart';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
 
+import '../models/notice.dart';
 import '../models/querySnapshot.dart';
 import '../models/user.dart';
 import '../utils/api_uri.dart';
@@ -323,8 +324,43 @@ class DataBaseManager{
     }
   }
 
-  Future<List<dynamic>> getPost([int page=1,int size=10,int userId=0,String? orderByWhat=null,int type=0,bool? onlyFollowing=null,
+  List<Post> convertPost(List<dynamic> data){
+    List<Post> doc = [];
+    print(data);
+    for(var item in data){
+      print(item);
+      print(item.runtimeType);
+      doc.add(
+          Post(
+            id:item["id"],
+            uid:item["userId"].toString(),
+            title:item["title"],
+            content:item["content"],
+            last_replied_user_id: item["lastRepliedUserId"].toString(),
+            last_replied_time:item["lastRepliedTime"],
+            created: item["created"],
+            updated: item["updated"],
+            type: item['type'] ,
+            position: "position",  //TODO
+            support_num: item["supportNum"],
+            comment_num: item["commentNum"],
+            star_num: item["starNum"],
+            font_size: item["fontSize"],
+            font_color:item["fontColor"],
+            font_weight: item["fontWeight"],
+            supportList: item["supportList"],
+            starList: item["starList"],
+          )
+      );
+    }
+    return doc;
+  }
+  //getPost
+  Future<QuerySnapshot>  feedsQuery([int page=1,int size=10,int userId=0,String? orderByWhat=null,int type=0,bool? onlyFollowing=null,
     bool? hot=null]) async {
+    QuerySnapshot querySnapshot = QuerySnapshot(
+      docs: [], readTime: DateTime.now(),
+    );
     try{
       var dio = new Dio();
       dio.options.headers[HttpHeaders.authorizationHeader]=CustomAuth.currentUser.jwt;
@@ -354,19 +390,125 @@ class DataBaseManager{
       print(response.statusCode);
       print(response.statusCode.runtimeType);
       if (response.statusCode == 200) {
-        return m['posts'];
+        // return m['posts'];
+        querySnapshot = QuerySnapshot(
+          docs: convertPost(m['posts']), readTime: DateTime.now(),
+        );
+        print("获取动态成功");
+        print(querySnapshot.docs.length);
+        print(querySnapshot.docs);
+        return querySnapshot;
       }
       else{
         print("获取动态失败");
-        return [];
+        return querySnapshot;
       }
     }catch (exception) {
       print(exception);
       print("获取动态错误");
-      return [];
+      return querySnapshot;
     }
   }
+  Future<String> createNotice([int type=0,String? content = null]) async{
+    //把string的数字转成int
+    int uid = int.parse(CustomAuth.currentUser.uid);
+    content = content ?? "关注了你";
+    var result="Fail";
+    try{
+      var url = Uri.parse("$ip:$port/api/notice/createnotice");
+      Map<String, String> headersMap = new Map();
+      headersMap["content-type"] = ContentType.json.toString();
+      var jsonBody = jsonEncode({
+        "content": content,
+        "user_id":uid,
+        "type":type as int,
+      });
+      if(type >= 1){
+        jsonBody = jsonEncode({
+          "content": content,
+          "user_id":uid,
+          "type":type as int,
+          "creator_id":uid,
+        });
+      }
+      await _client.post(
+          url,
+          // headers:headersMap,
+          headers:{
+            HttpHeaders.authorizationHeader: CustomAuth.currentUser.jwt,
+            "content-type": ContentType.json.toString(),
+          },
+          // body: bodyParams,
+          // body:jsonEncode({
+          //   "content": content,
+          //   "user_id":uid,
+          //   "type":type as int,
+          // }),
+          body:jsonBody,
+          encoding: Utf8Codec()
+      ).then((http.Response response){
+        if (response.statusCode == 200){
+          Map<String, dynamic> returnData = jsonDecode(response.body);
+          print(returnData);
+          if(returnData['message']=="ok"){
+            result="Success";
+          }else{
+            print(returnData['message']);
+          }
+          result ="Success";
+        }else{
+          print("error code:");
+          print(response.statusCode);
+          print(response.body);
+        }
+      }).catchError((error) {
+        print("catchError:");
+        print(error);
+      });
 
+    }catch (exception) {
+      print(exception);
+      print("创建noticeList错误");
+    }
+    return result;
+  }
+
+  Future<QuerySnapshot> noticeListQuery() async{
+    QuerySnapshot querySnapshot = QuerySnapshot(
+      docs: [], readTime: DateTime.now(),
+    );
+    try{
+      String uid = CustomAuth.currentUser.uid.toString();
+      var url = Uri.parse("$ip:$port/api/notice/getnoticelist/$uid");
+      await _client.get(
+        url,
+        headers:{
+          HttpHeaders.authorizationHeader: CustomAuth.currentUser.jwt,
+          "content-type": ContentType.json.toString(),
+        },
+      ).then((http.Response response){
+        print(jsonDecode(response.body));
+        if (response.statusCode == 200){
+          Map<String, dynamic> returnData = jsonDecode(response.body);
+          print(returnData);
+          if(returnData['message']=="ok"){
+            querySnapshot = QuerySnapshot(
+              docs: Notice.fromJsonList(returnData['noticeList']), readTime: DateTime.now(),
+            );
+          }else{
+            print(returnData['message']);
+          }
+        }
+      }).catchError((error) {
+        print("catchError:");
+        print(error);
+      });
+    } catch (exception) {
+      print(exception);
+      print("获取noticeList错误");
+    }
+    return querySnapshot;
+  }
   // ### 注册
   // @bp.route('register', methods=['POST'])
   // def user_register():
@@ -384,13 +526,10 @@ class DataBaseManager{
   // "username"
   // "nickname"
   // }
-  Future<dynamic> register(Uri url, String name, String email, String password) async {
+  Future<dynamic> register(String username, String password, String nickname) async {
+    var url = Uri.parse(gv.ip+"/api/user/register");
     Map<String, String> headersMap = new Map();
     headersMap["content-type"] = ContentType.json.toString();
-    Map<String, String> bodyParams = new Map();
-    bodyParams["username"] = username;
-    bodyParams["password"] = password;
-    bodyParams["nickname"] = nickname;
     var result="Fail";
     try{
       await _client.post(
@@ -417,15 +556,17 @@ class DataBaseManager{
           print(response.statusCode);
         }
       }).catchError((error) {
-        print("register catchError:");
+        print("catchError:");
         print(error);
       });
     }catch(e){
-      print("register catch(e):");
+      print("catch(e):");
       print(e);
     }
     return result;
   }
+
+
   // Future<Map<String, dynamic>> getFollowers(Uri url,String jwt) async{
   //   Map<String, dynamic> userFollowers = {};
   //   await _client.get(
@@ -466,45 +607,46 @@ class DataBaseManager{
   //   });
   //   return userFollowed;
   // }
-  Future<QuerySnapshot> feedsQuery() async {
-    // return FirebaseFirestore.instance
-    //     .collection('users')
-    //     .where('username', isEqualTo: query)
-    //     .get();
-    QuerySnapshot querySnapshot = QuerySnapshot(
-      docs: [], readTime: DateTime.now(),
-    );
-    try{
-      await _client.get(
-        feedsQueryUrl,
-        headers:{
-          HttpHeaders.authorizationHeader: CustomAuth.currentUser.jwt,
-          // "content-type": ContentType.json.toString(),
-        },
-        // body: bodyParams,
-        // body:jsonEncode({
-        //   "page":1,
-        //   "size":10,
-        //   "userId":CustomAuth.currentUser.uid,
-        //   "orderByWhat":"post.support_num",
-        //   "type":0,
-        // }),
-      ).then((http.Response response){
-        print(jsonDecode(response.body)['message']);
-        Map<String, dynamic> returnData = jsonDecode(response.body);
-        print(returnData);
-        querySnapshot = QuerySnapshot(
-          docs: returnData['posts'], readTime: DateTime.now(),
-        );
-      }).catchError((error) {
-        print("feedsQuery catchError:");
-        print(error);
-      });
-    }catch(e){
-      print("feedsQuery catch(e):");
-      print(e);
-    }
-
-    return querySnapshot;
-  }
+//   Future<QuerySnapshot> feedsQuery([int page=1,int size=10,int userId=0,String? orderByWhat=null,int type=0,bool? onlyFollowing=null,
+//     bool? hot=null]) async {
+//     // return FirebaseFirestore.instance
+//     //     .collection('users')
+//     //     .where('username', isEqualTo: query)
+//     //     .get();
+//     QuerySnapshot querySnapshot = QuerySnapshot(
+//       docs: [], readTime: DateTime.now(),
+//     );
+//     try{
+//       await _client.get(
+//         feedsQueryUrl,
+//         headers:{
+//           HttpHeaders.authorizationHeader: CustomAuth.currentUser.jwt,
+//           // "content-type": ContentType.json.toString(),
+//         },
+//         // body: bodyParams,
+//         // body:jsonEncode({
+//         //   "page":1,
+//         //   "size":10,
+//         //   "userId":CustomAuth.currentUser.uid,
+//         //   "orderByWhat":"post.support_num",
+//         //   "type":0,
+//         // }),
+//       ).then((http.Response response){
+//         print(jsonDecode(response.body)['message']);
+//         Map<String, dynamic> returnData = jsonDecode(response.body);
+//         print(returnData);
+//         querySnapshot = QuerySnapshot(
+//           docs: returnData['posts'], readTime: DateTime.now(),
+//         );
+//       }).catchError((error) {
+//         print("feedsQuery catchError:");
+//         print(error);
+//       });
+//     }catch(e){
+//       print("feedsQuery catch(e):");
+//       print(e);
+//     }
+//
+//     return querySnapshot;
+//   }
 }

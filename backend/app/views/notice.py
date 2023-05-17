@@ -21,21 +21,36 @@ def index():
 # 创建通知
 @bp.route('/createnotice', methods=['POST'])
 def createnotice():
+
     try:
+        # print(request)
+        # print(request.form)
+        
         content = request.get_json()
+        # 打印日志
+        print(content)
+        # 打印content的类型
+        print(type(content))
+        print("============")
+        print(content['user_id'])
+        print(content['type'])
+        print(content['content'])
+        
         if content is None:
             return jsonify({'message': "no content"}), 400
         key, passed = notice_params_check(content)
         if not passed:
             return jsonify({'message': "invalid arguments: " + key}), 400
 
+
         if content['type'] == 0:
             # 系统消息
             notice, flag = service.create_notice(content['user_id'], content['type'], content['content'])
-        elif content['type'] == 1:
+        elif content['type'] >= 1:
             # 私信
             notice, flag = service.create_notice(content['user_id'], content['type'], content['content'],
                                              content['creator_id'])
+        
         if flag:
             return jsonify({
                 'message': "ok",

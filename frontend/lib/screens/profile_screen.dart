@@ -13,6 +13,7 @@ import 'package:http/http.dart' as http;
 import '../Auth/customAuth.dart';
 import '../models/user.dart';
 import '../resources/database_methods.dart' as db;
+import 'Message_screen.dart';
 import 'followed_screen.dart';
 import 'modify_screen.dart';
 import '../utils/global_variable.dart' as gv;
@@ -131,6 +132,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
           userData['username'], //TODO
         ),
         centerTitle: false,
+        actions: [
+          IconButton(
+            icon: const Icon(
+              Icons.messenger_outline,
+              color: primaryColor,
+            ),
+            onPressed: () => Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (context) => MessageScreen(),
+              ),
+            ),
+          ),
+        ],
       ),
       body: ListView(
         children: [

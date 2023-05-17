@@ -7,7 +7,7 @@ import './bloc.dart';
 import '../models/querySnapshot.dart';
 import '../resources/database_methods.dart' as db;
 
-class FeedsBloc implements Bloc {
+class ContactsBloc implements Bloc {
   late QuerySnapshot _querySnapshot;
   QuerySnapshot get selectedQuery => _querySnapshot;
 
@@ -24,7 +24,7 @@ class FeedsBloc implements Bloc {
   }
 
   void submitQuery() async {
-    QuerySnapshot querySnapshot = await db.DataBaseManager().feedsQuery();
+    QuerySnapshot querySnapshot = await db.DataBaseManager().noticeListQuery();
     _queryController.sink.add(querySnapshot);
     // selectQuery(querySnapshot);
   }
