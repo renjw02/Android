@@ -78,7 +78,7 @@ def login():
                 "userId": user.id,
                 "username": user.username,
                 "nickname": user.nickname,
-                "profile": user.profile
+                "profile": user.profile if user.profile != None else "profile"
             }), 200
         else:
             return jsonify({'message': user}), 500
@@ -221,9 +221,11 @@ def upload_avatar():
         file_obj.save(save_path)
         print("success",file=sys.stderr)
         workpath = os.getcwd()
-        dst = os.path.join(workpath, 'app', 'static', 'avatar', str(g.user_id)+'.jpg')
+        dst = os.path.join(workpath, 'backend','app', 'static', 'avatar', str(g.user_id)+'.jpg')
+        print(dst)
         if os.path.exists(dst):
             os.remove(dst)
+        print("success",file=sys.stderr)
         os.rename(save_path, dst)
         print("success",file=sys.stderr)
         return jsonify({'message': "ok"}), 200
@@ -236,11 +238,14 @@ def upload_avatar():
 @login_required
 def download_avatar():
     try:
+        print(request,file=sys.stderr)
+        print(request.args,file=sys.stderr)
         file_name = request.args['name']
+        print(file_name,file=sys.stderr)
         if file_name is None:
              return jsonify({'message': "no file name"}), 400
         path = os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.pardir, "static", "avatar", str(file_name)))
-        # print(path)
+        print(path,file=sys.stderr)
         imageData = open(path, "rb").read()
         response = make_response(imageData)
         response.headers['Content-Type'] = 'image/jpeg'
@@ -262,7 +267,7 @@ def follow_user(userId):
         if flag:
             return jsonify({
                 'message': "ok",
-                'followed': follow                       
+                'followed_id': follow.followed_id                       
                 }), 200
         else:
             return jsonify({'message': follow}), 500

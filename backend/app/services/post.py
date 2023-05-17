@@ -6,16 +6,19 @@ import datetime
 from sqlalchemy import and_, or_, text
 
 from app.extension import db
-from app.models import Post, Comment, User, Picture, Video
+from app.models import Post, Comment, User, Picture, Video, Support
+import sys
 
 class PostService():
     
-    def create_post(self, title, content, user_id, type, position):
+    def create_post(self, title, content, user_id, type, position,
+                    font_size, font_color, font_weight):
         try:
             now = datetime.datetime.now()
             p = Post(user_id=user_id, title=title, content=content, type=type, position=position,
                     last_replied_user_id=user_id, support_num=0, comment_num=0, star_num=0,
-                    last_replied_time=now, created=now, updated=now)
+                    last_replied_time=now, created=now, updated=now, font_size=font_size,
+                    font_color=font_color, font_weight=font_weight)
             db.session.add(p)
             db.session.commit()
             return p, True
@@ -23,14 +26,17 @@ class PostService():
             print(e)
             return "error", False
 
-    def update_post(self, title, content, post_id, position):
+    def update_post(self, title, content, post_id, position, font_size, font_color, font_weight):
         try:
             now = datetime.datetime.now()
             db.session.query(Post).filter(Post.id == post_id).update({
                 "title": title,
                 "content": content,
                 "position": position,
-                "updated": now
+                "updated": now,
+                "font_size": int(font_size),
+                "font_color": font_color,
+                "font_weight": font_weight
             })
             db.session.commit()
             return True
@@ -103,9 +109,10 @@ class PostService():
 
 
     # 默认按帖子更新时间排序
-    def get_post_list(self, user_id=0, page=1, size=10, order_by_what=None, type=0, 
+    def get_post_list(self, user_id=0, page=1, size=10, order_by_what=None, typei=0, 
                       only_following=False, hot=False):
         try:  
+            # print(order_by_what, typei, only_following, hot)
             # order_by_what := ["post.support_num", "post.comment_num"]
             if order_by_what is None:
                 order_col = "post.created"
@@ -113,11 +120,11 @@ class PostService():
                 order_col = order_by_what
 
             where_clause = ""
-            if user_id != 0:
+            if int(user_id) != 0:
                 where_clause = "where post.user_id = " + str(user_id)
             
-            if type != 0:
-                where_clause = "where post.type = " + str(type)
+            if typei != 0:
+                where_clause = "where post.type = " + str(typei)
 
             if only_following:
                 where_clause = '''
@@ -128,17 +135,19 @@ class PostService():
                         )
                         '''
             if hot:
-                where_clause = "where post.support > 10 and post.comment_num > 5"
+                where_clause = "where post.support_num > 10 and post.comment_num > 5"
 
             content_base = '''
                 select
                     post.id as id, post.user_id as userId, create_user.nickname as nickname,
                     post.title as title, post.content as content, post.support_num as supportNum,
-                    post.star_num as starNum, post.commentNum as commentNum, 
+                    post.star_num as starNum, post.comment_num as commentNum, post.type as type,
                     post.last_replied_user_id as lastRepliedUserId, 
                     comment_user.nickname as lastRepliedNickname,
                     post.last_replied_time as lastRepliedTime, 
-                    post.created as created, post.updated as updated
+                    post.created as created, post.updated as updated,
+                    post.font_size as fontSize, post.font_color as fontColor, 
+                    post.font_weight as fontWeight
                 from
                     post
                 inner join user as create_user on post.user_id = create_user.id
@@ -155,20 +164,31 @@ class PostService():
                     post
                 {where}
             '''
+            
             sql_content = content_base.format(limit=size, offset=(
                 page-1)*size, order=order_col, where=where_clause)
+            # print(sql_content)
             sql_count = count_base.format(where=where_clause)
 
-            content_result = db.session.execute(text(sql_content))
-            count_result = db.session.execute(text(sql_count))
 
-            post_list = [dict(zip(result.keys(), result))
-                         for result in content_result]
-            count = [dict(zip(result.keys(), result))
-                     for result in count_result]
+            content_result = db.session.execute(text(sql_content))
+            column_names = content_result.keys()
+            post_list = []
+
+            for row in content_result.fetchall():
+                post_dict = dict(zip(column_names, row))
+                post_list.append(post_dict)
+
+            count_result = db.session.execute(text(sql_count))
+            column_names = count_result.keys()
+            count = []
+            for row in count_result.fetchall():
+                post_dict = dict(zip(column_names, row))
+                count.append(post_dict)
 
             return post_list, count[0]['count'], True
         except Exception as e:
+            print("asd")
             print(e)
             return [], 0, False
     
@@ -220,7 +240,8 @@ class PostService():
                     post.title as title, post.content as content, post.support_num as supportNum,
                     post.star_num as starNum, post.commentNum as commentNum,
                     post.created as created, post.updated as updated, 
-                    post.Last_replied_time as lastRepliedTime
+                    post.last_replied_time as lastRepliedTime, post.font_size as fontSize,
+                    post.font_color as fontColor, post.font_weight as fontWeight
                 from
                     post
                 inner join user on post.user_id = user.id
@@ -300,12 +321,31 @@ class PostService():
             return [], False
 
 
-    def support_post(self, post_id, type):
+    def support_post(self, user_id, post_id):
         try:
             now = datetime.datetime.now()
+            tmp = Support.query.filter(and_(Support.user_id == user_id, Support.post_id == post_id)).first()
+            if tmp is not None:
+                return "already exist", False
+            
+            s = Support(post_id=post_id, user_id=user_id, created=now)
+            db.session.add(s)
             db.session.query(Post).filter(Post.id == post_id).update({
-                "support_num": Post.favor_num+type,
+                "support_num": Post.favor_num+1,
                 "updated": now
+            })
+            db.session.commit()
+            return 'ok', True
+        except Exception as e:
+            print(e)
+            db.session.rollback()
+            return 'errors', False
+        
+    def cancel_support_post(self, user_id, post_id):
+        try:
+            db.session.query(Support).filter(and_(Support.user_id == user_id, Support.post_id == post_id)).delete()
+            db.session.query(Post).filter(Post.id == post_id).update({
+                "support_num": Post.favor_num-1
             })
             db.session.commit()
             return 'ok', True
@@ -355,8 +395,8 @@ class PostService():
             from picture
             where post_id = {post_id}
             """
-            result = db.session.execute(text(sql.format(post_id=post_id)))
-            pictures = [dict(zip(result.keys(), result)) for result in result]
+            results = db.session.execute(text(sql.format(post_id=post_id)))
+            pictures = [dict(zip(result.keys(), result)) for result in results]
             return pictures, True
         except Exception as e:
             print(e)
@@ -369,9 +409,51 @@ class PostService():
             from video
             where post_id = {post_id}
             """
-            result = db.session.execute(text(sql.format(post_id=post_id)))
-            videos = [dict(zip(result.keys(), result)) for result in result]
+            results = db.session.execute(text(sql.format(post_id=post_id)))
+            videos = [dict(zip(result.keys(), result)) for result in results]
             return videos, True
         except Exception as e:
+            print(e)
+            return [], False
+        
+    def get_star_list(self, post_id):
+        try:
+            print("star")
+            sql = """
+            select user_id
+            from star
+            where post_id = {post_id}
+            """
+
+            results = db.session.execute(text(sql.format(post_id=post_id)))
+            column_names = results.keys()
+            star_list = []
+
+            for row in results.fetchall():
+                star_dict = dict(zip(column_names, row))
+                star_list.append(star_dict)
+            return star_list, True
+        except Exception as e:
+            print("star exception",file=sys.stderr)
+            print(e)
+            return [], False
+    
+    def get_support_list(self, post_id):
+        try:
+            sql = """
+            select user_id
+            from support
+            where post_id = {post_id}
+            """
+            results = db.session.execute(text(sql.format(post_id=post_id)))
+            column_names = results.keys()
+            support_list = []
+
+            for row in results.fetchall():
+                support_dict = dict(zip(column_names, row))
+                support_list.append(support_dict)
+            return support_list, True
+        except Exception as e:
+            print("support exception",file=sys.stderr)
             print(e)
             return [], False

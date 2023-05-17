@@ -8,6 +8,7 @@ from flask import Blueprint, jsonify, request, g
 from .login_required import login_required
 from app.services import PostService
 from app.checkers import post_params_check, comment_params_check
+import sys
 
 bp = Blueprint('post', __name__, url_prefix='/api/post')
 
@@ -22,39 +23,54 @@ def index():
 @login_required
 def create_post():
     try:    
+        print(request,file=sys.stderr)
+        print("asd",file=sys.stderr)
+        print(request.form,file=sys.stderr)
+        print("asd",file=sys.stderr)
         title = request.form.get('title')
         content = request.form.get('content')
-        type = request.form.get('type')
+        typei = int(request.form.get('type'))
         position = request.form.get('position')
+        font_size = int(request.form.get('font_size'))
+        font_color = request.form.get('font_color')
+        font_weight = request.form.get('font_weight')
 
-        key, passed = post_params_check(title, content, type, position)
+        key, passed = post_params_check(title, content, typei, position, font_size)
         if not passed:
             return jsonify({'message': "invalid arguments: " + key}), 400
         
+        print(request.files,file=sys.stderr)
         files = request.files.getlist('file')
         
-        post, result = service.create_post(title, content, g.user_id, type, position)
+        post, result = service.create_post(title, content, g.user_id, typei, position, font_size,
+                                           font_color, font_weight)
         if files is not None:
             for file in files:
                 filename = file.filename
                 content_type = file.content_type
 
+                print(content_type,file=sys.stderr)
                 if content_type.startswith('image'):
-                    save_path = './static/images/'
+                    # save_path = './static/images/'
+                    save_path = os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.pardir, "static", "images"))
+                    print(content_type,file=sys.stderr)
                     path = os.path.join(save_path, filename)
+                    print(content_type,file=sys.stderr)
                     pic, flag = service.upload_picture(post.id, path)
+                    print(content_type,file=sys.stderr)
                     if not flag:
                         return jsonify({'message': "upload images falied"}), 400
 
                 elif content_type.startswith('video'):
-                    save_path = './static/videos/'
+                    # save_path = './static/videos/'
+                    save_path = os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.pardir, "static", "videos"))
                     path = os.path.join(save_path, filename)
                     vid, flag = service.upload_video(post.id, path)
                     if not flag:
                         return jsonify({'message': "upload videos falied"}), 400
                 
                 file.save(path)
-
+        print(123,file=sys.stderr)
         if result:
             return jsonify({
                 'postId': post.id,
@@ -119,13 +135,28 @@ def get_post_list():
         size = 10 if request.args.get('size') is None else int(request.args.get('size'))
         user_id = 0 if request.args.get('userId') is None else request.args.get('userId')
         order_by_what = None if request.args.get('orderByWhat') is None else request.args.get('orderByWhat')
-        type = 0 if request.args.get('type') is None else int(request.args.get('type'))
+        typei = 0 if request.args.get('type') is None else int(request.args.get('type'))
         only_following = False if request.args.get('onlyFollowing') is None else True
         hot = False if request.args.get('hot') is None else True
 
-        post_list, count, result = service.get_post_list(user_id, page, size, order_by_what, type, 
+        post_list, count, result = service.get_post_list(user_id, page, size, order_by_what, typei, 
                                                         only_following, hot)
 
+        print(count)
+        # add supportList and starList
+        for post in post_list:
+            post_id = post['id']
+            star_list ,flag1 = service.get_star_list(post_id)
+            print(flag1, star_list)
+            if not flag1:
+                return jsonify({'message': "get star list failed"}), 500
+            post['starList'] = star_list
+            support_list, flag2 = service.get_support_list(post_id)
+            if not flag2:
+                return jsonify({'message': "get support list failed"}), 500
+            post['supportList'] = support_list
+
+        print(post_list)
         # count 帖子总数
         if result:
             return jsonify({
@@ -156,7 +187,9 @@ def modify_post(postId):
         if not check:
             return jsonify({'message': "not found"}), 404
 
-        result = service.update_post(content['title'], content['content'], postId, content['position'])
+        result = service.update_post(content['title'], content['content'], postId, 
+                                     content['position'], content['font_size'], 
+                                     content['font_color'], content['font_weight'])
 
         if result:
             return jsonify({'message': "ok"}), 200
@@ -349,12 +382,15 @@ def support_post(postId):
             return jsonify({'message': "no content"}), 400
 
         if 'type' in content:
-            if content['type'] != 1 and content['type'] != -1:
+            if content['type'] == 1:
+                msg, result = service.support_post(g.user_id, postId)
+            elif content['type'] == -1:
+                msg, result = service.cancel_support_post(g.user_id, postId)
+            else:
                 return jsonify({'message': "error type input"}), 400
         else:
             return jsonify({'message': "no type"}), 400
 
-        msg, result = service.support_post(postId, content['type'])
 
         if result:
             return jsonify({'message': msg}), 200

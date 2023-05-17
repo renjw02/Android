@@ -1,11 +1,15 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
+import 'dart:ui';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 import '../models/user.dart';
 import '../resources/database_methods.dart' as db;
+import '../utils/global_variable.dart' as gv;
 import '../utils/api_uri.dart';
 
 User fakeUser1 = User(
@@ -17,6 +21,7 @@ User fakeUser1 = User(
   nickname: 'bio1',
   jwt:'jwt',
   profile:'profile',
+  photo: new Uint8List(0),
   followers: [],
   following: [],
 );
@@ -29,6 +34,7 @@ User fakeUser2 = User(
   nickname: 'bio1',
   jwt:'jwt',
   profile:'profile',
+  photo: new Uint8List(0),
   followers: [],
   following: [],
 );
@@ -41,6 +47,7 @@ User fakeUser3 = User(
   nickname: 'bio1',
   jwt:'jwt',
   profile:'profile',
+  photo: new Uint8List(0),
   followers: [],
   following: [],
 );
@@ -53,6 +60,7 @@ User fakeUser4 = User(
   nickname: 'bio1',
   jwt:'jwt',
   profile:'profile',
+  photo: new Uint8List(0),
   followers: [],
   following: [],
 );
@@ -65,6 +73,7 @@ User fakeUser5 = User(
   nickname: 'bio1',
   jwt:'jwt',
   profile:'profile',
+  photo: new Uint8List(0),
   followers: [],
   following: [],
 );
@@ -77,6 +86,7 @@ User fakeUser6 = User(
   nickname: 'bio1',
   jwt:'jwt',
   profile:'profile',
+  photo: new Uint8List(0),
   followers: [],
   following: [],
 );
@@ -89,6 +99,7 @@ User fakeUser7 = User(
   nickname: 'bio1',
   jwt:'jwt',
   profile:'profile',
+  photo: new Uint8List(0),
   followers: [],
   following: [],
 );
@@ -101,6 +112,7 @@ User fakeUser8 = User(
   nickname: 'bio1',
   jwt:'jwt',
   profile:'profile',
+  photo: new Uint8List(0),
   followers: [],
   following: [],
 );
@@ -113,6 +125,7 @@ User fakeUser9 = User(
   nickname: 'bio1',
   jwt:'jwt',
   profile:'profile',
+  photo: new Uint8List(0),
   followers: [],
   following: [],
 );
@@ -130,6 +143,7 @@ class CustomAuth {
   static final CustomAuth _instance = CustomAuth._();
   factory CustomAuth() => _instance;
   CustomAuth._();
+  static final storage = const FlutterSecureStorage(webOptions: WebOptions());
 
   // Expose the Stream<User> as authStateChanges
   Stream<User?> get authStateChanges => _controller.stream;
@@ -143,6 +157,7 @@ class CustomAuth {
     password: "password",
     nickname: 'nickname',
     profile:'profile',
+    photo: Uint8List(0),
     followers: [],
     following: [],
   );
@@ -154,11 +169,83 @@ class CustomAuth {
     // Add the User object to the StreamController
     // Handle errors as needed
     //
-    var url = Uri.parse("http://127.0.0.1:5000/api/user/login");
+    print("asd1");
+    String state = await storage.read(key: "loginState") ?? "Fail";
+    print(state);
+    print("asd2");
+    if(state=="Success"){
+      var uid = await storage.read(key: "uid");
+      var data = {
+        'username': await storage.read(key: "username"),
+        'uid': uid,
+        'jwt':await storage.read(key: "jwt"),
+        'photoUrl': await storage.read(key: "photoUrl"),
+        'email': await storage.read(key: "email"),
+        "password":await storage.read(key: "password"),
+        'nickname': await storage.read(key: "nickname"),
+        'profile':await storage.read(key: "profile"),
+        'followers': [],
+        'following': [],
+      };
+      CustomAuth.currentUser = User(
+        username: data['username'] as String,
+        password: data['password'] as String,
+        uid: data['uid'] as String,
+        jwt: data['jwt'] as String,
+        photoUrl: data['photoUrl'] as String,
+        email: data['email'] as String,
+        nickname: data['nickname'] as String,
+        profile:data['profile'] as String,
+        photo: Uint8List(0),
+        followers: data['followers'] as List,
+        following: data['following'] as List,
+      );
+      Uint8List? _photo = await db.DataBaseManager().getPhoto(uid!);
+      CustomAuth.currentUser = User(
+        username: data['username'] as String,
+        password: data['password'] as String,
+        uid: data['uid'] as String,
+        jwt: data['jwt'] as String,
+        photoUrl: data['photoUrl'] as String,
+        email: data['email'] as String,
+        nickname: data['nickname'] as String,
+        profile:data['profile'] as String,
+        photo: _photo!,
+        followers: data['followers'] as List,
+        following: data['following'] as List,
+      );
+      return state;
+    }
+    print("asd3");
+    var url = Uri.parse(gv.ip+"/api/user/login");
     String result;
     result = await db.DataBaseManager().signIn(url, email, password);
+    Uint8List? _photo = await db.DataBaseManager().getPhoto(currentUser.uid);
+    currentUser = User(
+        username: currentUser.username,
+        uid: currentUser.uid,
+        jwt: currentUser.jwt,
+        photoUrl: currentUser.photoUrl,
+        photo: _photo,
+        email: currentUser.email,
+        password: currentUser.password,
+        nickname: currentUser.nickname,
+        profile: currentUser.profile,
+        followers: currentUser.followers,
+        following: currentUser.following
+    );
+    print("customAuth"+currentUser.jwt);
     if(result == "Success"){
       _controller.add(currentUser);
+      await storage.write(key: "loginState", value: "Success");
+      await storage.write(key: "username", value: currentUser.username);
+      await storage.write(key: "uid", value: currentUser.uid);
+      await storage.write(key: "jwt", value: currentUser.jwt);
+      await storage.write(key: "photoUrl", value: currentUser.photoUrl);
+      await storage.write(key: "email", value: currentUser.email);
+      await storage.write(key: "password", value: currentUser.password);
+      await storage.write(key: "nickname", value: currentUser.nickname);
+      await storage.write(key: "profile", value: currentUser.profile);
     }
     return result;
   }
@@ -169,11 +256,20 @@ class CustomAuth {
     // Handle errors as needed
     try {
       var _client = http.Client();
-      var url = Uri.parse("http://127.0.0.1:5000/api/user/logout");
+      var url = Uri.parse(gv.ip+"/api/user/logout");
       await _client.post(url,headers: {
         HttpHeaders.authorizationHeader: CustomAuth.currentUser.jwt,
       },);
       // await _client.post(Uri.parse('https://your-backend.com/signout'));
+      await storage.write(key: "loginState", value: "Fail");
+      await storage.write(key: "username", value: currentUser.username);
+      await storage.write(key: "uid", value: currentUser.uid);
+      await storage.write(key: "jwt", value: currentUser.jwt);
+      await storage.write(key: "photoUrl", value: currentUser.photoUrl);
+      await storage.write(key: "email", value: currentUser.email);
+      await storage.write(key: "password", value: currentUser.password);
+      await storage.write(key: "nickname", value: currentUser.nickname);
+      await storage.write(key: "profile", value: currentUser.profile);
       // _controller.add(null);
       // _controller.close();
       return 'Success';
@@ -184,7 +280,7 @@ class CustomAuth {
     }
   }
 
-  Future<String> register(String nickname, String email, String password) async {
+  Future<String> register(String username, String password, String nickname) async {
     // Make a request to your backend with name, email and password
     // Get the response and parse it as a User object
     // Add the User object to the StreamController
@@ -196,37 +292,11 @@ class CustomAuth {
       // );
       // final data = jsonDecode(response.body);
       String result;
-      result = await db.DataBaseManager().register(userRegister, nickname, email, password);
+      result = await db.DataBaseManager().register(userRegister, username, password,nickname);
       if(result == "Success"){
         _controller.add(currentUser);
       }
       return result;
-      final data = {
-        'username': "username",
-        'uid': 'uid',
-        'jwt':'jwt',
-        'photoUrl': 'photoUrl',
-        'email': email,
-        "password":password,
-        'nickname': 'nickname',
-        'profile':'profile',
-        'followers': [],
-        'following': [],
-      };
-      final user = User(
-        username: data['username'] as String,
-        password: data['password'] as String,
-        uid: data['uid'] as String,
-        jwt: data['jwt'] as String,
-        photoUrl: data['photoUrl'] as String,
-        email: data['email'] as String,
-        nickname: data['nickname'] as String,
-        profile:data['profile'] as String,
-        followers: data['followers'] as List,
-        following: data['following'] as List,
-      );
-      _controller.add(user);
-      return 'Success';
     } catch (e) {
       // Handle errors as needed
       print(e);

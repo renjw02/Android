@@ -4,7 +4,7 @@
 # here put the import lib
 
 
-def post_params_check(title, content, type, position):
+def post_params_check(title, content, type_, position, font_size):
     '''
     title       小于128
     content     小于1024
@@ -25,16 +25,19 @@ def post_params_check(title, content, type, position):
     else:
         return "content", False
     
-    if type is not None:
-        if type != 1 or type != 2:
-            return "content", False
+    if type_ is not None:
+        if type_ != 1 and type_ != 2:
+            return "type", False
     else:
-        return "content", False
+        return "type", False
     
+    if type(font_size) != int:
+        return "font_size", False
+
     if position is not None:
         if len(position) <= 0 or len(position) > 64:
-            return "content", False
+            return "position", False
     else:
-        return "content", False
+        return "position", False
     
     return "ok", True

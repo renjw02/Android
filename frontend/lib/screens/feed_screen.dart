@@ -11,50 +11,9 @@ import '../Auth/customAuth.dart';
 import '../Bloc/bloc_provider.dart';
 import '../models/DocumentSnapshot.dart';
 import '../models/querySnapshot.dart';
-//初始化三个DocumentSnapshot对象
-//required this.description,
-//       required this.uid,
-//       required this.username,
-//       required this.likes,
-//       required this.postId,
-//       required this.datePublished,
-//       required this.postUrl,
-//       required this.profImage,
-DocumentSnapshot trend1 = DocumentSnapshot(
-  uid: '1',
-  username: 'test',
-  likes: ['1'],
-  postId: '1',
-  datePublished: DateTime.now(),
-  description: '啊！啊！啊~~~~，114514 114514',
-  postUrl: 'https://picsum.photos/200/300',
-  profImage: 'https://p0.itc.cn/q_70/images03/20230213/ca107acd0ee943a0ac9e8264a23b6ca4.jpeg',
-);
+import '../models/post.dart';
+import '../resources/database_methods.dart' as db;
 
-DocumentSnapshot trend2 = DocumentSnapshot(
-  uid: '2',
-  username: '王境泽',
-  likes: [],
-  postId: '2',
-  datePublished: DateTime.now(),
-  description: '诶呀，真香',
-  postUrl: 'https://picsum.photos/200/302',
-  profImage: 'https://picsum.photos/200/502',
-);
-DocumentSnapshot trend3 = DocumentSnapshot(
-  uid: '3',
-  username: '李永乐老师',
-  likes: [],
-  postId: '3',
-  datePublished: DateTime.now(),
-  description: '今天我们来看看这个东西是怎么样的',
-  postUrl: 'https://picsum.photos/200/303',
-  profImage: 'https://picsum.photos/200/503',
-);
-List<DocumentSnapshot> doc = [trend1, trend2, trend3];
-
-//初始化一个QuerySnapshot对象
-QuerySnapshot querySnapshot = QuerySnapshot(docs: doc, readTime: DateTime.now());
 
 
 class FeedScreen extends StatefulWidget {
@@ -70,6 +29,9 @@ class _FeedScreenState extends State<FeedScreen> {
 
   @override
   void initState() {
+    setState(() {
+      isLoading = true;
+    });
     super.initState();
     // test = Stream<QuerySnapshot>.value(querySnapshot);
     // _streamController = StreamController<QuerySnapshot>();

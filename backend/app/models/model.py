@@ -71,6 +71,11 @@ class Post(db.Model):
     created = db.Column(db.DateTime, doc="创建时间")
     updated = db.Column(db.DateTime, doc="更新时间")
 
+    font_size = db.Column(db.Integer, doc="字体大小")
+    font_color = db.Column(db.String(64), doc="字体颜色")
+    font_weight = db.Column(db.String(64), doc="字体粗细")
+
+    # 废弃
     has_picture = db.Column(db.Boolean, doc="图片有无")
     has_video = db.Column(db.Boolean, doc="视频有无")
 
@@ -112,6 +117,22 @@ class Star(db.Model):
 
     created = db.Column(db.DateTime, doc="创建时间")
 
+class Support(db.Model):
+    """
+    点赞
+    """
+    __tablename__ = 'support'
+
+    id = db.Column(db.Integer, primary_key=True,
+                   autoincrement=True, doc="点赞id")
+
+    user_id = db.Column(db.Integer, doc="用户id")
+    post_id = db.Column(db.Integer, db.ForeignKey("post.id", ondelete="SET NULL"), doc="帖子id")
+    post = db.relationship('Post', backref=db.backref('supports', cascade='all, delete'))
+    
+    created = db.Column(db.DateTime, doc="创建时间")
+
+    
 class Picture(db.Model):
     """
     图片

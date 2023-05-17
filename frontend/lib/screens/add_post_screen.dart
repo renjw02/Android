@@ -7,8 +7,10 @@ import 'package:frontend/providers/user_provider.dart';
 import 'package:frontend/resources/textpost_methods.dart';
 import 'package:frontend/utils/colors.dart';
 import 'package:frontend/utils/utils.dart';
-import 'package:location/location.dart';
 import 'package:provider/provider.dart';
+import 'package:geolocator/geolocator.dart';
+
+import '../resources/database_methods.dart' as db;
 
 class AddPostScreen extends StatefulWidget {
   const AddPostScreen({Key? key}) : super(key: key);
@@ -21,53 +23,54 @@ class _AddPostScreenState extends State<AddPostScreen> {
   Uint8List? _file;
   bool isLoading = false;
   String topicContent = "选择一个话题";
-  LocationData? currentLocation;
-  String address = "";
-  final TextEditingController _descriptionController = TextEditingController();
+  //LocationData? currentLocation;
+  Address? address;
+  int font_size = 16;
+  Color font_color = Colors.white;
+  var font_weight = FontWeight.w500;  //fontWeight: FontWeight.w100 ~ w900
+  Position? position;
+  final TextEditingController titlec = new TextEditingController();
+  final TextEditingController contentc = new TextEditingController();
 
   @override
-  void initState(){
+  void initState() {
     super.initState();
-    _getLocation().then((value) {
-      LocationData? location = value;
-      _getAddress(location?.latitude, location?.longitude)
-          .then((value) {
-        setState(() {
-          currentLocation = location;
-          address = value;
-        });
-      });
-    });
-    print(address);
+
+    // print("getlocation");
+    // Geolocator.getLastKnownPosition().then((value){
+    //   if(value == null){
+    //     print("last is null");
+    //     Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.best).then((Position p){
+    //       position = p;
+    //     });
+    //   }
+    //   else{
+    //     position = value;
+    //   }
+    //   // Geolocator.
+    //   // var coordinates = new Coordinates(position.latitude, position.longitude);
+    //   // var addresses = await GeoCode.local.findAddressesFromCoordinates(coordinates);
+    //   // first = addresses.first;
+    //   // print("${first.featureName} : ${first.addressLine}");
+    //   print(position);
+    //   getaddress(position!.latitude, position!.longitude);
+    //   print(address);
+    // }).catchError((onError){
+    //   print("error");
+    //   print(onError);
+    // });
   }
 
-  Future<LocationData?> _getLocation() async {
-    Location location = new Location();
-    LocationData _locationData;
+  @override
+  void dispose(){
+    super.dispose();
+    titlec.dispose();
+    contentc.dispose();
+  }
 
-    bool _serviceEnabled;
-    PermissionStatus _permissionGranted;
-
-    _serviceEnabled = await location.serviceEnabled();
-    if (!_serviceEnabled) {
-      _serviceEnabled = await location.requestService();
-      if (!_serviceEnabled) {
-        return null;
-      }
-    }
-
-    _permissionGranted = await location.hasPermission();
-    if (_permissionGranted == PermissionStatus.denied) {
-      _permissionGranted = await location.requestPermission();
-      if (_permissionGranted != PermissionStatus.granted) {
-        return null;
-      }
-    }
-
-
-    _locationData = await location.getLocation();
-
-    return _locationData;
+  void getaddress(double lat,double lang) async {
+    GeoCode geoCode = GeoCode();
+    address = await geoCode.reverseGeocoding(latitude: lat, longitude: lang);
   }
 
   Future<String> _getAddress(double? lat, double? lang) async {
@@ -75,7 +78,8 @@ class _AddPostScreenState extends State<AddPostScreen> {
     GeoCode geoCode = GeoCode();
     Address address =
     await geoCode.reverseGeocoding(latitude: lat, longitude: lang);
-    return "${address.streetAddress}, ${address.city}, ${address.countryName}, ${address.postal}";
+    //return "${address.streetAddress}, ${address.city}, ${address.countryName}, ${address.postal}";
+    return "${address.city}, ${address.countryName}";
   }
 
   _selectImage(BuildContext parentContext) async {
@@ -83,11 +87,11 @@ class _AddPostScreenState extends State<AddPostScreen> {
       context: parentContext,
       builder: (BuildContext context) {
         return SimpleDialog(
-          title: const Text('Create a Post'),
+          title: const Text('更换头像'),
           children: <Widget>[
             SimpleDialogOption(
                 padding: const EdgeInsets.all(20),
-                child: const Text('Take a photo'),
+                child: const Text('拍照'),
                 onPressed: () async {
                   Navigator.pop(context);
                   Uint8List file = await pickImage(ImageSource.camera);
@@ -97,7 +101,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
                 }),
             SimpleDialogOption(
                 padding: const EdgeInsets.all(20),
-                child: const Text('Choose from Gallery'),
+                child: const Text('上传本地图片'),
                 onPressed: () async {
                   Navigator.of(context).pop();
                   Uint8List file = await pickImage(ImageSource.gallery);
@@ -107,7 +111,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
                 }),
             SimpleDialogOption(
               padding: const EdgeInsets.all(20),
-              child: const Text("Cancel"),
+              child: const Text("取消"),
               onPressed: () {
                 Navigator.pop(context);
               },
@@ -151,66 +155,57 @@ class _AddPostScreenState extends State<AddPostScreen> {
     );
   }
 
-  void postImage(String uid, String username, String profImage) async {
-    setState(() {
-      isLoading = true;
-    });
-    // start the loading
-    try {
-      // upload to storage and db
-      String res = 'unimplemented';
-      // String res = await FireStoreMethods().uploadPost(
-      //   _descriptionController.text,
-      //   _file!,
-      //   uid,
-      //   username,
-      //   profImage,
-      // );
-      if (res == "success") {
-        setState(() {
-          isLoading = false;
-        });
-        showSnackBar(
-          context,
-          'Posted!',
-        );
-        clearImage();
-      } else {
-        showSnackBar(context, res);
-      }
-    } catch (err) {
-      setState(() {
-        isLoading = false;
-      });
-      showSnackBar(
-        context,
-        err.toString(),
-      );
-    }
-  }
 
-  void clearImage() {
+  void clearInfo() {
     setState(() {
+      topicContent = "选择一个话题";
+      font_size = 16;
+      font_color = Colors.white;
+      font_weight = FontWeight.w500;
+      titlec.text = "";
+      contentc.text = "";
       _file = null;
     });
   }
-
-  @override
-  void dispose() {
-    super.dispose();
-    _descriptionController.dispose();
+  
+  void post() async {
+    Map<String ,int> topic2type = {"校园资讯":1,"二手交易":2};
+    if(_file == null){
+      print("file is null");
+    }
+    List<Uint8List?> files = [_file];
+    print(topic2type[topicContent]!);
+    Map<Color,String> colors = {Colors.red:"red",Colors.white:"white",Colors.yellow:"yellow"};
+    Map<FontWeight,String> weights = {FontWeight.w300:"较细",FontWeight.w500:"适中",FontWeight.w700:"较粗"};
+    String res = await db.DataBaseManager().createPost(titlec.text, contentc.text, topic2type[topicContent]!, "position",
+        font_size,colors[font_color]!,weights[font_weight]!,files);
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(res),
+      ),
+    );
+    if(res=="动态上传成功"){
+      setState(() {
+        topicContent = "选择一个话题";
+        font_size = 16;
+        font_color = Colors.white;
+        font_weight = FontWeight.w500;
+        titlec.text = "";
+        contentc.text = "";
+        _file = null;
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     final UserProvider userProvider = Provider.of<UserProvider>(context);
-
     return Scaffold(
           appBar: AppBar(
             backgroundColor: mobileBackgroundColor,
             leading: IconButton(
-              icon: const Icon(Icons.arrow_back),
-              onPressed: clearImage,
+              icon: const Icon(Icons.cleaning_services_rounded),
+              onPressed: clearInfo,
             ),
             title: const Text(
               '发布帖子',
@@ -218,12 +213,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
             centerTitle: true,
             actions: <Widget>[
               TextButton(
-                onPressed: null,
-                // onPressed: () => postImage(
-                //   userProvider.getUser.uid,
-                //   userProvider.getUser.username,
-                //   userProvider.getUser.photoUrl,
-                // ),
+                onPressed: () => post(),
                 child: const Text(
                   "发布",
                   style: TextStyle(
@@ -237,6 +227,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
       body:Column(
         children: [
           Row(
+            mainAxisAlignment:MainAxisAlignment.spaceBetween,
             children: [
               IconButton(
                 icon: const Icon(
@@ -245,12 +236,80 @@ class _AddPostScreenState extends State<AddPostScreen> {
                 onPressed: () => _selectTopic(context),
               ),
               Text("${topicContent}"),
-              if (currentLocation != null)
-              Text("Location: ${currentLocation?.latitude}, ${currentLocation?.longitude}"),
-              if (currentLocation != null) Text("Address: $address"),
+              // if (currentLocation != null)
+              // Text("Location: ${currentLocation?.latitude}, ${currentLocation?.longitude}"),
+              const Divider(),
+              //if (currentLocation != null) Text("Address: $address"),
             ],
           ),
+          Column(
+            children: [
+            DropdownButton(
+              value: font_size, //style: style,
+              icon: Icon(Icons.arrow_right), iconSize: 40, iconEnabledColor: Colors.green.withOpacity(0.7),
+              hint: Text('请选择地区'), isExpanded: true, underline: Container(height: 1, color: Colors.green.withOpacity(0.7)),
+              items: [
+              DropdownMenuItem(
+              child: Row(children: <Widget>[Text('小字体',style: TextStyle(fontSize: 12)), SizedBox(width: 10)]),
+              value: 12),
+              DropdownMenuItem(
+              child: Row(children: <Widget>[Text('适中',style: TextStyle(fontSize: 16)), SizedBox(width: 10)]),
+              value: 16),
+              DropdownMenuItem(
+              child: Row(children: <Widget>[Text('大字体', style: TextStyle(fontSize: 20)), SizedBox(width: 10)]),
+              value: 20)
+              ],
+              onChanged: (value) => setState(() => font_size = value!)
+            ),
+            DropdownButton(
+                value: font_color, //style: style,
+                icon: Icon(Icons.arrow_right), iconSize: 40, iconEnabledColor: Colors.red.withOpacity(0.7),
+                hint: Text('请选择字体颜色'), isExpanded: true, underline: Container(height: 1, color: Colors.green.withOpacity(0.7)),
+                items: [
+                  DropdownMenuItem(
+                      child: Row(children: <Widget>[Text('红色',style: TextStyle(color: Colors.red, fontSize: 16)), SizedBox(width: 10)]),
+                      value: Colors.red),
+                  DropdownMenuItem(
+                      child: Row(children: <Widget>[Text('白色',style: TextStyle(color: Colors.white, fontSize: 16)), SizedBox(width: 10)]),
+                      value: Colors.white),
+                  DropdownMenuItem(
+                      child: Row(children: <Widget>[Text('黄色', style: TextStyle(color: Colors.yellow, fontSize: 16)), SizedBox(width: 10)]),
+                      value: Colors.yellow)
+                ],
+                onChanged: (value) => setState(() => font_color = value!)
+            ),
+            DropdownButton(
+                value: font_weight, //style: style,
+                icon: Icon(Icons.arrow_right), iconSize: 40, iconEnabledColor: Colors.blue.withOpacity(0.7),
+                hint: Text('请选择字体粗细'), isExpanded: true, underline: Container(height: 1, color: Colors.green.withOpacity(0.7)),
+                items: [
+                  DropdownMenuItem(
+                      child: Row(children: <Widget>[Text('较细', style: TextStyle(fontWeight: FontWeight.w300)), SizedBox(width: 10) ]),
+                      value: FontWeight.w300),
+                  DropdownMenuItem(
+                      child: Row(children: <Widget>[Text('适中', style: TextStyle(fontWeight: FontWeight.w500)), SizedBox(width: 10)]),
+                      value: FontWeight.w500),
+                  DropdownMenuItem(
+                      child: Row(children: <Widget>[Text('较粗', style: TextStyle(fontWeight: FontWeight.w700)), SizedBox(width: 10)]),
+                      value: FontWeight.w700)
+                ],
+                onChanged: (value) => setState(() => font_weight = value!)
+            ),
+
+            ]
+
+          ),
           TextField(
+            controller: titlec,
+            decoration: const InputDecoration(
+              hintText: "如何评价",
+              labelText: "标题",
+              prefixIcon: Icon(Icons.title),
+            ),
+            maxLines: 1,
+          ),
+          TextField(
+              controller: contentc,
               decoration: const InputDecoration(
                 hintText: "如何评价",
                 labelText: "内容",
@@ -259,6 +318,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
               maxLines: null,
               minLines: 1,
           ),
+          _file == null?
           Center(
             child: IconButton(
               icon: const Icon(
@@ -266,7 +326,21 @@ class _AddPostScreenState extends State<AddPostScreen> {
               ),
               onPressed: () => _selectImage(context),
             ),
-          )
+          ):SizedBox(
+            height: 45.0,
+            width: 45.0,
+            child: AspectRatio(
+              aspectRatio: 487 / 451,
+              child: Container(
+                decoration: BoxDecoration(
+                    image: DecorationImage(
+                      fit: BoxFit.fill,
+                      alignment: FractionalOffset.topCenter,
+                      image: MemoryImage(_file!),
+                    )),
+              ),
+            ),
+          ),
         ],
       ),
     );

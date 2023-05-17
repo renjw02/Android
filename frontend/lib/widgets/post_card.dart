@@ -1,14 +1,20 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:frontend/models/user.dart' as model;
 import 'package:frontend/providers/user_provider.dart';
 import 'package:frontend/resources/textpost_methods.dart';
 import 'package:frontend/screens/comments_screen.dart';
+import 'package:frontend/screens/profile_screen.dart';
 import 'package:frontend/utils/colors.dart';
 import 'package:frontend/utils/global_variable.dart';
 import 'package:frontend/utils/utils.dart';
 import 'package:frontend/widgets/like_animation.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+
+import '../utils/global_variable.dart' as gv;
+import '../resources/database_methods.dart' as db;
 
 class PostCard extends StatefulWidget {
   final snap;
@@ -22,34 +28,43 @@ class PostCard extends StatefulWidget {
 }
 
 class _PostCardState extends State<PostCard> {
-  int commentLen = 0;
+  //int commentLen = 0;
   bool isLikeAnimating = false;
+  late final Map<String,dynamic> userinfo;
+  late final Uint8List _file;
+  Map<int,String> types = {1:"校园资讯",2:"二手交易"};
+  Map<String,Color> colors = {"red":Colors.red,"white":Colors.white,"yellow":Colors.yellow};
+  Map<String,FontWeight> weights = {"较细":FontWeight.w300,"适中":FontWeight.w500,"较粗":FontWeight.w700};
+  bool isLoading = false;
 
   @override
   void initState() {
+    setState(() {
+      isLoading = true;
+    });
     super.initState();
-    fetchCommentLen();
+    getData();
   }
 
-  fetchCommentLen() async {
+  getData() async {
     try {
-      // QuerySnapshot snap = await FirebaseFirestore.instance
-      //     .collection('posts')
-      //     .doc(widget.snap['postId'])
-      //     .collection('comments')
-      //     .get();
-      // commentLen = snap.docs.length;
-      commentLen = 5;
+      var snap = widget.snap;
+      db.DataBaseManager dbm = db.DataBaseManager();
+      var url = Uri.parse(gv.ip+"/api/user/user/"+snap['uid']);
+      userinfo = await dbm.getSomeMap(url);
+      _file = await dbm.getPhoto(snap['uid']);
     } catch (err) {
       showSnackBar(
         context,
         err.toString(),
       );
     }
-    setState(() {});
+    setState(() {
+      isLoading = false;
+    });
   }
 
-  deletePost(String postId) async {
+  deletePost(String postId) async {  //TODO
     try {
       await TextPostMethods().deletePost(postId);
     } catch (err) {
@@ -65,7 +80,10 @@ class _PostCardState extends State<PostCard> {
     final model.User user = Provider.of<UserProvider>(context).getUser;
     final width = MediaQuery.of(context).size.width;
 
-    return Container(
+    return isLoading
+        ? const Center(
+      child: CircularProgressIndicator(),
+    ):Container(
       // boundary needed for web
       decoration: BoxDecoration(
         border: Border.all(
@@ -93,11 +111,23 @@ class _PostCardState extends State<PostCard> {
             ).copyWith(right: 0),
             child: Row(
               children: <Widget>[
-                CircleAvatar(
-                  radius: 16,
-                  backgroundImage: NetworkImage(
-                    widget.snap['profImage'].toString(),
-                  ),
+                GestureDetector(
+                  onTap:(){
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                      builder: (context) =>
+                        ProfileScreen(uid: widget.snap['uid']),
+                        //const LoginScreen(),
+                      ),
+                    );
+                  },
+                  child:CircleAvatar(
+                    radius: 16,
+                    backgroundImage: MemoryImage(_file!),
+                    // backgroundImage: NetworkImage(
+                    //   widget.snap['profImage'].toString(),
+                    // ),
+                  )
                 ),
                 Expanded(
                   child: Padding(
@@ -109,7 +139,7 @@ class _PostCardState extends State<PostCard> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
                         Text(
-                          widget.snap['username'].toString(),
+                          userinfo['username'].toString(),
                           style: const TextStyle(
                             fontWeight: FontWeight.bold,
                           ),
@@ -118,59 +148,105 @@ class _PostCardState extends State<PostCard> {
                     ),
                   ),
                 ),
-                widget.snap['uid'].toString() == user.uid
-                    ? IconButton(
-                        onPressed: () {
-                          showDialog(
-                            useRootNavigator: false,
-                            context: context,
-                            builder: (context) {
-                              return Dialog(
-                                child: ListView(
-                                    padding: const EdgeInsets.symmetric(
-                                        vertical: 16),
-                                    shrinkWrap: true,
-                                    children: [
-                                      'Delete',
-                                    ]
-                                        .map(
-                                          (e) => InkWell(
-                                              child: Container(
-                                                padding:
-                                                    const EdgeInsets.symmetric(
-                                                        vertical: 12,
-                                                        horizontal: 16),
-                                                child: Text(e),
-                                              ),
-                                              onTap: () {
-                                                deletePost(
-                                                  widget.snap['postId']
-                                                      .toString(),
-                                                );
-                                                // remove the dialog box
-                                                Navigator.of(context).pop();
-                                              }),
-                                        )
-                                        .toList()),
-                              );
-                            },
-                          );
-                        },
-                        icon: const Icon(Icons.more_vert),
-                      )
-                    : Container(),
+                Text(
+                  types[widget.snap['type']].toString(),
+                  style: const TextStyle(
+                    color:secondaryColor,
+                  ),
+                ),
+                widget.snap['uid'].toString() == user.uid?
+                IconButton(
+                  onPressed: () {
+                    showDialog(
+                      useRootNavigator: false,
+                      context: context,
+                      builder: (context) {
+                        return Dialog(
+                          child: ListView(
+                              padding: const EdgeInsets.symmetric(
+                                  vertical: 16),
+                              shrinkWrap: true,
+                              children: [
+                                'Delete',
+                              ]
+                                  .map(
+                                    (e) => InkWell(
+                                        child: Container(
+                                          padding:
+                                              const EdgeInsets.symmetric(
+                                                  vertical: 12,
+                                                  horizontal: 16),
+                                          child: Text(e),
+                                        ),
+                                        onTap: () {
+                                          deletePost(
+                                            widget.snap['id']
+                                                .toString(),
+                                          );
+                                          // remove the dialog box
+                                          Navigator.of(context).pop();
+                                        }),
+                                  )
+                                  .toList()),
+                        );
+                      },
+                    );
+                  },
+                  icon: const Icon(Icons.more_vert),
+                )
+              : Container(),
               ],
             ),
           ),
+          Column(
+              children:[
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.only(
+                    top: 8,
+                    left: 8,
+                  ),
+                  child:RichText(
+                      text:TextSpan(
+                        text: "${widget.snap['title']}",
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      )
+                  ),
+                ),
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.only(
+                    top: 8,
+                  ),
+                  child: RichText(
+                    text: TextSpan(
+                      text: ' ${widget.snap['content']}',
+                      style: TextStyle(fontSize: widget.snap['font_size'].toDouble() , color: colors[widget.snap['font_color']],
+                          fontWeight: weights[widget.snap['font_weight']]),
+                    ),
+                  ),
+                )
+              ]
+          ),
           // IMAGE SECTION OF THE POST
           GestureDetector(
-            onDoubleTap: () {
-              TextPostMethods().likePost(
-                widget.snap['postId'].toString(),
+            onDoubleTap: () async {
+              String res = await TextPostMethods().supportPost(   //TODO
+                widget.snap['id'].toString(),
                 user.uid,
-                widget.snap['likes'],
+                widget.snap['supportList'],
               );
               setState(() {
+                if(res=="Success"){
+                  widget.snap['support_num']++;
+                  print(widget.snap['supportList']);
+                }
+                else{
+                  widget.snap['support_num']--;
+                }
                 isLikeAnimating = true;
               });
             },
@@ -185,9 +261,9 @@ class _PostCardState extends State<PostCard> {
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(10.0), // 设置圆角半径
                       child: Image.network(
-                        widget.snap['postUrl'].toString(),
-                        fit: BoxFit.cover,
-                      ),
+                        //widget.snap['postUrl'].toString(),
+                        'https://picsum.photos/200/303',
+                        fit: BoxFit.cover),
                     ),
                   ),
                 ),
@@ -214,128 +290,118 @@ class _PostCardState extends State<PostCard> {
               ],
             ),
           ),
-          // LIKE, COMMENT SECTION OF THE POST
           Container(
             margin: const EdgeInsets.all(10.0),
             child: Row(
               children: <Widget>[
                 LikeAnimation(
-                  isAnimating: widget.snap['likes'].contains(user.uid),
+                  isAnimating: widget.snap['supportList'].contains(user.uid),
                   smallLike: true,
                   child: IconButton(
-                    icon: widget.snap['likes'].contains(user.uid)//判断是否点赞
-                        ? const Icon(
-                            Icons.favorite,
-                            color: Colors.red,
-                          )
-                        : const Icon(
-                            Icons.favorite_border,
-                          ),
-                    onPressed: () => TextPostMethods().likePost(
-                      widget.snap['postId'].toString(),
-                      user.uid,
-                      widget.snap['likes'],
-                    ),
+                    icon: widget.snap['supportList'].contains(user.uid)//判断是否点赞
+                    ? const Icon(
+                      Icons.favorite,
+                      color: Colors.red,)
+                    : const Icon(Icons.favorite_border,),
+                    onPressed: () async {
+                      String res = await TextPostMethods().supportPost(
+                        widget.snap['postId'].toString(),
+                        user.uid,
+                        widget.snap['supportList'],
+                      );
+                      print(widget.snap['supportList']);
+                      if(res=="Success"){
+                        widget.snap['support_num']++;
+                      }
+                      else{
+                        widget.snap['support_num']--;
+                      }
+                      setState(() {
+                      });
+                    },
                   ),
                 ),
                 DefaultTextStyle(
-                    style: Theme.of(context)
-                        .textTheme
-                        .titleSmall!
-                        .copyWith(fontWeight: FontWeight.w800),
-                    child: Text(
-                      '${widget.snap['likes'].length} ',
-                      style: Theme.of(context).textTheme.bodyMedium,
-                    )),
+                  style: Theme.of(context)
+                      .textTheme
+                      .titleSmall!
+                      .copyWith(fontWeight: FontWeight.w800),
+                  child: Text(
+                  '${widget.snap['support_num']} ',
+                  style: Theme.of(context).textTheme.bodyMedium,)
+                ),
                 IconButton(
-                  icon: const Icon(
-                    Icons.comment_outlined,
-                  ),
+                  icon: const Icon(Icons.comment_outlined,),
                   onPressed: () => Navigator.of(context).push(
                     MaterialPageRoute(
                       builder: (context) => CommentsScreen(
-                        postId: widget.snap['postId'].toString(),
+                        postId: widget.snap['id'].toString(),
                       ),
                     ),
                   ),
                 ),
                 DefaultTextStyle(
-                    style: Theme.of(context)
-                        .textTheme
-                        .titleSmall!
-                        .copyWith(fontWeight: FontWeight.w800),
-                    child: Text(
-                      '$commentLen   ',
-                      style: Theme.of(context).textTheme.bodyText2,
-                    )),
-                IconButton(
-                    icon: const Icon(
-                      Icons.send,
-                    ),
-                    onPressed: () {}),
-                // DefaultTextStyle(
-                //     style: Theme.of(context)
-                //         .textTheme
-                //         .titleSmall!
-                //         .copyWith(fontWeight: FontWeight.w800),
-                //     child: Text(
-                //       '${widget.snap['likes'].length} ',
-                //       style: Theme.of(context).textTheme.bodyText2,
-                //     )),
-                Expanded(
+                  style: Theme.of(context)
+                      .textTheme
+                      .titleSmall!
+                      .copyWith(fontWeight: FontWeight.w800),
+                  child: Text(
+                  '${widget.snap['comment_num']}',
+                  style: Theme.of(context).textTheme.bodyText2,
+                )),
+                  IconButton( //转发按钮
+                    icon: const Icon(Icons.send,),
+                    onPressed: () {}
+                  ),
+                  Expanded(
                     child: Align(
-                  alignment: Alignment.bottomRight,
-                  child: IconButton(
-                      icon: const Icon(Icons.bookmark_border), onPressed: () {}),
-                ))
-              ],
-            ),
+                      alignment: Alignment.bottomRight,
+                      child:IconButton(
+                        icon: widget.snap['starList'].contains(user.uid)
+                            ? const Icon(
+                          Icons.star,
+                          color: Colors.red,
+                        ) : const Icon(Icons.star_border),
+                        onPressed:(){},
+                      ),
+                    )
+                  )
+                ],
+              ),
           ),
           //DESCRIPTION AND NUMBER OF COMMENTS
           Container(
+            width: double.infinity,
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
+                // DefaultTextStyle(
+                //   style: Theme.of(context)
+                //       .textTheme
+                //       .subtitle2!
+                //       .copyWith(fontWeight: FontWeight.w800),
+                //   child: Text(
+                //     '${widget.snap['support_num']} 点赞',
+                //     style: Theme.of(context).textTheme.bodyText2,
+                //   )
+                // ),
 
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.only(
-                    top: 8,
-                  ),
-                  child: RichText(
-                    text: TextSpan(
-                      style: const TextStyle(color: primaryColor),
-                      children: [
-                        TextSpan(
-                          text: '${widget.snap['username']}:',
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        TextSpan(
-                          text: ' ${widget.snap['description']}',
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
                 InkWell(
                   child: Container(
                     padding: const EdgeInsets.symmetric(vertical: 4),
                     child: Text(
-                      'View all $commentLen comments',
+                      '查看所有 ${widget.snap['comment_num']} 条评论',
                       style: const TextStyle(
-                        fontSize: 16,
-                        color: secondaryColor,
+                        color: blueColor,
                       ),
                     ),
                   ),
                   onTap: () => Navigator.of(context).push(
                     MaterialPageRoute(
                       builder: (context) => CommentsScreen(
-                        postId: widget.snap['postId'].toString(),
+                        postId: widget.snap['id'].toString(),
                       ),
                     ),
                   ),
@@ -346,7 +412,7 @@ class _PostCardState extends State<PostCard> {
                   Text(
                     // DateFormat.yMMMd()
                     //     .format(widget.snap['datePublished'].toDate()),
-                    widget.snap['datePublished'].toString(),
+                    widget.snap['created'].toString(),
                     style: const TextStyle(
                       color: secondaryColor,
                     ),

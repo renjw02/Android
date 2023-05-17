@@ -8,7 +8,9 @@ import 'package:frontend/utils/utils.dart';
 import 'package:provider/provider.dart';
 
 import '../Auth/customAuth.dart';
+import '../models/user.dart';
 import '../resources/database_methods.dart' as db;
+import '../screens/profile_screen.dart';
 
 class ModifyScreen extends StatefulWidget {
   const ModifyScreen({Key? key}) : super(key: key);
@@ -23,9 +25,7 @@ class _ModifyScreenState extends State<ModifyScreen> {
   final TextEditingController usernamec = new TextEditingController(text: CustomAuth.currentUser.username);
   final TextEditingController profilec = new TextEditingController(text: CustomAuth.currentUser.profile);
   final TextEditingController passwordc = new TextEditingController(text: CustomAuth.currentUser.password);
-  // const username = "原用户名："+CustomAuth.currentUser.username;
-  // final const profile = "原简介："+CustomAuth.currentUser.profile;
-  // final password = "原密码："+CustomAuth.currentUser.password;
+  final Uint8List _photo = CustomAuth.currentUser.photo;
 
   _selectImage(BuildContext parentContext) async {
     return showDialog(
@@ -67,57 +67,42 @@ class _ModifyScreenState extends State<ModifyScreen> {
     );
   }
 
-  // void postImage(String uid, String username, String profImage) async {
-  //   setState(() {
-  //     isLoading = true;
-  //   });
-  //   // start the loading
-  //   try {
-  //     // upload to storage and db
-  //     String res = 'unimplemented';
-  //     // String res = await FireStoreMethods().uploadPost(
-  //     //   _descriptionController.text,
-  //     //   _file!,
-  //     //   uid,
-  //     //   username,
-  //     //   profImage,
-  //     // );
-  //     if (res == "success") {
-  //       setState(() {
-  //         isLoading = false;
-  //       });
-  //       showSnackBar(
-  //         context,
-  //         'Posted!',
-  //       );
-  //       clearImage();
-  //     } else {
-  //       showSnackBar(context, res);
-  //     }
-  //   } catch (err) {
-  //     setState(() {
-  //       isLoading = false;
-  //     });
-  //     showSnackBar(
-  //       context,
-  //       err.toString(),
-  //     );
-  //   }
-  // }
-
-  void clearImage() {
-    setState(() {
-      _file = null;
-    });
-  }
-
-  void modifyInfo(String u,String p,String w)async {
+  Future<String> modifyInfo(String u,String p,String w)async {
     var cu = CustomAuth.currentUser;
-    db.DataBaseManager().changeInfo(u,cu.nickname,p,w);
+    String res = await db.DataBaseManager().changeInfo(u,cu.nickname,p,w);
+    if(res == "Fail"){
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("修改失败"),
+        ),
+      );
+      return res;
+    }
     if(_file != null){
       print("upload photo");
-      db.DataBaseManager().uploadPhoto(_file!);
+      String res = await db.DataBaseManager().uploadPhoto(_file!);
+      if(res == "Fail"){
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("修改失败"),
+          ),
+        );
+        return res;
+      }
+      CustomAuth.currentUser = new User(
+          username: u,
+          uid: CustomAuth.currentUser.uid,
+          jwt: CustomAuth.currentUser.jwt,
+          photoUrl: CustomAuth.currentUser.photoUrl,
+          photo: _file!,
+          email: CustomAuth.currentUser.email,
+          password: w,
+          nickname: CustomAuth.currentUser.nickname,
+          profile: p,
+          followers: CustomAuth.currentUser.followers,
+          following: CustomAuth.currentUser.following);
     }
+    return res;
   }
 
   @override
@@ -137,7 +122,15 @@ class _ModifyScreenState extends State<ModifyScreen> {
         backgroundColor: mobileBackgroundColor,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: (){Navigator.of(context).pop();},
+          onPressed: (){
+            Navigator.of(context).pop();
+            setState(() {
+            });
+          },
+          // onPressed: (){Navigator.of(context).pushReplacement(MaterialPageRoute(
+          //               builder: (context) =>
+          //               ProfileScreen(uid: CustomAuth.currentUser.uid),
+          //               ));},
         ),
         title: const Text(
           '修改信息',
@@ -145,17 +138,31 @@ class _ModifyScreenState extends State<ModifyScreen> {
         centerTitle: false,
         actions: <Widget>[
           TextButton(
-            onPressed: (){modifyInfo(
-              usernamec.text,
-              profilec.text,
-              passwordc.text,
-            );
-              Navigator.of(context).pop();},
-            // onPressed: () => postImage(
-            //   userProvider.getUser.uid,
-            //   userProvider.getUser.username,
-            //   userProvider.getUser.photoUrl,
-            // ),
+            onPressed: ()async {
+              String res = await modifyInfo(
+                usernamec.text,
+                profilec.text,
+                passwordc.text,
+              );
+              print(res);
+              if(res == "Success"){
+                Map<String,dynamic> result = {};
+                result["username"] = usernamec.text;
+                result["profile"] = profilec.text;
+                if(_file != null){
+                  result["photo"] = _file;
+                }
+                else{
+                  result["photo"] = _photo;
+                }
+                Navigator.of(context).pop(result);
+              }
+
+              // Navigator.of(context).pushReplacement(MaterialPageRoute(
+              //   builder: (context) =>
+              //   ProfileScreen(uid: CustomAuth.currentUser.uid),
+              // ),);
+            },
             child: const Text(
               "完成",
               style: TextStyle(
@@ -196,6 +203,8 @@ class _ModifyScreenState extends State<ModifyScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
+              const Padding(padding: EdgeInsets.only(top: 0.0)),
+              const Divider(),
               SizedBox(
                 height: 45.0,
                 width: 45.0,
@@ -206,11 +215,7 @@ class _ModifyScreenState extends State<ModifyScreen> {
                         image: DecorationImage(
                           fit: BoxFit.fill,
                           alignment: FractionalOffset.topCenter,
-                          // image: MemoryImage(_file!),
-                          image : NetworkImage(
-                            // userProvider.getUser.photoUrl,
-                              "https://p0.itc.cn/q_70/images03/20230213/ca107acd0ee943a0ac9e8264a23b6ca4.jpeg"
-                          ),
+                          image: MemoryImage(CustomAuth.currentUser.photo),
                         )),
                   ),
                 ),
@@ -222,7 +227,8 @@ class _ModifyScreenState extends State<ModifyScreen> {
                   ),
                   onPressed: () => _selectImage(context),
                 ),
-              )
+              ),
+              const Divider(),
             ],): Column(
               children: <Widget>[
                 isLoading
@@ -243,11 +249,11 @@ class _ModifyScreenState extends State<ModifyScreen> {
                               image: DecorationImage(
                                 fit: BoxFit.fill,
                                 alignment: FractionalOffset.topCenter,
-                                // image: MemoryImage(_file!),
-                                image : NetworkImage(
-                                  // userProvider.getUser.photoUrl,
-                                    "https://p0.itc.cn/q_70/images03/20230213/ca107acd0ee943a0ac9e8264a23b6ca4.jpeg"
-                                ),
+                                image: MemoryImage(_photo),
+                                // image : NetworkImage(
+                                //   // userProvider.getUser.photoUrl,
+                                //     "https://p0.itc.cn/q_70/images03/20230213/ca107acd0ee943a0ac9e8264a23b6ca4.jpeg"
+                                // ),
                               )),
                         ),
                       ),

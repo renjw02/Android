@@ -1,3 +1,5 @@
+//import 'dart:html';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:frontend/Auth/customAuth.dart';
@@ -13,15 +15,25 @@ class LoginScreen extends StatefulWidget {
   _LoginScreenState createState() => _LoginScreenState();
 }
 class _LoginScreenState extends State<LoginScreen> {
-  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   bool _isLoading = false;
+  bool _isChecking = true;
 
   @override
   void dispose() {
     super.dispose();
-    _emailController.dispose();
+    _usernameController.dispose();
     _passwordController.dispose();
+  }
+
+  @override
+  void initState(){
+    setState(() {
+      _isChecking = true;
+    });
+    super.initState();
+    checkLogin();
   }
 
   void loginUser() async {
@@ -29,7 +41,7 @@ class _LoginScreenState extends State<LoginScreen> {
       _isLoading = true;
     });
     String res = await CustomAuth().signIn(
-        _emailController.text, _passwordController.text);
+        _usernameController.text, _passwordController.text);
     if (res == 'Success') {
       Navigator.of(context).pushAndRemoveUntil(
           MaterialPageRoute(
@@ -55,10 +67,25 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
+  void checkLogin()async{
+    String? state = await CustomAuth.storage.read(key: "loginState")?? "Fail";
+    print("checklogin"+state);
+    if(state! == "Success"){
+      loginUser();
+    }
+    setState(() {
+      _isChecking = false;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
-    return Scaffold(
+    return _isChecking?
+      const Center(
+        child: CircularProgressIndicator(),
+      ):
+      Scaffold(
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -66,7 +93,7 @@ class _LoginScreenState extends State<LoginScreen> {
             SizedBox(
               width: size.height * 0.25,
               child: SvgPicture.asset(
-                'assets/ic_instagram.svg',
+                'assets/logo.svg',
                 color: primaryColor,
                 height: 64,
               ),
@@ -77,9 +104,9 @@ class _LoginScreenState extends State<LoginScreen> {
               width: 370,
               height: 50,
               child: TextFieldInput(
-                hintText: 'Enter Email',
-                textEditingController: _emailController,
-                textInputType: TextInputType.emailAddress,
+                hintText: '输入用户名',
+                textEditingController: _usernameController,
+                textInputType: TextInputType.text,
               ),
             ),
             Container(
@@ -87,7 +114,7 @@ class _LoginScreenState extends State<LoginScreen> {
               height: 50,
               width: 370,
               child: TextFieldInput(
-                hintText: 'Enter Password',
+                hintText: '输入密码',
                 textEditingController: _passwordController,
                 textInputType: TextInputType.text,
                 isPass: true,
@@ -107,7 +134,7 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
               child: !_isLoading
                   ? const Text(
-                'Log In',
+                '登陆',
                 style: TextStyle(
                   fontSize: 16,
                 ),
@@ -125,10 +152,10 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
               child: const Row(
                 mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text("Don't have an account?"),
+                children: const [
+                  Text("还没有账号吗?"),
                   Text(
-                    " Sign up.",
+                    " 注册",
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
                 ],

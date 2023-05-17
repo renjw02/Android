@@ -9,10 +9,18 @@ class TextPostMethods {
     return res;
   }
 
-  Future<String> likePost(String postId, String uid, List likes) async {
+  Future<String> supportPost(String postId, String uid, List supports) async {
     //todo
-    String res = "uncompleted";
-    return res;
+    print("likepost");
+    print(uid);
+    if(supports.contains(uid)==false){
+      supports.add(uid);
+      return "Success";
+    }
+    else{
+      supports.remove(uid);
+      return "Fail";
+    }
   }
 
   // Post comment
