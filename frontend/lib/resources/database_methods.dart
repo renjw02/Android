@@ -9,7 +9,9 @@ import 'package:frontend/Auth/customAuth.dart';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
 
+import '../models/querySnapshot.dart';
 import '../models/user.dart';
+import '../utils/api_uri.dart';
 
 class DataBaseManager{
   final http.Client _client = http.Client();
@@ -265,7 +267,7 @@ class DataBaseManager{
   // "username"
   // "nickname"
   // }
-  register(Uri url, String name, String email, String password) async {
+  Future<dynamic> register(Uri url, String name, String email, String password) async {
     Map<String, String> headersMap = new Map();
     headersMap["content-type"] = ContentType.json.toString();
     Map<String, String> bodyParams = new Map();
@@ -298,11 +300,11 @@ class DataBaseManager{
           print(response.statusCode);
         }
       }).catchError((error) {
-        print("catchError:");
+        print("register catchError:");
         print(error);
       });
     }catch(e){
-      print("catch(e):");
+      print("register catch(e):");
       print(e);
     }
     return result;
@@ -347,4 +349,45 @@ class DataBaseManager{
   //   });
   //   return userFollowed;
   // }
+  Future<QuerySnapshot> feedsQuery() async {
+    // return FirebaseFirestore.instance
+    //     .collection('users')
+    //     .where('username', isEqualTo: query)
+    //     .get();
+    QuerySnapshot querySnapshot = QuerySnapshot(
+      docs: [], readTime: DateTime.now(),
+    );
+    try{
+      await _client.get(
+        feedsQueryUrl,
+        headers:{
+          HttpHeaders.authorizationHeader: CustomAuth.currentUser.jwt,
+          // "content-type": ContentType.json.toString(),
+        },
+        // body: bodyParams,
+        // body:jsonEncode({
+        //   "page":1,
+        //   "size":10,
+        //   "userId":CustomAuth.currentUser.uid,
+        //   "orderByWhat":"post.support_num",
+        //   "type":0,
+        // }),
+      ).then((http.Response response){
+        print(jsonDecode(response.body)['message']);
+        Map<String, dynamic> returnData = jsonDecode(response.body);
+        print(returnData);
+        querySnapshot = QuerySnapshot(
+          docs: returnData['posts'], readTime: DateTime.now(),
+        );
+      }).catchError((error) {
+        print("feedsQuery catchError:");
+        print(error);
+      });
+    }catch(e){
+      print("feedsQuery catch(e):");
+      print(e);
+    }
+
+    return querySnapshot;
+  }
 }
