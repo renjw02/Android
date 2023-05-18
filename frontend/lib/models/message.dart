@@ -1,5 +1,5 @@
 class Message {
-  int id;
+  String id;
   int senderId;
   int receiverId;
   String content;
@@ -15,10 +15,10 @@ class Message {
 
   factory Message.fromJson(Map<String, dynamic> json) {
     return Message(
-      id: json['id'],
-      senderId: json['senderId'],
-      receiverId: json['receiverId'],
-      content: json['content'],
+      id: json['id'].toString(),
+      senderId: json['sender_id'] as int,
+      receiverId: json['receiver_id'] as int,
+      content: json['content'] as String,
       created: DateTime.parse(json['created']),
     );
   }

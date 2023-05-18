@@ -77,8 +77,10 @@ class NoticeService():
     def get_notice_detail(self, notice_id):
         try:
             n = Notice.query.filter(Notice.id == notice_id).first()
+            print(n)
             n.has_checked = True
             db.session.commit()
+            print(n)
             if n is None:
                 return None, False
             return n, True

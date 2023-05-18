@@ -56,8 +56,6 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
       //     .doc(widget.uid)
       //     .get();
       currentUserUid = CustomAuth.currentUser.uid;
-      print(widget.uid);
-      print(currentUserUid);
       db.DataBaseManager dbm = db.DataBaseManager();
       Map<String, dynamic> userinfo={};//获取用户信息
       var url = Uri.parse(gv.ip+"/api/user/user/"+widget.uid);
@@ -168,82 +166,33 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
           Padding(
             padding: const EdgeInsets.all(16),
             child: Column(
-              children: [
-                Row(
-                  children: [
-                    CircleAvatar(
-                      backgroundColor: Colors.grey,
-                      backgroundImage: photo,
-                      radius: 40,
-                    ),
-                    Expanded(
-                      flex: 1,
-                      child: Column(
-                        children: [
-                          Row(
-                            mainAxisSize: MainAxisSize.max,
-                            mainAxisAlignment:
-                            MainAxisAlignment.spaceEvenly,
-                            children: [
-                              //buildStatColumn(postLen, "posts"),  //TODO
-                              buildStatColumn(111, "发布数"),
-                              userData['id'].toString() == currentUserUid?
-                              GestureDetector(
-                                onTap: ()async {
-                                  Navigator.of(context).push(
-                                    MaterialPageRoute(
-                                      builder: (context) =>
-                                      FollowedScreen(followedList : CustomAuth.currentUser.following,),
-                                      //const LoginScreen(),
-                                    ),
-                                  );
-                                },
-                                child:Column(
-                                mainAxisSize: MainAxisSize.min,
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Container(
-                                    padding: const EdgeInsets.only(top: 15),
-                                    child: Text(
-                                      CustomAuth.currentUser.following.length.toString(),
-                                      style: const TextStyle(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ),
-                                  Container(
-                                    margin: const EdgeInsets.only(top: 4),
-                                    child: Text(
-                                      "关注数",
-                                      style: const TextStyle(
-                                        fontSize: 15,
-                                        fontWeight: FontWeight.w400,
-                                        color: Colors.grey,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              )
-                              ):GestureDetector(
-                                  onTap: ()async {
-                                    Navigator.of(context).push(
-                                      MaterialPageRoute(
-                                        builder: (context) =>
-                                            FollowedScreen(followedList : followed['followedList'],),
-                                        //const LoginScreen(),
-                                      ),
-                                    );
-                                  },
-                                  child:Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Text(
-                                        followed['followedList'].length.toString(),
-                                        style: const TextStyle(
-                                          fontSize: 18,
-                                          fontWeight: FontWeight.bold,
+                children: [
+                  Row(
+                    children: [
+                      CircleAvatar(
+                        backgroundColor: Colors.grey,
+                        backgroundImage: photo,
+                        radius: 40,
+                      ),
+                      Expanded(
+                        flex: 1,
+                        child: Column(
+                          children: [
+                            Row(
+                              mainAxisSize: MainAxisSize.max,
+                              mainAxisAlignment:
+                              MainAxisAlignment.spaceEvenly,
+                              children: [
+                                //buildStatColumn(postLen, "posts"),  //TODO
+                                buildStatColumn(111, "发布数"),
+                                userData['id'].toString() == currentUserUid?
+                                GestureDetector(
+                                    onTap: ()async {
+                                      Navigator.of(context).push(
+                                        MaterialPageRoute(
+                                          builder: (context) =>
+                                              FollowedScreen(followedList : CustomAuth.currentUser.following,),
+                                          //const LoginScreen(),
                                         ),
                                       );
                                     },
@@ -251,11 +200,14 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                                       mainAxisSize: MainAxisSize.min,
                                       mainAxisAlignment: MainAxisAlignment.center,
                                       children: [
-                                        Text(
-                                          CustomAuth.currentUser.following.length.toString(),
-                                          style: const TextStyle(
-                                            fontSize: 18,
-                                            fontWeight: FontWeight.bold,
+                                        Container(
+                                          padding: const EdgeInsets.only(top: 15),
+                                          child: Text(
+                                            CustomAuth.currentUser.following.length.toString(),
+                                            style: const TextStyle(
+                                              fontSize: 18,
+                                              fontWeight: FontWeight.bold,
+                                            ),
                                           ),
                                         ),
                                         Container(
@@ -422,6 +374,19 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                       ),
                     ],
                   ),
+                  // Container(
+                  //   alignment: Alignment.centerLeft,
+                  //   padding: const EdgeInsets.only(
+                  //     top: 15,
+                  //   ),
+                  //   child: Text(
+                  //     // userData['username'],  //TODO
+                  //     userData['nickname'],  //TODO
+                  //     style: TextStyle(
+                  //       fontWeight: FontWeight.bold,
+                  //     ),
+                  //   ),
+                  // ),
                   Container(
                     alignment: Alignment.centerLeft,
                     padding: const EdgeInsets.only(
@@ -432,7 +397,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                     ),
                   ),
 
-              ]),
+                ]),
           ),
           const Divider(),
           Container(

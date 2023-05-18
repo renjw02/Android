@@ -390,9 +390,18 @@ class _AddPostScreenState extends State<AddPostScreen> {
                 labelText: "标题",
                 prefixIcon: Icon(Icons.title),
               ),
+              maxLines: 1,
+          ),
+            TextField(
+              controller: contentc,
+              decoration: const InputDecoration(
+                hintText: "如何评价",
+                labelText: "内容",
+                prefixIcon: Icon(Icons.content_copy),
+              ),
               maxLines: null,
               minLines: 1,
-          ),
+            ),
           buildTable(),
 
           // _file == null?
@@ -420,6 +429,6 @@ class _AddPostScreenState extends State<AddPostScreen> {
           // ),
         ],
       ),
-    );
+    ));
   }
 }

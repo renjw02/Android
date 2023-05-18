@@ -111,7 +111,7 @@ class _PostCardState extends State<PostCard> {
             height: MediaQuery.of(context).size.height * 0.3,
             width: MediaQuery.of(context).size.width*0.3,
             child: ClipRRect(
-                borderRadius: BorderRadius.circular(10.0), // 设置圆角半径
+                borderRadius: BorderRadius.circular(20.0), // 设置圆角半径
                 child: Image.memory(image,fit: BoxFit.fitWidth),
             ),
           ),

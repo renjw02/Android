@@ -351,6 +351,8 @@ class DataBaseManager{
             font_weight: item["fontWeight"],
             supportList: item["supportList"],
             starList: item["starList"],
+            images: [],
+            videos: [],
           )
       );
     }
@@ -411,10 +413,11 @@ class DataBaseManager{
     }
   }
 
-  Future<String> createNotice([int type=0,String? content = null]) async{
+  Future<String> createNotice([int type=0,String? content = null,int noticeCreator= 1,int userId = 1]) async{
     //把string的数字转成int
     int uid = int.parse(CustomAuth.currentUser.uid);
     content = content ?? "关注了你";
+
     var result="Fail";
     try{
       var url = Uri.parse("$serverIp:$serverPort/api/notice/createnotice");
@@ -428,9 +431,9 @@ class DataBaseManager{
       if(type >= 1){
         jsonBody = jsonEncode({
           "content": content,
-          "user_id":uid,
+          "user_id": userId,
           "type":type as int,
-          "creator_id":uid,
+          "creator_id":noticeCreator,
         });
       }
       await _client.post(
@@ -549,7 +552,7 @@ class DataBaseManager{
   // 获取私信内容
   Future<String> noticeContentQuery(int noticeId) async {
     String content = "";
-
+    print("noticeContentQuery");
     try {
       var url = Uri.parse("$serverIp:$serverPort/api/notice/getnotice/$noticeId");
       await _client.get(
@@ -562,7 +565,9 @@ class DataBaseManager{
         if (response.statusCode == 200) {
           Map<String, dynamic> returnData = jsonDecode(response.body);
           if (returnData['message'] == "ok") {
-            content = returnData['data'] ?? "";
+            print("content:");
+            print(returnData['content']);
+            content = returnData['content'] ?? "";
           } else {
             print(returnData['message']);
           }
@@ -613,7 +618,6 @@ class DataBaseManager{
     return count;
   }
 
-  Future<dynamic> register(String username, String password, String nickname) async {
   Future<Map<String,dynamic>?> getThePost(int id) async{
     try{
       var dio = new Dio();
@@ -753,6 +757,8 @@ class DataBaseManager{
           Map<String, dynamic> returnData = jsonDecode(response.body);
           if (returnData['message'] == "ok") {
             List<dynamic> historyList = returnData['history'];
+            print("historyList:");
+            print(historyList);
             querySnapshot = QuerySnapshot(
               docs: Message.fromJsonList(historyList), readTime: DateTime.now(),
             );
@@ -841,7 +847,7 @@ class DataBaseManager{
     return querySnapshot;
   }
 
-
+}
   // Future<Map<String, dynamic>> getFollowers(Uri url,String jwt) async{
   //   Map<String, dynamic> userFollowers = {};
   //   await _client.get(
@@ -924,4 +930,3 @@ class DataBaseManager{
 //
 //     return querySnapshot;
 //   }
-}

@@ -30,12 +30,11 @@ def user_register():
   	"nickname"    任意，不超过14字符、
   }
   ```
-
 + 返回：json + 状态码
 
   ```
   {
-  	"message"	
+  	"message"
   	"userId"
   	"username"
   	"nickname"
@@ -57,7 +56,6 @@ def login():
     	"password" 
     }
   ```
-
 + 返回：json + 状态码
 
   ```
@@ -69,8 +67,6 @@ def login():
   	"nickname"
   }
   ```
-
-  
 
 ### 登出
 
@@ -87,8 +83,6 @@ def logout():
   	"message"
   }
   ```
-
-  
 
 ### 修改属性
 
@@ -107,7 +101,6 @@ def change_attr():
   	"profile"
   }
   ```
-
 + 返回：json + 状态码
 
   ```
@@ -118,8 +111,6 @@ def change_attr():
   	"profile"
   }
   ```
-
-  
 
 ### 获取当前登陆用户信息
 
@@ -141,8 +132,6 @@ def get_user_info():
   }
   ```
 
-  
-
 ### 获取指定用户信息
 
 ```
@@ -152,7 +141,6 @@ def get_user_info_by_id(userId):
 ```
 
 + 接收：整形整数userId
-
 + 返回：json + 状态码
 
   ```
@@ -164,8 +152,6 @@ def get_user_info_by_id(userId):
   	"profile"
   }
   ```
-  
-  
 
 ### 重置密码
 
@@ -182,7 +168,6 @@ def reset_password():
   	"password"
   }
   ```
-
 + 返回：json + 状态码
 
   ```
@@ -191,8 +176,6 @@ def reset_password():
   	"userId"
   }
   ```
-
-  
 
 ### 上传头像
 
@@ -203,7 +186,6 @@ def upload_avatar():
 ```
 
 + 接受：formdata形式传file文件流
-
 + 返回：json + 状态码
 
   ```
@@ -211,8 +193,6 @@ def upload_avatar():
   	"message"
   }
   ```
-
-  
 
 ### 获取头像
 
@@ -225,8 +205,6 @@ def download_avatar():
 + 接受：参数”name“，头像名字，对应该用户的id
 + 返回：.jpg文件
 
-
-
 ### 关注用户
 
 ```
@@ -236,7 +214,6 @@ def follow_user(userId):
 ```
 
 + 接受：userId
-
 + 返回：json + 状态码
 
   ```
@@ -252,8 +229,6 @@ def follow_user(userId):
   }
   ```
 
-
-
 ### 取消关注
 
 ```
@@ -263,7 +238,6 @@ def cancel_follow(followId):
 ```
 
 + 接受：followId
-
 + 返回：json + 状态码
 
   ```
@@ -271,8 +245,6 @@ def cancel_follow(followId):
   	"message"
   }
   ```
-
-  
 
 ### 获取已关注用户列表
 
@@ -283,7 +255,6 @@ def get_followed_list(userId):
 ```
 
 + 接受：userId
-
 + 返回：json + 状态码
 
   ```
@@ -301,8 +272,6 @@ def get_followed_list(userId):
   }
   ```
 
-
-
 ### 获取关注我的用户列表
 
 ```
@@ -312,7 +281,6 @@ def get_follower_list(userId):
 ```
 
 + 接受：无
-
 + 返回：json + 状态码
 
   ```
@@ -330,8 +298,6 @@ def get_follower_list(userId):
   }
   ```
 
-
-
 ### 拉黑用户
 
 ```
@@ -341,7 +307,6 @@ def block_user(userId):
 ```
 
 + 接受：userId
-
 + 返回：json + 状态码
 
   ```
@@ -357,8 +322,6 @@ def block_user(userId):
   }
   ```
 
-
-
 ### 取消拉黑
 
 ```
@@ -368,7 +331,6 @@ def cancel_block(blockId):
 ```
 
 + 接受：blockId
-
 + 返回：json + 状态码
 
   ```
@@ -376,8 +338,6 @@ def cancel_block(blockId):
   	"message"
   }
   ```
-
-
 
 ### 获取已拉黑用户列表
 
@@ -388,7 +348,6 @@ def get_blocked_list(userId):
 ```
 
 + 接受：userId
-
 + 返回：json + 状态码
 
   ```
@@ -406,29 +365,27 @@ def get_blocked_list(userId):
   }
   ```
 
-
-
 ## post部分
 
 ```
 所有接口路径均以"/api/post"开头
 ```
 
->post
+> post
 >
->+ id               帖子id
->+ user_id             发帖用户id
->+ title                帖子标题   小于128
->+ content           帖子内容    小于1024
->+ last_replied_user_id         最后回复用户id
->+ last_replied_time          最后回复时间
->+ created          创建时间
->+ updated          更新时间
->+ type              类型  只有1，2
->+ position         位置
->+ support_num             点赞数
->+ comment_num             评论数
->+ star_num        收藏数
+> + id               帖子id
+> + user_id             发帖用户id
+> + title                帖子标题   小于128
+> + content           帖子内容    小于1024
+> + last_replied_user_id         最后回复用户id
+> + last_replied_time          最后回复时间
+> + created          创建时间
+> + updated          更新时间
+> + type              类型  只有1，2
+> + position         位置
+> + support_num             点赞数
+> + comment_num             评论数
+> + star_num        收藏数
 
 > comment
 >
@@ -456,11 +413,10 @@ def create_post():
   'content'
   'type'
   'position'
-  
+
   文件字段：
   视频或者图片，字节流
   ```
-
 + 返回：json + 状态码
 
   ```
@@ -475,8 +431,6 @@ def create_post():
   }
   ```
 
-  
-
 ### 获取指定帖子信息
 
 ```
@@ -486,7 +440,6 @@ def get_post_detail(postId):
 ```
 
 + 接受：整形整数postId
-
 + 返回：json + 状态码
 
   ```
@@ -527,8 +480,6 @@ def get_post_detail(postId):
   images和videos分别是图片流和视频流数组
   ```
 
-  
-
 ### 获取一页的帖子
 
 ```
@@ -546,7 +497,6 @@ def get_post_list():
   + type       只看type类型的帖子，默认为0，不分类型，可传入1或2
   + onlyFollowing     只看关注者的帖子，默认为False，只要传入内容就认定为True
   + hot        只看点赞过10且评论过5的帖子，默认为False，只要传入内容就认定为True
-
 + 返回：json+状态码
 
   ```
@@ -570,8 +520,6 @@ def get_post_list():
   }
   ```
 
-  
-
 ### 修改帖子
 
 ```
@@ -589,7 +537,6 @@ def modify_post(postId):
   	"position"
   }
   ```
-
 + 返回：json + 状态码
 
   ```
@@ -597,8 +544,6 @@ def modify_post(postId):
   	"message"
   }
   ```
-
-  
 
 ### 删除帖子
 
@@ -609,7 +554,6 @@ def delete_post(postId):
 ```
 
 + 接收：整形整数postId
-
 + 返回：json + 状态码
 
   ```
@@ -617,8 +561,6 @@ def delete_post(postId):
   	"message"
   }
   ```
-
-  
 
 ### 回复帖子
 
@@ -636,7 +578,6 @@ def comment_post(postId):
   	"commentId"		目前应该不传入该项，该项是对评论进行评论
   }
   ```
-
 + 返回：json + 状态码
 
   ```
@@ -644,8 +585,6 @@ def comment_post(postId):
   	"message"
   }
   ```
-
-  
 
 ### 获取回复
 
@@ -656,7 +595,6 @@ def get_comment(commentId):
 ```
 
 + 接收：整形整数replyId
-
 + 返回：json + 状态码
 
   ```
@@ -669,8 +607,6 @@ def get_comment(commentId):
   	"created"
   }
   ```
-
-  
 
 ### 修改回复
 
@@ -687,7 +623,6 @@ def modify_comment(postId, commentId):
   	"content"
   }
   ```
-
 + 返回：json + 状态码
 
   ```
@@ -695,8 +630,6 @@ def modify_comment(postId, commentId):
   	"message"
   }
   ```
-
-
 
 ### 点赞帖子（发现问题）
 
@@ -713,7 +646,6 @@ def support_post(postId):
   	"type"    整形，取1或-1，1表示点赞，-1表示取消点赞
   }
   ```
-
 + 返回：json + 状态码
 
   ```
@@ -721,8 +653,6 @@ def support_post(postId):
   	"message"
   }
   ```
-
-
 
 ### 搜索帖子（可能有问题，需要测试）
 
@@ -739,7 +669,6 @@ def search_post(postId):
   	"keywords"      以空格为分隔的关键词字符串
   }
   ```
-
 + 返回：json + 状态码
 
   ```
@@ -748,8 +677,6 @@ def search_post(postId):
   	"postList"
   }
   ```
-
-
 
 ## star部分
 
@@ -780,7 +707,6 @@ def collect_post():
   	"title"
   }
   ```
-
 + 返回：json + 状态码
 
   ```
@@ -793,8 +719,6 @@ def collect_post():
   }
   ```
 
-  
-
 ### 获取收藏列表
 
 ```
@@ -804,7 +728,6 @@ def get_collection_list(userId):
 ```
 
 + 接收：整形整数userId
-
 + 返回：json + 状态码
 
   ```
@@ -822,8 +745,6 @@ def get_collection_list(userId):
   }
   ```
 
-  
-
 ### 取消收藏
 
 ```
@@ -840,7 +761,6 @@ def cancel_collection():
   	"collection_id"
   }
   ```
-
 + 返回：json + 状态码
 
   ```
@@ -848,8 +768,6 @@ def cancel_collection():
   	"message"
   }
   ```
-
-  
 
 ## notice部分
 
@@ -880,7 +798,6 @@ def createnotice():
   	"type"
   }
   ```
-
 + 返回：json + 状态码
 
   ```
@@ -891,8 +808,6 @@ def createnotice():
   }
   ```
 
-
-
 ### 删除通知
 
 ```
@@ -902,7 +817,6 @@ def remove_notice(noticeId):
 ```
 
 + 接收：整形整数noticeId
-
 + 返回：json + 状态码
 
   ```
@@ -910,8 +824,6 @@ def remove_notice(noticeId):
   	"message"
   }
   ```
-
-  
 
 ### 获取私信列表
 
@@ -922,7 +834,6 @@ def get_notice_list(userId):
 ```
 
 + 接收：整形整数userId
-
 + 返回：json + 状态码
 
   ```
@@ -942,8 +853,6 @@ def get_notice_list(userId):
   }
   ```
 
-
-
 ### 获取私信内容
 
 ```
@@ -953,11 +862,10 @@ def get_notice(noticeId):
 ```
 
 + 接收：整形整数noticeId
-
 + 返回：json + 状态码
 
   ```
-  {
+
   	"message"
   	"noticeId"
   	"content"
@@ -965,18 +873,8 @@ def get_notice(noticeId):
   	"creator"
   	"created"
   }
-  其中noticeList是字典列表，每一项字典元素包含：
-  {
-  	"noticeId"
-  	"userId"
-  	"noticeType"
-  	"noticeCreator"
-  	"created"
-  	"hasChecked"
-  }
+
   ```
-
-
 
 ### 获取未读私信数量
 
@@ -987,7 +885,6 @@ def get_unread_num(userId):
 ```
 
 + 接收：整形整数userId
-
 + 返回：json + 状态码
 
   ```
@@ -996,8 +893,6 @@ def get_unread_num(userId):
   	"unreadNum"
   }
   ```
-
-
 
 ## message部分
 
@@ -1011,7 +906,7 @@ def get_unread_num(userId):
 > + content
 > + created
 
-### 创建私信
+### 创建聊天消息
 
 ```
 @bp.route('/createmessage', methods=['POST'])
@@ -1028,7 +923,6 @@ def create_message():
   	"content"
   }
   ```
-
 + 返回：json + 状态码
 
   ```
@@ -1040,8 +934,6 @@ def create_message():
   }
   ```
 
-
-
 ### 获取历史对话
 
 ```
@@ -1051,7 +943,6 @@ def get_history(user1Id, user2Id):
 ```
 
 + 接收：整形整数user1Id， user2Id
-
 + 返回：json + 状态码
 
   ```
@@ -1070,9 +961,7 @@ def get_history(user1Id, user2Id):
   }
   ```
 
-
-
-### 获取私信内容
+### 获取聊天消息内容
 
 ```
 @bp.route('/getnotice/<int:noticeId>', methods=['GET'])
@@ -1081,7 +970,6 @@ def get_notice(noticeId):
 ```
 
 + 接收：整形整数noticeId
-
 + 返回：json + 状态码
 
   ```
@@ -1103,4 +991,3 @@ def get_notice(noticeId):
   	"hasChecked"
   }
   ```
-

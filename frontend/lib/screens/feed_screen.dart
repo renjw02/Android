@@ -27,8 +27,8 @@ class FeedScreen extends StatefulWidget {
 }
 
 class _FeedScreenState extends State<FeedScreen> {
-  // late Stream<QuerySnapshot> test;
-  // late StreamController<QuerySnapshot> _streamController;
+  late Stream<QuerySnapshot> test;
+  late StreamController<QuerySnapshot> _streamController;
   bool isLoading = false;
   @override
   void initState() {
@@ -41,9 +41,9 @@ class _FeedScreenState extends State<FeedScreen> {
   }
 
   getData() async {
-    List<dynamic> data = await db.DataBaseManager().getPost();
-    List<Post> doc = await convertPost(data);
-    QuerySnapshot querySnapshot = QuerySnapshot(docs: doc, readTime: DateTime.now());
+    QuerySnapshot querySnapshot = await db.DataBaseManager().feedsQuery();
+    // List<Post> doc = await convertPost(data);
+    // QuerySnapshot querySnapshot = QuerySnapshot(docs: doc, readTime: DateTime.now());
     test = Stream<QuerySnapshot>.value(querySnapshot);
     _streamController = StreamController<QuerySnapshot>();
     //将test加入到_streamController中

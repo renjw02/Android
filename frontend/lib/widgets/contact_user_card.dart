@@ -3,6 +3,7 @@ import 'dart:typed_data';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:frontend/screens/notice_screen.dart';
 
 import '../screens/chat_screen.dart';
 import '../screens/profile_screen.dart';
@@ -43,16 +44,23 @@ class _ContactUserCardState extends State<ContactUserCard> {
       //输出snap
       print("snap");
       print(snap);
-      print(snap['userId']);
+      print(snap['creatorId']);
       db.DataBaseManager dbm = db.DataBaseManager();
-      String userId = snap['userId'].toString();
-      var url = Uri.parse("${gv.ip}/api/user/user/$userId");
+      String noticeCreator = snap['noticeCreator'].toString();
+      var url = Uri.parse("${gv.ip}/api/user/user/$noticeCreator");
+      //获取帖子内容
+
       userinfo = await dbm.getSomeMap(url);
       print("userinfo");
       // print(userinfo);
-      _file = await dbm.getPhoto(userId);
+      _file = await dbm.getPhoto(noticeCreator);
       print("file");
       // print(_file);
+      //获取帖子内容
+      String content = await dbm.noticeContentQuery(snap['noticeId']);
+      snap["content"] = content;
+      print("content");
+      print(content);
     } catch (err) {
       // showSnackBar(
       //   context,
@@ -73,7 +81,7 @@ class _ContactUserCardState extends State<ContactUserCard> {
     ):Container(
 
       margin: const EdgeInsets.symmetric(
-        vertical: 10,
+        vertical: 3,
         horizontal: 5,
       ),
       padding: const EdgeInsets.symmetric(
@@ -85,17 +93,32 @@ class _ContactUserCardState extends State<ContactUserCard> {
           color: width > webScreenSize ? secondaryColor : Colors.grey,
         ),
         color: chatPrimaryColor,
-        borderRadius: BorderRadius.circular(10.0), // 设置圆角半径
+        borderRadius: BorderRadius.circular(20.0), // 设置圆角半径
       ),
     child: GestureDetector(
-        onTap:(){
+      onTap: () {
+        widget.snap["hasChecked"] = 1;
+        setState(() {}); // 触发rebuild
+        if (widget.snap["noticeType"] == 1) {
           Navigator.of(context).push(
             MaterialPageRoute(
-              builder: (context) =>
-                  ChatScreen( snap:widget.snap,file:_file)
+              builder: (context) => ChatScreen(
+                snap: widget.snap,
+                file: _file,
+              ),
             ),
           );
-        },
+        }else{
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) => NoticeScreen(
+                snap: widget.snap,
+                file: _file,
+              ),
+            ),
+          );
+        }
+      },
         child: Column(
           children: [
             // const Divider(
@@ -108,11 +131,12 @@ class _ContactUserCardState extends State<ContactUserCard> {
               vertical: 4,
               horizontal: 16,
             ).copyWith(right: 0),
-            child: Container(
-              child: Row(
-                children: <Widget>[
-                  GestureDetector(
-                      onTap:()  {
+            child: Stack(
+              children: <Widget>[
+                Row(
+                  children: <Widget>[
+                    GestureDetector(
+                      onTap: () {
                         Navigator.of(context).push(
                           MaterialPageRoute(
                             builder: (context) =>
@@ -121,61 +145,108 @@ class _ContactUserCardState extends State<ContactUserCard> {
                         );
                         //获取聊天内容
                       },
-                      child:CircleAvatar(
+                      child: CircleAvatar(
                         radius: 16,
                         backgroundImage: MemoryImage(_file!),
-                      )
-                  ),
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.only(
-                        left: 8,
-                      ),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          Text(
-                            userinfo['username'].toString(),
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          Text(
-                            widget.snap['created'].toString(),
-                          ),
-                        ],
                       ),
                     ),
-                  ),
-                  // IconButton(
-                  //   icon: const Icon(Icons.delete),
-                  //   onPressed: () async {
-                  //     widget.onRemoved;
-                  //     // 处理按钮点击事件
-                  //   },
-                  // ),
-                  InkWell(
-                    onTap: () async {
-                      widget.onRemoved?.call();
-                      // 处理按钮点击事件
-                    },
-                    child: Ink(
-                      decoration: ShapeDecoration(
-                        color: Colors.grey.withOpacity(0.5),
-                        shape: const CircleBorder(),
-                      ),
-                      child: const Padding(
-                        padding: EdgeInsets.all(8.0),
-                        child: Icon(
-                          Icons.delete,
-                          color: Colors.white,
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.only(
+                          left: 8,
+                        ),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: <Widget>[
+                            Text(
+                              userinfo['username'].toString(),
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            Text(
+                              widget.snap['created'].millisecondsSinceEpoch.toString(),
+                            ),
+                            Text(
+                              widget.snap['content'].toString(),
+                            ),
+                          ],
                         ),
                       ),
                     ),
+                    if (widget.snap["noticeType"] == 1) // 判断通知类型是否为私信
+                      const Text(
+                        "私信",
+                        style: TextStyle(
+                          color: Colors.purple,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    if (widget.snap["noticeType"] == 0) // 判断通知类型是否为系统通知
+                      const Text(
+                        "系统通知",
+                        style: TextStyle(
+                          color: Colors.blue,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    InkWell(
+                      onTap: () async {
+                        // 删除通知
+                        //如果已读，删除通知
+                        if (widget.snap["hasChecked"] == 1){
+                          widget.onRemoved?.call();
+                        }else{
+                          //弹窗通知用户消息未读
+                          showDialog(
+                            context: context,
+                            builder: (context) {
+                              return AlertDialog(
+                                title: const Text("提示"),
+                                content: const Text("消息未读，无法删除"),
+                                actions: <Widget>[
+                                  TextButton(
+                                    onPressed: () => Navigator.pop(context),
+                                    child: const Text("确定"),
+                                  ),
+                                ],
+                              );
+                            },
+                          );
+                        }
+
+                        // 处理按钮点击事件
+                      },
+                      child: Ink(
+                        decoration: ShapeDecoration(
+                          color: Colors.grey.withOpacity(0.5),
+                          shape: const CircleBorder(),
+                        ),
+                        child: const Padding(
+                          padding: EdgeInsets.all(8.0),
+                          child: Icon(
+                            Icons.delete,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                if (widget.snap["hasChecked"] == 0) // 判断通知是否已读
+                  Positioned(
+                    right: 0,
+                    child: Container(
+                      width: 10,
+                      height: 10,
+                      decoration: const BoxDecoration(
+                        color: Colors.red,
+                        shape: BoxShape.circle,
+                      ),
+                    ),
                   ),
-                ],
-              ),
+              ],
             ),
           )
           ],

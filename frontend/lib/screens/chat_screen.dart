@@ -6,9 +6,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:flutter_chat_ui/flutter_chat_ui.dart';
 import 'package:frontend/screens/profile_screen.dart';
+import '../models/querySnapshot.dart';
 import '../resources/database_methods.dart' as db;
 import '../utils/global_variable.dart' as gv;
-
+import '../models/message.dart' as msg;
 // For the testing purposes, you should probably use https://pub.dev/packages/uuid.
 String randomString() {
   final random = Random.secure();
@@ -26,7 +27,8 @@ class ChatScreen extends StatefulWidget {
 class _ChatScreenState extends State<ChatScreen> {
   bool isLoading = false;
   final List<types.Message> _messages = [];
-  final _user = const types.User(id: '82091008-a484-4a89-ae75-a22bf8d6f3ac');
+  late final _user; //当前用户
+  late final _opuser;
   late final Map<String,dynamic> userinfo;
   @override
   void initState() {
@@ -39,25 +41,68 @@ class _ChatScreenState extends State<ChatScreen> {
   getData() async {
     try {
       var snap = widget.snap;
+      _user= types.User(id:snap['userId'].toString() );
+      _opuser= types.User(id:snap['noticeCreator'].toString());
       //输出snap
       print("snap");
       print(snap);
       print(snap['userId']);
       db.DataBaseManager dbm = db.DataBaseManager();
-      String userId = snap['userId'].toString();
-      var url = Uri.parse("${gv.ip}/api/user/user/$userId");
+      String noticeCreator = snap['noticeCreator'].toString();
+      var url = Uri.parse("${gv.ip}/api/user/user/$noticeCreator");
       userinfo = await dbm.getSomeMap(url);
       print("userinfo");
+
+      String content = await dbm.noticeContentQuery(snap['noticeId']);
+      snap["hasChecked"] = 1;
+      print("content");
+      print(content);
+
+      var senderId = snap['noticeCreator'];
+      var receiverId = snap['userId'];
+      QuerySnapshot querySnapshot = await dbm.getChatHistory(senderId, receiverId);
+      print("querySnapshot");
+      print(querySnapshot.docs);
+      refresh(querySnapshot, senderId, receiverId);
+
 
     } catch (err) {
       // showSnackBar(
       //   context,
       //   err.toString(),
       // );
+      print("err");
       print(err);
     }
     setState(() {
       isLoading = false;
+    });
+  }
+
+  void refresh(QuerySnapshot querySnapshot,int senderId,int receiverId) async {
+    querySnapshot.docs= querySnapshot.docs.map((message) {
+      var authorId = message.senderId;
+      if (authorId == senderId) {
+        return types.TextMessage(
+          author: _opuser,
+          createdAt: message.created.millisecondsSinceEpoch,
+          id: message.id,
+          text: message.content,
+        );
+      } else if (authorId == receiverId) {
+        return types.TextMessage(
+          author: _user,
+          createdAt: message.created.millisecondsSinceEpoch,
+          id: message.id,
+          text: message.content,
+        );
+      } else {
+        throw Exception('Invalid authorId: $authorId');
+      }
+    }).toList();
+    //遍历querySnapshot.docs，将其add到_messages中
+    querySnapshot.docs.forEach((element) {
+      _messages.add(element);
     });
   }
   @override
@@ -74,7 +119,7 @@ class _ChatScreenState extends State<ChatScreen> {
                       Navigator.of(context).push(
                         MaterialPageRoute(
                           builder: (context) =>
-                              ProfileScreen(uid: widget.snap['userId'].toString()),
+                              ProfileScreen(uid: widget.snap['noticeCreator'].toString()),
                         ),
                       );
                     },
@@ -119,7 +164,7 @@ class _ChatScreenState extends State<ChatScreen> {
     });
   }
 
-  void _handleSendPressed(types.PartialText message) {
+  Future<void> _handleSendPressed(types.PartialText message) async {
     final textMessage = types.TextMessage(
       author: _user,
       createdAt: DateTime.now().millisecondsSinceEpoch,
@@ -128,5 +173,19 @@ class _ChatScreenState extends State<ChatScreen> {
     );
 
     _addMessage(textMessage);
+    //发送消息
+    final textMsg = msg.Message(
+      id: textMessage.id ,
+      senderId: widget.snap['userId'],
+      receiverId: widget.snap['noticeCreator'], // 这里需要根据具体场景设置receiverId
+      content: textMessage.text,
+      created: DateTime.fromMillisecondsSinceEpoch(textMessage.createdAt  ?? 0),
+    );
+
+    db.DataBaseManager dbm = db.DataBaseManager();
+    dbm.createMessage(textMsg.senderId, textMsg.receiverId, textMessage.text);
+    dbm.createNotice(1,textMessage.text,textMsg.senderId,textMsg.receiverId);
+    // dbm.getChatHistory(textMsg.senderId, textMsg.receiverId);
+    // refresh(querySnapshot,textMsg.senderId,textMsg.receiverId);
   }
 }

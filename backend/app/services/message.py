@@ -30,12 +30,17 @@ class MessageService():
                 receiver_id = {user1_id}) 
             order by created desc
             """
-            sql_content = sql.format(user1_id=user1_id, user2_id=user2_id)
-
-            content_result = db.session.execute(text(sql_content))
-
-            message_list = [dict(zip(result.keys(), result)) for result in content_result]
-
+            # sql_content = sql.format(user1_id=user1_id, user2_id=user2_id)
+            # print(user1_id, user2_id)
+            content_result = db.session.execute(text(sql.format(user1_id=user1_id, user2_id=user2_id)))
+            column_names = content_result.keys()
+            message_list = []
+            for result in content_result:
+                message_dict = dict(zip(column_names, result))
+                message_list.append(message_dict)
+                # message_list.append(dict(zip(column_names, result)))
+            # message_list = [dict(zip(result.keys(), result)) for result in content_result]
+            # print(message_list)
             return message_list, True
         except Exception as e:
             print(e)

@@ -57,11 +57,14 @@ def remove_message():
 def get_history(user1Id, user2Id):
     try:
         message_list, flag = service.get_history_message(user1Id, user2Id)
+        # print(message_list)
+        length = len(message_list)
+        # print(flag)
         if flag:
             return jsonify({
                 'message': "ok",
                 'history': message_list,
-                'totalNum': message_list.length()
+                'totalNum': length,
             }), 200
         else:
             return jsonify({'message': "error"}), 500

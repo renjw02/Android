@@ -110,6 +110,12 @@ def get_notice(noticeId):
             return jsonify({'message': "noticeId not match userId"}), 400
         
         notice, flag = service.get_notice_detail(noticeId)
+        print(notice)
+        print(notice.id)
+        print(notice.content)
+        print(notice.type)
+        print(notice.created)
+        print(notice.creator_id)
         if flag:
             return jsonify({
                 'message': "ok",
@@ -117,7 +123,7 @@ def get_notice(noticeId):
                 'content': notice.content,
                 'type': notice.type,
                 'created': notice.created,
-                'creator': notice.creator 
+                'creator': notice.creator_id 
             }), 200
         else:
             return jsonify({'message': "error"}), 500
