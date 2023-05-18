@@ -65,6 +65,14 @@ packages:
       url: "https://mirrors.sjtug.sjtu.edu.cn/dart-pub/"
     source: hosted
     version: "3.0.3"
+  csslib:
+    dependency: transitive
+    description:
+      name: csslib
+      sha256: b36c7f7e24c0bdf1bf9a3da461c837d1de64b9f8beb190c9011d8c72a3dfd745
+      url: "https://mirrors.sjtug.sjtu.edu.cn/dart-pub/"
+    source: hosted
+    version: "0.17.2"
   cupertino_icons:
     dependency: "direct main"
     description:
@@ -73,6 +81,14 @@ packages:
       url: "https://mirrors.sjtug.sjtu.edu.cn/dart-pub/"
     source: hosted
     version: "1.0.5"
+  diffutil_dart:
+    dependency: transitive
+    description:
+      name: diffutil_dart
+      sha256: e0297e4600b9797edff228ed60f4169a778ea357691ec98408fa3b72994c7d06
+      url: "https://mirrors.sjtug.sjtu.edu.cn/dart-pub/"
+    source: hosted
+    version: "3.0.0"
   dio:
     dependency: "direct main"
     description:
@@ -81,6 +97,14 @@ packages:
       url: "https://mirrors.sjtug.sjtu.edu.cn/dart-pub/"
     source: hosted
     version: "4.0.6"
+  equatable:
+    dependency: transitive
+    description:
+      name: equatable
+      sha256: c2b87cb7756efdf69892005af546c56c0b5037f54d2a88269b4f347a505e3ca2
+      url: "https://mirrors.sjtug.sjtu.edu.cn/dart-pub/"
+    source: hosted
+    version: "2.0.5"
   fake_async:
     dependency: transitive
     description:
@@ -94,6 +118,38 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  flutter_chat_types:
+    dependency: transitive
+    description:
+      name: flutter_chat_types
+      sha256: "462779d31392018e451b06c4bd6efdd3335a120c546461beb5060a3158f1f9fc"
+      url: "https://mirrors.sjtug.sjtu.edu.cn/dart-pub/"
+    source: hosted
+    version: "3.6.1"
+  flutter_chat_ui:
+    dependency: "direct main"
+    description:
+      name: flutter_chat_ui
+      sha256: f13c48d06dd8be0d2feb0356a22d1cb6a0f83873b923b8d32bb4b55efb07cd39
+      url: "https://mirrors.sjtug.sjtu.edu.cn/dart-pub/"
+    source: hosted
+    version: "1.6.6"
+  flutter_link_previewer:
+    dependency: transitive
+    description:
+      name: flutter_link_previewer
+      sha256: a14e9fbd12028554e817bfc511e5a859ffdc730bb89b71b0e5bdec3fc8a0e86d
+      url: "https://mirrors.sjtug.sjtu.edu.cn/dart-pub/"
+    source: hosted
+    version: "3.2.1"
+  flutter_linkify:
+    dependency: transitive
+    description:
+      name: flutter_linkify
+      sha256: "74669e06a8f358fee4512b4320c0b80e51cffc496607931de68d28f099254073"
+      url: "https://mirrors.sjtug.sjtu.edu.cn/dart-pub/"
+    source: hosted
+    version: "6.0.0"
   flutter_lints:
     dependency: "direct dev"
     description:
@@ -102,6 +158,14 @@ packages:
       url: "https://mirrors.sjtug.sjtu.edu.cn/dart-pub/"
     source: hosted
     version: "2.0.1"
+  flutter_parsed_text:
+    dependency: transitive
+    description:
+      name: flutter_parsed_text
+      sha256: "529cf5793b7acdf16ee0f97b158d0d4ba0bf06e7121ef180abe1a5b59e32c1e2"
+      url: "https://mirrors.sjtug.sjtu.edu.cn/dart-pub/"
+    source: hosted
+    version: "2.2.1"
   flutter_plugin_android_lifecycle:
     dependency: transitive
     description:
@@ -240,6 +304,14 @@ packages:
       url: "https://mirrors.sjtug.sjtu.edu.cn/dart-pub/"
     source: hosted
     version: "0.1.1"
+  html:
+    dependency: transitive
+    description:
+      name: html
+      sha256: "58e3491f7bf0b6a4ea5110c0c688877460d1a6366731155c4a4580e7ded773e8"
+      url: "https://mirrors.sjtug.sjtu.edu.cn/dart-pub/"
+    source: hosted
+    version: "0.15.3"
   http:
     dependency: "direct main"
     description:
@@ -312,6 +384,22 @@ packages:
       url: "https://mirrors.sjtug.sjtu.edu.cn/dart-pub/"
     source: hosted
     version: "0.6.7"
+  json_annotation:
+    dependency: transitive
+    description:
+      name: json_annotation
+      sha256: b10a7b2ff83d83c777edba3c6a0f97045ddadd56c944e1a23a3fdf43a1bf4467
+      url: "https://mirrors.sjtug.sjtu.edu.cn/dart-pub/"
+    source: hosted
+    version: "4.8.1"
+  linkify:
+    dependency: transitive
+    description:
+      name: linkify
+      sha256: "4139ea77f4651ab9c315b577da2dd108d9aa0bd84b5d03d33323f1970c645832"
+      url: "https://mirrors.sjtug.sjtu.edu.cn/dart-pub/"
+    source: hosted
+    version: "5.0.0"
   lints:
     dependency: transitive
     description:
@@ -392,6 +480,14 @@ packages:
       url: "https://mirrors.sjtug.sjtu.edu.cn/dart-pub/"
     source: hosted
     version: "5.4.0"
+  photo_view:
+    dependency: transitive
+    description:
+      name: photo_view
+      sha256: "8036802a00bae2a78fc197af8a158e3e2f7b500561ed23b4c458107685e645bb"
+      url: "https://mirrors.sjtug.sjtu.edu.cn/dart-pub/"
+    source: hosted
+    version: "0.14.0"
   plugin_platform_interface:
     dependency: transitive
     description:
@@ -408,6 +504,14 @@ packages:
       url: "https://mirrors.sjtug.sjtu.edu.cn/dart-pub/"
     source: hosted
     version: "6.0.5"
+  scroll_to_index:
+    dependency: transitive
+    description:
+      name: scroll_to_index
+      sha256: b707546e7500d9f070d63e5acf74fd437ec7eeeb68d3412ef7b0afada0b4f176
+      url: "https://mirrors.sjtug.sjtu.edu.cn/dart-pub/"
+    source: hosted
+    version: "3.0.1"
   share:
     dependency: "direct main"
     description:
@@ -557,6 +661,14 @@ packages:
       url: "https://mirrors.sjtug.sjtu.edu.cn/dart-pub/"
     source: hosted
     version: "2.1.4"
+  visibility_detector:
+    dependency: transitive
+    description:
+      name: visibility_detector
+      sha256: "15c54a459ec2c17b4705450483f3d5a2858e733aee893dcee9d75fd04814940d"
+      url: "https://mirrors.sjtug.sjtu.edu.cn/dart-pub/"
+    source: hosted
+    version: "0.3.3"
   xml:
     dependency: transitive
     description:

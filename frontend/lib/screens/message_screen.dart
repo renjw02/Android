@@ -2,22 +2,22 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
 import '../Bloc/bloc_provider.dart';
+import '../Bloc/contactsBloc.dart';
 import '../Bloc/noticesBloc.dart';
 import '../models/querySnapshot.dart';
 import '../utils/colors.dart';
 import '../utils/global_variable.dart';
 import '../widgets/contact_user_card.dart';
-import 'message_screen.dart';
-
-
-class NotificationScreen extends StatefulWidget {
-  const NotificationScreen({Key? key}) : super(key: key);
+class MessageScreen extends StatefulWidget {
+  const MessageScreen({Key? key}) : super(key: key);
   @override
-  _NotificationScreenState createState() => _NotificationScreenState();
+  _MessageScreenState createState() => _MessageScreenState();
 }
-class _NotificationScreenState extends State<NotificationScreen>  with SingleTickerProviderStateMixin {
+class _MessageScreenState extends State<MessageScreen>  with SingleTickerProviderStateMixin{
   late TabController _tabController;
-  List tabs = ["全部", "已认证", "提及"];
+  List tabs = ["全部", "通知", "私信"];
+  final TextEditingController searchController = TextEditingController();
+  bool isShowUsers = false;
 
   @override
   void initState() {
@@ -31,28 +31,76 @@ class _NotificationScreenState extends State<NotificationScreen>  with SingleTic
     _tabController.dispose();
     super.dispose();
   }
-
   @override
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
-    return Scaffold(
-      backgroundColor:
-      width > webScreenSize ? webBackgroundColor : chatPrimaryColor,
-      appBar: width > webScreenSize
-        ? null
+    final bloc = ContactsBloc();
+    bloc.submitQuery();
+    return BlocProvider<ContactsBloc>(
+      key: UniqueKey(),//UniqueKey()是一个flutter提供的用于生成唯一key的类，它的原理是通过时间戳来生成key，所以每次生成的key都是不同的，这样就可以保证每次生成的key都是唯一的。
+      bloc: bloc,
+      child: Scaffold(
+        backgroundColor:
+        width > webScreenSize ? webBackgroundColor : chatPrimaryColor,
+        appBar: width > webScreenSize
+            ? null
             : AppBar(
-        backgroundColor: chatPrimaryColor,
-        centerTitle: false,
-        title:  const Center(
-          child: Text(
-            '通知',
-          ),
-        ),
-        // bottom: TabBar(
+              actions: [
+                IconButton(
+                  onPressed: () {},
+                  icon: const Icon(Icons.menu),
+                ),
+              ],
+              backgroundColor: chatPrimaryColor,
+              centerTitle: false,
+              title: Container(
+                margin: EdgeInsets.all(10.0),
+                height: 35.0,
+                child: Form(
+                  child: TextFormField(
+                    controller: searchController,
+                    decoration: InputDecoration(
+                      labelText: '搜索私信',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(20.0),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(20.0),
+                        borderSide: BorderSide(color: Colors.grey),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(20.0),
+                        borderSide: BorderSide(color: Colors.blue),
+                      ),
+                      contentPadding: EdgeInsets.symmetric(vertical: 4.0),
+                    ),
+                    onFieldSubmitted: (String _) {
+                      setState(() {
+                        isShowUsers = true;
+                      });
+                      print(_);
+                    },
+                  ),
+                ),
+              ),
+              // bottom: TabBar(
+              //   controller: _tabController,
+              //   tabs: tabs.map((e) => Tab(text: e)).toList(),
+              // ),
+            ),
+
+        // body:TabBarView(
         //   controller: _tabController,
-        //   tabs: tabs.map((e) => Tab(text: e)).toList(),
+        //   children: tabs.map((e) {
+        //     return NoticesList(
+        //       e: e,
+        //       child: Container(
+        //         alignment: Alignment.center,
+        //         child: Text(e, textScaleFactor: 5),
+        //       ),
+        //     );
+        //   }).toList().cast<Widget>(),
         // ),
-      ),
         body:Column(
           children: [
             Container(
@@ -79,54 +127,39 @@ class _NotificationScreenState extends State<NotificationScreen>  with SingleTic
                         topLeft: Radius.circular(30),
                         topRight: Radius.circular(30)
                     )),
-                child: SizedBox(
-                  width: width,
-                  child: Center(
-                    child: TabBarView(
-                      controller: _tabController,
-                      children:
-                      tabs.map((e) {
-                        return Center(
-                          child: Text(
-                            e,
-                            textScaleFactor: 5,
-                          ),
-                        );
-                      }).toList().cast<Widget>(),
-                    ),
+                child: TabBarView(
+                    controller: _tabController,
+                    children:
+                    tabs.map((e) {
+                      return ContactsList(
+                        e: e,
+                        child: Container(
+                          alignment: Alignment.center,
+                          child: Text(e, textScaleFactor: 5),
+                        ),
+                      );
+                    }).toList().cast<Widget>(),
                   ),
-                ),
-                // child: TabBarView(
-                //   controller: _tabController,
-                //   children:
-                //   tabs.map((e) {
-                //     return ContactsList(
-                //       e: e,
-                //       child: Container(
-                //         alignment: Alignment.center,
-                //         child: Text(e, textScaleFactor: 5),
-                //       ),
-                //     );
-                //   }).toList().cast<Widget>(),
-                // ),
               ),
             ),
           ],
         )
+      ),
     );
   }
 }
 
-class NoticesList extends StatefulWidget {
+
+class ContactsList extends StatefulWidget {
   final Widget child;
   final String e;
-  const NoticesList({Key? key, required this.child, required this.e}) : super(key: key);
+  const ContactsList({Key? key, required this.child, required this.e}) : super(key: key);
 
   @override
-  _NoticesListState createState() => _NoticesListState();
+  _ContactsListState createState() => _ContactsListState();
 }
 
-class _NoticesListState extends State<NoticesList> with AutomaticKeepAliveClientMixin {
+class _ContactsListState extends State<ContactsList> with AutomaticKeepAliveClientMixin {
   @override
   Widget build(BuildContext context) {
     final bloc = NoticesBloc();
@@ -142,13 +175,9 @@ class _NoticesListState extends State<NoticesList> with AutomaticKeepAliveClient
     return Container(
       padding: const EdgeInsets.symmetric(vertical:10,horizontal: 20),
       child: BlocProvider<NoticesBloc>(
-          key: UniqueKey(),//UniqueKey()是一个flutter提供的用于生成唯一key的类，它的原理是通过时间戳来生成key，所以每次生成的key都是不同的，这样就可以保证每次生成的key都是唯一的。
-      bloc: bloc,
-      child: RefreshIndicator(
-        onRefresh: () async {
-          bloc?.submitQuery(widget.e);
-        },
-        child: StreamBuilder(
+        key: UniqueKey(),//UniqueKey()是一个flutter提供的用于生成唯一key的类，它的原理是通过时间戳来生成key，所以每次生成的key都是不同的，这样就可以保证每次生成的key都是唯一的。
+        bloc: bloc,
+        child:StreamBuilder(
           stream: bloc?.queryStream,
           builder: (context,
               AsyncSnapshot<QuerySnapshot> snapshot) {
@@ -174,10 +203,11 @@ class _NoticesListState extends State<NoticesList> with AutomaticKeepAliveClient
                   }
                   // 处理按钮点击事件
                 },
-                backgroundColor: primaryColor,
+                backgroundColor:  chatAccentColor,
                 child: Icon(Icons.add),
               ),
               body:ListView.builder(
+
                 itemCount: snapshot.data!.docs.length,
                 itemBuilder: (ctx, index) => Container(
                   margin: EdgeInsets.symmetric(
@@ -195,7 +225,6 @@ class _NoticesListState extends State<NoticesList> with AutomaticKeepAliveClient
             );
           },
         ),
-      ),
       ),
     );
   }

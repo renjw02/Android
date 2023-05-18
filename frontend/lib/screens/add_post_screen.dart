@@ -224,124 +224,127 @@ class _AddPostScreenState extends State<AddPostScreen> {
               )
             ],
           ),
-      body:Column(
-        children: [
-          Row(
-            mainAxisAlignment:MainAxisAlignment.spaceBetween,
-            children: [
-              IconButton(
-                icon: const Icon(
-                  Icons.topic,
+      body:Container(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          children: [
+            Row(
+              mainAxisAlignment:MainAxisAlignment.spaceBetween,
+              children: [
+                IconButton(
+                  icon: const Icon(
+                    Icons.topic,
+                  ),
+                  onPressed: () => _selectTopic(context),
                 ),
-                onPressed: () => _selectTopic(context),
-              ),
-              Text("${topicContent}"),
-              // if (currentLocation != null)
-              // Text("Location: ${currentLocation?.latitude}, ${currentLocation?.longitude}"),
-              const Divider(),
-              //if (currentLocation != null) Text("Address: $address"),
-            ],
-          ),
-          Column(
-            children: [
-            DropdownButton(
-              value: font_size, //style: style,
-              icon: Icon(Icons.arrow_right), iconSize: 40, iconEnabledColor: Colors.green.withOpacity(0.7),
-              hint: Text('请选择地区'), isExpanded: true, underline: Container(height: 1, color: Colors.green.withOpacity(0.7)),
-              items: [
-              DropdownMenuItem(
-              child: Row(children: <Widget>[Text('小字体',style: TextStyle(fontSize: 12)), SizedBox(width: 10)]),
-              value: 12),
-              DropdownMenuItem(
-              child: Row(children: <Widget>[Text('适中',style: TextStyle(fontSize: 16)), SizedBox(width: 10)]),
-              value: 16),
-              DropdownMenuItem(
-              child: Row(children: <Widget>[Text('大字体', style: TextStyle(fontSize: 20)), SizedBox(width: 10)]),
-              value: 20)
+                Text("${topicContent}"),
+                // if (currentLocation != null)
+                // Text("Location: ${currentLocation?.latitude}, ${currentLocation?.longitude}"),
+                const Divider(),
+                //if (currentLocation != null) Text("Address: $address"),
               ],
-              onChanged: (value) => setState(() => font_size = value!)
             ),
-            DropdownButton(
-                value: font_color, //style: style,
-                icon: Icon(Icons.arrow_right), iconSize: 40, iconEnabledColor: Colors.red.withOpacity(0.7),
-                hint: Text('请选择字体颜色'), isExpanded: true, underline: Container(height: 1, color: Colors.green.withOpacity(0.7)),
+            Column(
+              children: [
+              DropdownButton(
+                value: font_size, //style: style,
+                icon: Icon(Icons.arrow_right), iconSize: 40, iconEnabledColor: Colors.green.withOpacity(0.7),
+                hint: Text('请选择地区'), isExpanded: true, underline: Container(height: 1, color: Colors.green.withOpacity(0.7)),
                 items: [
-                  DropdownMenuItem(
-                      child: Row(children: <Widget>[Text('红色',style: TextStyle(color: Colors.red, fontSize: 16)), SizedBox(width: 10)]),
-                      value: Colors.red),
-                  DropdownMenuItem(
-                      child: Row(children: <Widget>[Text('白色',style: TextStyle(color: Colors.white, fontSize: 16)), SizedBox(width: 10)]),
-                      value: Colors.white),
-                  DropdownMenuItem(
-                      child: Row(children: <Widget>[Text('黄色', style: TextStyle(color: Colors.yellow, fontSize: 16)), SizedBox(width: 10)]),
-                      value: Colors.yellow)
+                DropdownMenuItem(
+                child: Row(children: <Widget>[Text('小字体',style: TextStyle(fontSize: 12)), SizedBox(width: 10)]),
+                value: 12),
+                DropdownMenuItem(
+                child: Row(children: <Widget>[Text('适中',style: TextStyle(fontSize: 16)), SizedBox(width: 10)]),
+                value: 16),
+                DropdownMenuItem(
+                child: Row(children: <Widget>[Text('大字体', style: TextStyle(fontSize: 20)), SizedBox(width: 10)]),
+                value: 20)
                 ],
-                onChanged: (value) => setState(() => font_color = value!)
-            ),
-            DropdownButton(
-                value: font_weight, //style: style,
-                icon: Icon(Icons.arrow_right), iconSize: 40, iconEnabledColor: Colors.blue.withOpacity(0.7),
-                hint: Text('请选择字体粗细'), isExpanded: true, underline: Container(height: 1, color: Colors.green.withOpacity(0.7)),
-                items: [
-                  DropdownMenuItem(
-                      child: Row(children: <Widget>[Text('较细', style: TextStyle(fontWeight: FontWeight.w300)), SizedBox(width: 10) ]),
-                      value: FontWeight.w300),
-                  DropdownMenuItem(
-                      child: Row(children: <Widget>[Text('适中', style: TextStyle(fontWeight: FontWeight.w500)), SizedBox(width: 10)]),
-                      value: FontWeight.w500),
-                  DropdownMenuItem(
-                      child: Row(children: <Widget>[Text('较粗', style: TextStyle(fontWeight: FontWeight.w700)), SizedBox(width: 10)]),
-                      value: FontWeight.w700)
-                ],
-                onChanged: (value) => setState(() => font_weight = value!)
-            ),
+                onChanged: (value) => setState(() => font_size = value!)
+              ),
+              DropdownButton(
+                  value: font_color, //style: style,
+                  icon: Icon(Icons.arrow_right), iconSize: 40, iconEnabledColor: Colors.red.withOpacity(0.7),
+                  hint: Text('请选择字体颜色'), isExpanded: true, underline: Container(height: 1, color: Colors.green.withOpacity(0.7)),
+                  items: [
+                    DropdownMenuItem(
+                        child: Row(children: <Widget>[Text('红色',style: TextStyle(color: Colors.red, fontSize: 16)), SizedBox(width: 10)]),
+                        value: Colors.red),
+                    DropdownMenuItem(
+                        child: Row(children: <Widget>[Text('白色',style: TextStyle(color: Colors.white, fontSize: 16)), SizedBox(width: 10)]),
+                        value: Colors.white),
+                    DropdownMenuItem(
+                        child: Row(children: <Widget>[Text('黄色', style: TextStyle(color: Colors.yellow, fontSize: 16)), SizedBox(width: 10)]),
+                        value: Colors.yellow)
+                  ],
+                  onChanged: (value) => setState(() => font_color = value!)
+              ),
+              DropdownButton(
+                  value: font_weight, //style: style,
+                  icon: Icon(Icons.arrow_right), iconSize: 40, iconEnabledColor: Colors.blue.withOpacity(0.7),
+                  hint: Text('请选择字体粗细'), isExpanded: true, underline: Container(height: 1, color: Colors.green.withOpacity(0.7)),
+                  items: [
+                    DropdownMenuItem(
+                        child: Row(children: <Widget>[Text('较细', style: TextStyle(fontWeight: FontWeight.w300)), SizedBox(width: 10) ]),
+                        value: FontWeight.w300),
+                    DropdownMenuItem(
+                        child: Row(children: <Widget>[Text('适中', style: TextStyle(fontWeight: FontWeight.w500)), SizedBox(width: 10)]),
+                        value: FontWeight.w500),
+                    DropdownMenuItem(
+                        child: Row(children: <Widget>[Text('较粗', style: TextStyle(fontWeight: FontWeight.w700)), SizedBox(width: 10)]),
+                        value: FontWeight.w700)
+                  ],
+                  onChanged: (value) => setState(() => font_weight = value!)
+              ),
 
-            ]
+              ]
 
-          ),
-          TextField(
-            controller: titlec,
-            decoration: const InputDecoration(
-              hintText: "如何评价",
-              labelText: "标题",
-              prefixIcon: Icon(Icons.title),
             ),
-            maxLines: 1,
-          ),
-          TextField(
-              controller: contentc,
+            TextField(
+              controller: titlec,
               decoration: const InputDecoration(
                 hintText: "如何评价",
-                labelText: "内容",
-                prefixIcon: Icon(Icons.content_copy),
+                labelText: "标题",
+                prefixIcon: Icon(Icons.title),
               ),
-              maxLines: null,
-              minLines: 1,
-          ),
-          _file == null?
-          Center(
-            child: IconButton(
-              icon: const Icon(
-                Icons.upload,
-              ),
-              onPressed: () => _selectImage(context),
+              maxLines: 1,
             ),
-          ):SizedBox(
-            height: 45.0,
-            width: 45.0,
-            child: AspectRatio(
-              aspectRatio: 487 / 451,
-              child: Container(
-                decoration: BoxDecoration(
-                    image: DecorationImage(
-                      fit: BoxFit.fill,
-                      alignment: FractionalOffset.topCenter,
-                      image: MemoryImage(_file!),
-                    )),
+            TextField(
+                controller: contentc,
+                decoration: const InputDecoration(
+                  hintText: "如何评价",
+                  labelText: "内容",
+                  prefixIcon: Icon(Icons.content_copy),
+                ),
+                maxLines: null,
+                minLines: 1,
+            ),
+            _file == null?
+            Center(
+              child: IconButton(
+                icon: const Icon(
+                  Icons.upload,
+                ),
+                onPressed: () => _selectImage(context),
+              ),
+            ):SizedBox(
+              height: 45.0,
+              width: 45.0,
+              child: AspectRatio(
+                aspectRatio: 487 / 451,
+                child: Container(
+                  decoration: BoxDecoration(
+                      image: DecorationImage(
+                        fit: BoxFit.fill,
+                        alignment: FractionalOffset.topCenter,
+                        image: MemoryImage(_file!),
+                      )),
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
 

@@ -13,7 +13,7 @@ import 'package:http/http.dart' as http;
 import '../Auth/customAuth.dart';
 import '../models/user.dart';
 import '../resources/database_methods.dart' as db;
-import 'Message_screen.dart';
+import 'message_screen.dart';
 import 'followed_screen.dart';
 import 'modify_screen.dart';
 import '../utils/global_variable.dart' as gv;
@@ -26,7 +26,7 @@ class ProfileScreen extends StatefulWidget {
   _ProfileScreenState createState() => _ProfileScreenState();
 }
 
-class _ProfileScreenState extends State<ProfileScreen> {
+class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProviderStateMixin{
   var userData = {};
   int postLen = 0;
   int followers = 0;
@@ -36,10 +36,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
   String currentUserUid = "";
   Uint8List? _photo;
   dynamic photo;
+  late TabController _tabController;
+  List tabs = ["帖子", "帖子与评论", "喜欢"];
 
   @override
   void initState() {
     super.initState();
+    _tabController = TabController(length: tabs.length, vsync: this);
     getData();
   }
 
@@ -119,8 +122,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
     await db.DataBaseManager().followUser("2");
     print("followtest");
   }
+
+  @override
+  void dispose() {
+    // 释放资源
+    _tabController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
     return isLoading
         ? const Center(
       child: CircularProgressIndicator(),
@@ -133,20 +145,23 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ),
         centerTitle: false,
         actions: [
-          IconButton(
-            icon: const Icon(
-              Icons.messenger_outline,
-              color: primaryColor,
-            ),
-            onPressed: () => Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (context) => MessageScreen(),
+          Container(
+            margin: const EdgeInsets.only(right: 8,top: 8),
+            child: IconButton(
+              icon: const Icon(
+                Icons.messenger_outline,
+                color: primaryColor,
+              ),
+              onPressed: () => Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => MessageScreen(),
+                ),
               ),
             ),
           ),
         ],
       ),
-      body: ListView(
+      body: Column(
         children: [
           Padding(
             padding: const EdgeInsets.all(16),
@@ -185,11 +200,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 mainAxisSize: MainAxisSize.min,
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  Text(
-                                    CustomAuth.currentUser.following.length.toString(),
-                                    style: const TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold,
+                                  Container(
+                                    padding: const EdgeInsets.only(top: 15),
+                                    child: Text(
+                                      CustomAuth.currentUser.following.length.toString(),
+                                      style: const TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold,
+                                      ),
                                     ),
                                   ),
                                   Container(
@@ -380,8 +398,64 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
 
               ]),
-    ),
+          ),
           const Divider(),
+          Container(
+            margin: const EdgeInsets.symmetric(horizontal: 10,vertical: 4),
+            padding: const EdgeInsets.symmetric(horizontal: 10,vertical: 16),
+            height: 70,
+            color: mobileBackgroundColor,
+            child: TabBar(
+              controller: _tabController,
+              indicator: ShapeDecoration(
+                  color: chatAccentColor,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12))
+              ),
+              tabs: tabs.map((e) => Tab(text: e)).toList(),
+              labelStyle: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+            ),
+          ),
+          Expanded(
+            child: Container(
+              decoration: const BoxDecoration(
+                  color: mobileBackgroundColor,
+                  borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(30),
+                      topRight: Radius.circular(30)
+                  )),
+              child: SizedBox(
+                width: width,
+                child: Center(
+                  child: TabBarView(
+                    controller: _tabController,
+                    children:
+                    tabs.map((e) {
+                      return Center(
+                        child: Text(
+                          e,
+                          textScaleFactor: 3,
+                        ),
+                      );
+                    }).toList().cast<Widget>(),
+                  ),
+                ),
+              ),
+              // child: TabBarView(
+              //   controller: _tabController,
+              //   children:
+              //   tabs.map((e) {
+              //     return ContactsList(
+              //       e: e,
+              //       child: Container(
+              //         alignment: Alignment.center,
+              //         child: Text(e, textScaleFactor: 5),
+              //       ),
+              //     );
+              //   }).toList().cast<Widget>(),
+              // ),
+            ),
+          ),
           // FutureBuilder(
           //   // future: FirebaseFirestore.instance
           //   //     .collection('posts')
@@ -432,11 +506,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
       mainAxisSize: MainAxisSize.min,
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Text(
-          num.toString(),
-          style: const TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
+        Container(
+          padding: const EdgeInsets.only(top: 15),
+          child: Text(
+            num.toString(),
+            style: const TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
           ),
         ),
         Container(

@@ -23,7 +23,20 @@ class NoticesBloc implements Bloc {
     _querySnapshot = querySnapshot;
     _queryController.sink.add(querySnapshot);
   }
-  void createNotice(String str_type, String content) async  {
+
+  Future<String> removeNotice(int noticeId) async {
+    print("removeNotice");
+    String result = await db.DataBaseManager().removeNotice(noticeId);
+    if(result == "Success"){
+      submitQuery(_type);
+      print("删除成功");
+    }else{
+      print("删除失败");
+    }
+    return result;
+  }
+
+  Future<String> createNotice(String str_type, String content) async  {
     int type = 0;
     if (str_type == "通知" || str_type == "全部") {
       type = 0;
@@ -44,6 +57,7 @@ class NoticesBloc implements Bloc {
       print("创建失败");
     }
 
+    return returnMsg;
 
     // _queryController.sink.add(querySnapshot);
   }

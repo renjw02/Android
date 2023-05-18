@@ -13,7 +13,7 @@ import '../models/DocumentSnapshot.dart';
 import '../models/querySnapshot.dart';
 import '../models/post.dart';
 import '../resources/database_methods.dart' as db;
-import 'Message_screen.dart';
+import 'message_screen.dart';
 import 'comments_screen.dart';
 
 

@@ -22,6 +22,7 @@ class FollowButton extends StatelessWidget {
       child: TextButton(
         onPressed: function,
         child: Container(
+          margin: const EdgeInsets.only(top: 15),
           decoration: BoxDecoration(
             color: backgroundColor,
             border: Border.all(

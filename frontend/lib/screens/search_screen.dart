@@ -178,7 +178,8 @@ class _SearchScreenState extends State<SearchScreen> {
           //   ),
           // ),
           title: Container(
-            margin: EdgeInsets.only(top: 10.0,bottom:5.0),
+            margin: EdgeInsets.all(10.0),
+            height: 35.0,
             child: Form(
               child: TextFormField(
                 controller: searchController,

@@ -10,11 +10,12 @@ import 'package:frontend/models/post.dart';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
 
+import '../models/message.dart';
 import '../models/notice.dart';
 import '../models/querySnapshot.dart';
 import '../models/user.dart';
-import '../utils/api_uri.dart';
 import '../utils/global_variable.dart'as gv;
+import '../utils/global_variable.dart';
 
 class DataBaseManager{
   final http.Client _client = http.Client();
@@ -409,13 +410,14 @@ class DataBaseManager{
       return querySnapshot;
     }
   }
+
   Future<String> createNotice([int type=0,String? content = null]) async{
     //把string的数字转成int
     int uid = int.parse(CustomAuth.currentUser.uid);
     content = content ?? "关注了你";
     var result="Fail";
     try{
-      var url = Uri.parse("$ip:$port/api/notice/createnotice");
+      var url = Uri.parse("$serverIp:$serverPort/api/notice/createnotice");
       Map<String, String> headersMap = new Map();
       headersMap["content-type"] = ContentType.json.toString();
       var jsonBody = jsonEncode({
@@ -473,13 +475,47 @@ class DataBaseManager{
     return result;
   }
 
+  Future<String> removeNotice(int noticeId) async{
+    //把string的数字转成int
+    String result="Fail";
+    try{
+      String uid = CustomAuth.currentUser.uid.toString();
+      var url = Uri.parse("$serverIp:$serverPort/api/notice/removenotice/$noticeId");
+      await _client.post(
+        url,
+        headers:{
+          HttpHeaders.authorizationHeader: CustomAuth.currentUser.jwt,
+          "content-type": ContentType.json.toString(),
+        },
+      ).then((http.Response response){
+        print(jsonDecode(response.body));
+        if (response.statusCode == 200){
+          Map<String, dynamic> returnData = jsonDecode(response.body);
+          print(returnData);
+          if(returnData['message']=="ok"){
+            result="Success";
+          }else{
+            print(returnData['message']);
+          }
+        }
+      }).catchError((error) {
+        print("catchError:");
+        print(error);
+      });
+    } catch (exception) {
+      print(exception);
+      print("删除noticeList错误");
+    }
+    return result;
+  }
+
   Future<QuerySnapshot> noticeListQuery() async{
     QuerySnapshot querySnapshot = QuerySnapshot(
       docs: [], readTime: DateTime.now(),
     );
     try{
       String uid = CustomAuth.currentUser.uid.toString();
-      var url = Uri.parse("$ip:$port/api/notice/getnoticelist/$uid");
+      var url = Uri.parse("$serverIp:$serverPort/api/notice/getnoticelist/$uid");
       await _client.get(
         url,
         headers:{
@@ -509,23 +545,74 @@ class DataBaseManager{
     }
     return querySnapshot;
   }
-  // ### 注册
-  // @bp.route('register', methods=['POST'])
-  // def user_register():
-  //
-  // + 接收：json
-  // {
-  // "username"    只能大小写字母、数字、*-_@
-  // "password"    必须字母+数字，不能有其他
-  // "nickname"    任意，不超过14字符
-  // }
-  // + 返回：json + 状态码
-  // {
-  // "message"
-  // "userId"
-  // "username"
-  // "nickname"
-  // }
+
+  // 获取私信内容
+  Future<String> noticeContentQuery(int noticeId) async {
+    String content = "";
+
+    try {
+      var url = Uri.parse("$serverIp:$serverPort/api/notice/getnotice/$noticeId");
+      await _client.get(
+        url,
+        headers: {
+          HttpHeaders.authorizationHeader: CustomAuth.currentUser.jwt,
+          "content-type": ContentType.json.toString(),
+        },
+      ).then((http.Response response) {
+        if (response.statusCode == 200) {
+          Map<String, dynamic> returnData = jsonDecode(response.body);
+          if (returnData['message'] == "ok") {
+            content = returnData['data'] ?? "";
+          } else {
+            print(returnData['message']);
+          }
+        }
+      }).catchError((error) {
+        print("catchError:");
+        print(error);
+      });
+    } catch (exception) {
+      print(exception);
+      print("获取私信内容错误");
+    }
+
+    return content;
+  }
+
+  // 获取未读私信数量
+  Future<int> unreadNoticeCountQuery() async {
+    int count = 0;
+
+    try {
+      String uid = CustomAuth.currentUser.uid.toString();
+      var url = Uri.parse("$serverIp:$serverPort/api/notice/getunreadnum/$uid");
+      await _client.get(
+        url,
+        headers: {
+          HttpHeaders.authorizationHeader: CustomAuth.currentUser.jwt,
+          "content-type": ContentType.json.toString(),
+        },
+      ).then((http.Response response) {
+        if (response.statusCode == 200) {
+          Map<String, dynamic> returnData = jsonDecode(response.body);
+          if (returnData['message'] == "ok") {
+            count = returnData['data'] ?? 0;
+          } else {
+            print(returnData['message']);
+          }
+        }
+      }).catchError((error) {
+        print("catchError:");
+        print(error);
+      });
+    } catch (exception) {
+      print(exception);
+      print("获取未读私信数量错误");
+    }
+
+    return count;
+  }
+
   Future<dynamic> register(String username, String password, String nickname) async {
     var url = Uri.parse(gv.ip+"/api/user/register");
     Map<String, String> headersMap = new Map();
@@ -564,6 +651,146 @@ class DataBaseManager{
       print(e);
     }
     return result;
+  }
+
+  Future<String> createMessage(int senderId, int receiverId, String content) async {
+    String result = "";
+    try {
+      var url = Uri.parse("$serverIp:$serverPort/api/message/createmessage");
+      await _client.post(
+        url,
+        headers: {
+          HttpHeaders.authorizationHeader: CustomAuth.currentUser.jwt,
+          "content-type": ContentType.json.toString(),
+        },
+        body: jsonEncode({
+          "sender_id": senderId,
+          "receiver_id": receiverId,
+          "content": content,
+        }),
+      ).then((http.Response response) {
+        if (response.statusCode == 200) {
+          Map<String, dynamic> returnData = jsonDecode(response.body);
+          if (returnData['message'] == "ok") {
+            result = returnData['messageId'].toString();
+          } else {
+            print(returnData['message']);
+          }
+        }
+      }).catchError((error) {
+        print("catchError:");
+        print(error);
+      });
+    } catch (exception) {
+      print(exception);
+      print("创建私信错误");
+    }
+    return result;
+  }
+
+  Future<QuerySnapshot> getChatHistory(int senderId, int receiverId) async {
+    QuerySnapshot querySnapshot = QuerySnapshot(
+      docs: [], readTime: DateTime.now(),
+    );
+    try {
+      var url = Uri.parse("$serverIp:$serverPort/api/message/gethistory/$senderId/$receiverId");
+      await _client.get(
+        url,
+        headers: {
+          HttpHeaders.authorizationHeader: CustomAuth.currentUser.jwt,
+          "content-type": ContentType.json.toString(),
+        },
+      ).then((http.Response response) {
+        if (response.statusCode == 200) {
+          Map<String, dynamic> returnData = jsonDecode(response.body);
+          if (returnData['message'] == "ok") {
+            List<dynamic> historyList = returnData['history'];
+            querySnapshot = QuerySnapshot(
+              docs: Message.fromJsonList(historyList), readTime: DateTime.now(),
+            );
+          } else {
+            print(returnData['message']);
+          }
+        }
+      }).catchError((error) {
+        print("catchError:");
+        print(error);
+      });
+    } catch (exception) {
+      print(exception);
+      print("获取历史对话错误");
+    }
+    return querySnapshot;
+  }
+
+  Future<Map<String, dynamic>?> getMessageContent(int messageId) async {
+    Map<String, dynamic>? messageContent;
+    try {
+      var url = Uri.parse("$serverIp:$serverPort/api/message/getmessage/$messageId");
+      await _client.get(
+        url,
+        headers: {
+          HttpHeaders.authorizationHeader: CustomAuth.currentUser.jwt,
+          "content-type": ContentType.json.toString(),
+        },
+      ).then((http.Response response) {
+        if (response.statusCode == 200) {
+          Map<String, dynamic> returnData = jsonDecode(response.body);
+          if (returnData['message'] == "ok") {
+            messageContent = {
+              "messageId": returnData['messageId'].toString(),
+              "content": returnData['content'],
+              "type": returnData['type'],
+              "creator": returnData['creator'],
+              "created": returnData['created'],
+            };
+          } else {
+            print(returnData['message']);
+          }
+        }
+      }).catchError((error) {
+        print("catchError:");
+        print(error);
+      });
+    } catch (exception) {
+      print(exception);
+      print("获取私信内容错误");
+    }
+    return messageContent;
+  }
+
+  Future<QuerySnapshot> messageListQuery() async {
+    QuerySnapshot querySnapshot = QuerySnapshot(
+      docs: [], readTime: DateTime.now(),
+    );
+    try{
+      var url = Uri.parse("$serverIp:$serverPort/api/message/messagelist");
+      await _client.get(
+        url,
+        headers:{
+          HttpHeaders.authorizationHeader: CustomAuth.currentUser.jwt,
+          "content-type": ContentType.json.toString(),
+        },
+      ).then((http.Response response){
+        if (response.statusCode == 200){
+          Map<String, dynamic> returnData = jsonDecode(response.body);
+          if(returnData['message']=="ok"){
+            querySnapshot = QuerySnapshot(
+              docs: Message.fromJsonList(returnData['messageList']), readTime: DateTime.now(),
+            );
+          }else{
+            print(returnData['message']);
+          }
+        }
+      }).catchError((error) {
+        print("catchError:");
+        print(error);
+      });
+    } catch (exception) {
+      print(exception);
+      print("获取私信列表错误");
+    }
+    return querySnapshot;
   }
 
 

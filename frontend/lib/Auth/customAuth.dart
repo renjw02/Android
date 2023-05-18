@@ -10,7 +10,6 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../models/user.dart';
 import '../resources/database_methods.dart' as db;
 import '../utils/global_variable.dart' as gv;
-import '../utils/api_uri.dart';
 
 User fakeUser1 = User(
   username: 'username1',
@@ -21,7 +20,7 @@ User fakeUser1 = User(
   nickname: 'bio1',
   jwt:'jwt',
   profile:'profile',
-  photo: new Uint8List(0),
+  photo: Uint8List(0),
   followers: [],
   following: [],
 );

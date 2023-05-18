@@ -53,7 +53,8 @@ dependencies:
   #location: ^4.3.0
   geocode: ^1.0.1
   #flutter_bmflocation: ^3.3.0
-  
+  flutter_chat_ui: ^1.0.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

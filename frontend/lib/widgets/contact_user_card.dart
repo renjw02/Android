@@ -4,6 +4,7 @@ import 'dart:typed_data';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
+import '../screens/chat_screen.dart';
 import '../screens/profile_screen.dart';
 import '../utils/colors.dart';
 // import '../utils/global_variable.dart';
@@ -13,9 +14,11 @@ import '../utils/global_variable.dart';
 import '../utils/utils.dart';
 class ContactUserCard extends StatefulWidget{
   final snap;
+  final VoidCallback? onRemoved;
   const ContactUserCard({
     Key? key,
     required this.snap,
+    this.onRemoved,
   }) : super(key: key);
 
   @override
@@ -68,77 +71,115 @@ class _ContactUserCardState extends State<ContactUserCard> {
         ? const Center(
       child: CircularProgressIndicator(),
     ):Container(
-      decoration: BoxDecoration(
-        border: Border.all(
-          color: width > webScreenSize ? secondaryColor : mobileBackgroundColor,
-        ),
-        color: mobileBackgroundColor,
-        borderRadius: BorderRadius.circular(10.0), // 设置圆角半径
+
+      margin: const EdgeInsets.symmetric(
+        vertical: 10,
+        horizontal: 5,
       ),
       padding: const EdgeInsets.symmetric(
-        vertical: 10,
+        vertical: 5,
+        horizontal: 10,
       ),
-      child: Column(
-        children: [
-          const Divider(
-            height: 1,
-            thickness: 1,
-            color: Colors.grey,
-          ),
-        Container(
-          padding: const EdgeInsets.symmetric(
-            vertical: 4,
-            horizontal: 16,
-          ).copyWith(right: 0),
-          child: Row(
-            children: <Widget>[
-              GestureDetector(
-                  onTap:(){
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (context) =>
-                            ProfileScreen(uid: widget.snap['userId'].toString()),
-                      ),
-                    );
-                  },
-                  child:CircleAvatar(
-                    radius: 16,
-                    backgroundImage: MemoryImage(_file!),
-                  )
-              ),
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.only(
-                    left: 8,
+      decoration: BoxDecoration(
+        border: Border.all(
+          color: width > webScreenSize ? secondaryColor : Colors.grey,
+        ),
+        color: chatPrimaryColor,
+        borderRadius: BorderRadius.circular(10.0), // 设置圆角半径
+      ),
+    child: GestureDetector(
+        onTap:(){
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) =>
+                  ChatScreen( snap:widget.snap,file:_file)
+            ),
+          );
+        },
+        child: Column(
+          children: [
+            // const Divider(
+            //   height: 1,
+            //   thickness: 1,
+            //   color: Colors.grey,
+            // ),
+          Container(
+            padding: const EdgeInsets.symmetric(
+              vertical: 4,
+              horizontal: 16,
+            ).copyWith(right: 0),
+            child: Container(
+              child: Row(
+                children: <Widget>[
+                  GestureDetector(
+                      onTap:()  {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                ProfileScreen(uid: widget.snap['userId'].toString()),
+                          ),
+                        );
+                        //获取聊天内容
+                      },
+                      child:CircleAvatar(
+                        radius: 16,
+                        backgroundImage: MemoryImage(_file!),
+                      )
                   ),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-                      Text(
-                        userinfo['username'].toString(),
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.only(
+                        left: 8,
+                      ),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: <Widget>[
+                          Text(
+                            userinfo['username'].toString(),
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          Text(
+                            widget.snap['created'].toString(),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  // IconButton(
+                  //   icon: const Icon(Icons.delete),
+                  //   onPressed: () async {
+                  //     widget.onRemoved;
+                  //     // 处理按钮点击事件
+                  //   },
+                  // ),
+                  InkWell(
+                    onTap: () async {
+                      widget.onRemoved?.call();
+                      // 处理按钮点击事件
+                    },
+                    child: Ink(
+                      decoration: ShapeDecoration(
+                        color: Colors.grey.withOpacity(0.5),
+                        shape: const CircleBorder(),
+                      ),
+                      child: const Padding(
+                        padding: EdgeInsets.all(8.0),
+                        child: Icon(
+                          Icons.delete,
+                          color: Colors.white,
                         ),
                       ),
-                      Text(
-                        widget.snap['created'].toString(),
-                      ),
-                    ],
+                    ),
                   ),
-                ),
+                ],
               ),
-              IconButton(
-                icon: const Icon(Icons.delete),
-                onPressed: () {
-                  // 处理删除按钮点击事件
-                  // 这里可以调用您的删除通知的方法
-                },
-              ),
-            ],
-          ),
-        )
-        ],
+            ),
+          )
+          ],
+        ),
       ),
     );
   }
