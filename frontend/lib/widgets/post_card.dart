@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
@@ -36,6 +37,7 @@ class _PostCardState extends State<PostCard> {
   Map<String,Color> colors = {"red":Colors.red,"white":Colors.white,"yellow":Colors.yellow};
   Map<String,FontWeight> weights = {"较细":FontWeight.w300,"适中":FontWeight.w500,"较粗":FontWeight.w700};
   bool isLoading = false;
+  List<dynamic> photo = [];
 
   @override
   void initState() {
@@ -53,6 +55,14 @@ class _PostCardState extends State<PostCard> {
       var url = Uri.parse(gv.ip+"/api/user/user/"+snap['uid']);
       userinfo = await dbm.getSomeMap(url);
       _file = await dbm.getPhoto(snap['uid']);
+      print(snap['title']);
+      print(snap["images"]);
+      Map<String,dynamic>? data;
+      data = await db.DataBaseManager().getThePost(snap["id"]);
+      for(var image in data!['images']){
+        photo.add(base64Decode(image));
+      }
+      print(photo);
     } catch (err) {
       showSnackBar(
         context,
@@ -73,6 +83,57 @@ class _PostCardState extends State<PostCard> {
         err.toString(),
       );
     }
+  }
+  buildImages(List<dynamic>? images){
+    List<Container> widgets = [];
+    if(images==null){
+      return Row(
+        children:[Container(
+          //margin: const EdgeInsets.all(5.0),
+        ),]
+      );
+    }
+    int count=0;
+    for(Uint8List image in images!){
+      if(count==3){
+        count++;
+        widgets.add(
+          Container(
+            child: Text("..."),
+          )
+        );
+        break;
+      }
+      widgets.add(
+        Container(
+          //margin: const EdgeInsets.all(10.0), // 设置边距
+          child: SizedBox(
+            height: MediaQuery.of(context).size.height * 0.3,
+            width: MediaQuery.of(context).size.width*0.3,
+            child: ClipRRect(
+                borderRadius: BorderRadius.circular(10.0), // 设置圆角半径
+                child: Image.memory(image,fit: BoxFit.fitWidth),
+            ),
+          ),
+        ),
+      );
+      count++;
+    }
+    if(count==4){
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: widgets,
+      );
+    }
+    widgets.add(
+      Container(
+        width: MediaQuery.of(context).size.width*0.3,
+      )
+    );
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: widgets,
+    );
   }
 
   @override
@@ -253,20 +314,7 @@ class _PostCardState extends State<PostCard> {
             child: Stack(
               alignment: Alignment.center,
               children: [
-                Container(
-                  margin: const EdgeInsets.all(10.0), // 设置边距
-                  child: SizedBox(
-                    height: MediaQuery.of(context).size.height * 0.35,
-                    width: double.infinity,
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(10.0), // 设置圆角半径
-                      child: Image.network(
-                        //widget.snap['postUrl'].toString(),
-                        'https://picsum.photos/200/303',
-                        fit: BoxFit.cover),
-                    ),
-                  ),
-                ),
+                buildImages(photo),
                 AnimatedOpacity(
                   duration: const Duration(milliseconds: 200),
                   opacity: isLikeAnimating ? 1 : 0,

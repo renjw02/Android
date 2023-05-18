@@ -238,7 +238,7 @@ class PostService():
                 select
                     post.id as id, post.user_id as userId, user.nickname as nickname,
                     post.title as title, post.content as content, post.support_num as supportNum,
-                    post.star_num as starNum, post.commentNum as commentNum,
+                    post.star_num as starNum, post.comment_num as commentNum,
                     post.created as created, post.updated as updated, 
                     post.last_replied_time as lastRepliedTime, post.font_size as fontSize,
                     post.font_color as fontColor, post.font_weight as fontWeight
@@ -260,13 +260,28 @@ class PostService():
                     comment.post_id = {post_id}
                 order by comment.created asc;
             '''
+            
+            print("asd")
             post_result = db.session.execute(text(post_sql.format(post_id=post_id)))
+            column_names = post_result.keys()
+            print("asd")
+            post = {}
+            for row in post_result.fetchall():
+                post_dict = dict(zip(column_names, row))
+                post = post_dict
+            print("asd")
             comment_result = db.session.execute(text(comment_sql.format(post_id=post_id)))
-
-            post = [dict(zip(result.keys(), result))
-                    for result in post_result][0]
-            comment_list = [dict(zip(result.keys(), result))
-                          for result in comment_result]
+            column_names = comment_result.keys()
+            comment_list = []
+            print("asd")
+            for row in comment_result.fetchall():
+                comment_dict = dict(zip(column_names, row))
+                comment_list.append(comment_dict)
+            print("asd")
+            # post = [dict(zip(result.keys(), result))
+            #         for result in post_result][0]
+            # comment_list = [dict(zip(result.keys(), result))
+            #               for result in comment_result]
 
             # Comment列表包括帖子底下所有的回复，包括对帖子和对回复的
             post['comments'] = comment_list
@@ -283,6 +298,7 @@ class PostService():
                 'comments':
             }
             '''
+            print(post['title'])
             return post, True
         except Exception as e:
             print(e)
@@ -396,7 +412,13 @@ class PostService():
             where post_id = {post_id}
             """
             results = db.session.execute(text(sql.format(post_id=post_id)))
-            pictures = [dict(zip(result.keys(), result)) for result in results]
+            column_names = results.keys()
+            pictures = []
+            print("asd")
+            for row in results.fetchall():
+                picture_dict = dict(zip(column_names, row))
+                pictures.append(picture_dict)
+            # pictures = [dict(zip(result.keys(), result)) for result in results]
             return pictures, True
         except Exception as e:
             print(e)
@@ -410,7 +432,13 @@ class PostService():
             where post_id = {post_id}
             """
             results = db.session.execute(text(sql.format(post_id=post_id)))
-            videos = [dict(zip(result.keys(), result)) for result in results]
+            column_names = results.keys()
+            videos = []
+            print("asd")
+            for row in results.fetchall():
+                video_dict = dict(zip(column_names, row))
+                videos.append(video_dict)
+            # videos = [dict(zip(result.keys(), result)) for result in results]
             return videos, True
         except Exception as e:
             print(e)

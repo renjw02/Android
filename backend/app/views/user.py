@@ -220,8 +220,9 @@ def upload_avatar():
         print(save_path)
         file_obj.save(save_path)
         print("success",file=sys.stderr)
-        workpath = os.getcwd()
-        dst = os.path.join(workpath, 'backend','app', 'static', 'avatar', str(g.user_id)+'.jpg')
+        # workpath = os.getcwd()
+        # dst = os.path.join(workpath, 'backend','app', 'static', 'avatar', str(g.user_id)+'.jpg')
+        dst = os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.pardir, "static", "avatar", str(g.user_id)+'.jpg'))
         print(dst)
         if os.path.exists(dst):
             os.remove(dst)

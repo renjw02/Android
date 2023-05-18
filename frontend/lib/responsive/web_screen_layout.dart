@@ -3,6 +3,13 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:frontend/utils/colors.dart';
 import 'package:frontend/utils/global_variable.dart';
 
+import '../Auth/customAuth.dart';
+import '../screens/add_post_screen.dart';
+import '../screens/feed_screen.dart';
+import '../screens/notification_screen.dart';
+import '../screens/profile_screen.dart';
+import '../screens/search_screen.dart';
+
 class WebScreenLayout extends StatefulWidget {
   const WebScreenLayout({Key? key}) : super(key: key);
   @override
@@ -91,7 +98,14 @@ class _WebScreenLayoutState extends State<WebScreenLayout> {
       ),
       body: PageView(
         physics: const NeverScrollableScrollPhysics(),
-        children: homeScreenItems,
+        children:
+        [
+          const FeedScreen(),
+          const SearchScreen(),
+          const AddPostScreen(),
+          const NotificationScreen(),
+          ProfileScreen(uid: CustomAuth.currentUser.uid,),
+        ],
         controller: pageController,
         onPageChanged: onPageChanged,
       ),

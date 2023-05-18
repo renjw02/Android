@@ -31,6 +31,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
   Position? position;
   final TextEditingController titlec = new TextEditingController();
   final TextEditingController contentc = new TextEditingController();
+  List<Uint8List> photos = [];
 
   @override
   void initState() {
@@ -97,6 +98,8 @@ class _AddPostScreenState extends State<AddPostScreen> {
                   Uint8List file = await pickImage(ImageSource.camera);
                   setState(() {
                     _file = file;
+                    photos.add(file);
+                    print(photos.length);
                   });
                 }),
             SimpleDialogOption(
@@ -107,6 +110,8 @@ class _AddPostScreenState extends State<AddPostScreen> {
                   Uint8List file = await pickImage(ImageSource.gallery);
                   setState(() {
                     _file = file;
+                    photos.add(file);
+                    print(photos.length);
                   });
                 }),
             SimpleDialogOption(
@@ -119,6 +124,74 @@ class _AddPostScreenState extends State<AddPostScreen> {
           ],
         );
       },
+    );
+  }
+
+  buildTable(){
+    int count = 0;
+    if(photos==null){
+      return Center(
+        child: IconButton(
+            icon: const Icon(
+              Icons.upload,
+            ),
+            onPressed: ()async{
+              await _selectImage(context);
+              setState(() {});
+            }
+        ),
+      );
+    }
+    List<Container> arow = [];
+    for(var photo in photos){
+      arow.add(
+        Container(
+          margin: const EdgeInsets.all(10.0), // 设置边距
+          child: ListView(
+            shrinkWrap: true,
+            children:[
+              SizedBox(
+                height: MediaQuery.of(context).size.height * 0.12,
+                width: MediaQuery.of(context).size.width*0.1,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(10.0), // 设置圆角半径
+                  child: Image.memory(photo,fit: BoxFit.fill),
+                ),
+              ),
+            ]
+          )
+        ),
+      );
+    }
+    return Expanded(child:
+    Column(
+      children:[
+        Expanded(child:GridView.count(
+          scrollDirection: Axis.vertical,
+          crossAxisCount: 3,
+          shrinkWrap: true,
+          children: arow,
+        )),
+        Center(
+          child: IconButton(
+              icon: const Icon(
+                Icons.upload,
+              ),
+              onPressed: ()async{
+                await _selectImage(context);
+                setState(() {});
+              }
+          ),
+        ),
+        // Expanded(
+        //     child:GridView.count(
+        //   scrollDirection: Axis.vertical,
+        //   crossAxisCount: 3,
+        //   shrinkWrap: true,
+        //   children: arow,
+        // )),
+      ]
+    )
     );
   }
 
@@ -164,36 +237,45 @@ class _AddPostScreenState extends State<AddPostScreen> {
       font_weight = FontWeight.w500;
       titlec.text = "";
       contentc.text = "";
-      _file = null;
+      photos = [];
     });
   }
   
   void post() async {
-    Map<String ,int> topic2type = {"校园资讯":1,"二手交易":2};
-    if(_file == null){
-      print("file is null");
-    }
-    List<Uint8List?> files = [_file];
-    print(topic2type[topicContent]!);
-    Map<Color,String> colors = {Colors.red:"red",Colors.white:"white",Colors.yellow:"yellow"};
-    Map<FontWeight,String> weights = {FontWeight.w300:"较细",FontWeight.w500:"适中",FontWeight.w700:"较粗"};
-    String res = await db.DataBaseManager().createPost(titlec.text, contentc.text, topic2type[topicContent]!, "position",
-        font_size,colors[font_color]!,weights[font_weight]!,files);
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(res),
-      ),
-    );
-    if(res=="动态上传成功"){
-      setState(() {
-        topicContent = "选择一个话题";
-        font_size = 16;
-        font_color = Colors.white;
-        font_weight = FontWeight.w500;
-        titlec.text = "";
-        contentc.text = "";
-        _file = null;
-      });
+    try{
+      Map<String ,int> topic2type = {"校园资讯":1,"二手交易":2};
+      if(photos == null){
+        print("file is null");
+      }
+      List<Uint8List?> files = photos;
+      print(topic2type[topicContent]!);
+      Map<Color,String> colors = {Colors.red:"red",Colors.white:"white",Colors.yellow:"yellow"};
+      Map<FontWeight,String> weights = {FontWeight.w300:"较细",FontWeight.w500:"适中",FontWeight.w700:"较粗"};
+      String res = await db.DataBaseManager().createPost(titlec.text, contentc.text, topic2type[topicContent]!, "position",
+          font_size,colors[font_color]!,weights[font_weight]!,photos);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(res),
+        ),
+      );
+      print(res);
+      if(res=="动态上传成功"){
+        setState(() {
+          topicContent = "选择一个话题";
+          font_size = 16;
+          font_color = Colors.white;
+          font_weight = FontWeight.w500;
+          titlec.text = "";
+          contentc.text = "";
+          photos = [];
+        });
+      }
+    }catch(e){
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("请填写动态类型、标题及内容"),
+        ),
+      );
     }
   }
 
@@ -308,129 +390,36 @@ class _AddPostScreenState extends State<AddPostScreen> {
                 labelText: "标题",
                 prefixIcon: Icon(Icons.title),
               ),
-              maxLines: 1,
-            ),
-            TextField(
-                controller: contentc,
-                decoration: const InputDecoration(
-                  hintText: "如何评价",
-                  labelText: "内容",
-                  prefixIcon: Icon(Icons.content_copy),
-                ),
-                maxLines: null,
-                minLines: 1,
-            ),
-            _file == null?
-            Center(
-              child: IconButton(
-                icon: const Icon(
-                  Icons.upload,
-                ),
-                onPressed: () => _selectImage(context),
-              ),
-            ):SizedBox(
-              height: 45.0,
-              width: 45.0,
-              child: AspectRatio(
-                aspectRatio: 487 / 451,
-                child: Container(
-                  decoration: BoxDecoration(
-                      image: DecorationImage(
-                        fit: BoxFit.fill,
-                        alignment: FractionalOffset.topCenter,
-                        image: MemoryImage(_file!),
-                      )),
-                ),
-              ),
-            ),
-          ],
-        ),
+              maxLines: null,
+              minLines: 1,
+          ),
+          buildTable(),
+
+          // _file == null?
+          // Center(
+          //   child: IconButton(
+          //     icon: const Icon(
+          //       Icons.upload,
+          //     ),
+          //     onPressed: () => _selectImage(context),
+          //   ),
+          // ):SizedBox(
+          //   height: 45.0,
+          //   width: 45.0,
+          //   child: AspectRatio(
+          //     aspectRatio: 487 / 451,
+          //     child: Container(
+          //       decoration: BoxDecoration(
+          //           image: DecorationImage(
+          //             fit: BoxFit.fill,
+          //             alignment: FractionalOffset.topCenter,
+          //             image: MemoryImage(_file!),
+          //           )),
+          //     ),
+          //   ),
+          // ),
+        ],
       ),
     );
-
-    //   _file == null
-    //     ? Center(
-    //   child: IconButton(
-    //     icon: const Icon(
-    //       Icons.upload,
-    //     ),
-    //     onPressed: () => _selectImage(context),
-    //   ),
-    // )
-    //     : Scaffold(
-    //   appBar: AppBar(
-    //     backgroundColor: mobileBackgroundColor,
-    //     leading: IconButton(
-    //       icon: const Icon(Icons.arrow_back),
-    //       onPressed: clearImage,
-    //     ),
-    //     title: const Text(
-    //       'Post to',
-    //     ),
-    //     centerTitle: false,
-    //     actions: <Widget>[
-    //       TextButton(
-    //         onPressed: () => postImage(
-    //           userProvider.getUser.uid,
-    //           userProvider.getUser.username,
-    //           userProvider.getUser.photoUrl,
-    //         ),
-    //         child: const Text(
-    //           "Post",
-    //           style: TextStyle(
-    //               color: Colors.blueAccent,
-    //               fontWeight: FontWeight.bold,
-    //               fontSize: 16.0),
-    //         ),
-    //       )
-    //     ],
-    //   ),
-    //   // POST FORM
-    //   body: Column(
-    //     children: <Widget>[
-    //       isLoading
-    //           ? const LinearProgressIndicator()
-    //           : const Padding(padding: EdgeInsets.only(top: 0.0)),
-    //       const Divider(),
-    //       Row(
-    //         mainAxisAlignment: MainAxisAlignment.spaceAround,
-    //         crossAxisAlignment: CrossAxisAlignment.start,
-    //         children: <Widget>[
-    //           CircleAvatar(
-    //             backgroundImage: NetworkImage(
-    //               userProvider.getUser.photoUrl,
-    //             ),
-    //           ),
-    //           SizedBox(
-    //             width: MediaQuery.of(context).size.width * 0.3,
-    //             child: TextField(
-    //               controller: _descriptionController,
-    //               decoration: const InputDecoration(
-    //                   hintText: "Write a caption...",
-    //                   border: InputBorder.none),
-    //               maxLines: 8,
-    //             ),
-    //           ),
-    //           SizedBox(
-    //             height: 45.0,
-    //             width: 45.0,
-    //             child: AspectRatio(
-    //               aspectRatio: 487 / 451,
-    //               child: Container(
-    //                 decoration: BoxDecoration(
-    //                     image: DecorationImage(
-    //                       fit: BoxFit.fill,
-    //                       alignment: FractionalOffset.topCenter,
-    //                       image: MemoryImage(_file!),
-    //                     )),
-    //               ),
-    //             ),
-    //           ),
-    //         ],
-    //       ),
-    //       const Divider(),
-    //     ],
-    //   ),
-    // );
   }
 }

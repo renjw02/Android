@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -35,11 +36,58 @@ class _FeedScreenState extends State<FeedScreen> {
       isLoading = true;
     });
     super.initState();
-    // test = Stream<QuerySnapshot>.value(querySnapshot);
-    // _streamController = StreamController<QuerySnapshot>();
-    //将test加入到_streamController中
-    // _streamController.addStream(test);
+    getData();
     // _streamController = CustomStore.instance.collection<QuerySnapshot>("posts");
+  }
+
+  getData() async {
+    List<dynamic> data = await db.DataBaseManager().getPost();
+    List<Post> doc = await convertPost(data);
+    QuerySnapshot querySnapshot = QuerySnapshot(docs: doc, readTime: DateTime.now());
+    test = Stream<QuerySnapshot>.value(querySnapshot);
+    _streamController = StreamController<QuerySnapshot>();
+    //将test加入到_streamController中
+    _streamController.addStream(test);
+    setState(() {
+      isLoading = false;
+    });
+  }
+
+  Future<List<Post>> convertPost(List<dynamic> data) async {
+    List<Post> doc = [];
+    print(data);
+    for(var item in data){
+      print(item);
+      print(item.runtimeType);
+      // Map<String,dynamic>? data;
+      // data = await db.DataBaseManager().getThePost(item["id"]);
+      // //List<Uint8List> images = data['images'];
+      // print(data);
+      var asd = Post(
+        id:item["id"],
+        uid:item["userId"].toString(),
+        title:item["title"],
+        content:item["content"],
+        last_replied_user_id: item["lastRepliedUserId"].toString(),
+        last_replied_time:item["lastRepliedTime"],
+        created: item["created"],
+        updated: item["updated"],
+        type: item['type'] ,
+        position: "position",  //TODO
+        support_num: item["supportNum"],
+        comment_num: item["commentNum"],
+        star_num: item["starNum"],
+        font_size: item["fontSize"],
+        font_color:item["fontColor"],
+        font_weight: item["fontWeight"],
+        supportList: item["supportList"],
+        starList: item["starList"],
+        images: [],
+        videos: [],
+      );
+      doc.add(asd);
+    }
+    return doc;
   }
 
   @override

@@ -17,12 +17,3 @@ var feedsQueryUrl = Uri.parse("$serverIp:$serverPort/api/getpostlist");
 var noticeListQueryUrl = Uri.parse("$serverIp:$serverPort/api/notice/getnoticelist");
 
 
-List<Widget> homeScreenItems = [
-  const FeedScreen(),
-  const SearchScreen(),
-  const AddPostScreen(),
-  const NotificationScreen(),
-  ProfileScreen(
-    uid: CustomAuth.currentUser!.uid,
-  ),
-];
