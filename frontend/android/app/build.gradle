@@ -43,7 +43,7 @@ android {
 //        manifestPlaceholders = [
 //                AMAP_KEY : "9a57dc6e45fc979c00512d2057477f58", /// 高德地图key
 //        ]
-        minSdkVersion 20
+        minSdkVersion 21
         //minSdkVersion flutter.minSdkVersion
         targetSdkVersion flutter.targetSdkVersion
         versionCode flutterVersionCode.toInteger()

@@ -346,14 +346,19 @@ class DataBaseManager{
   }
 
   Future<String> createPost(String title,String content,int type,String position,int font_size,String font_color,
-  String font_weight,List<Uint8List?> files) async {
+  String font_weight,List<Uint8List?> files,List<int?> fileTypes) async {
     String res = "动态上传失败";
     try{
       List<MultipartFile> mfiles=[];
       int count=0;
       for(Uint8List? file in files){
         if(file != null){
-          mfiles.add(MultipartFile.fromBytes(file,filename:'${title}${count}.jpg',contentType: new MediaType("image", "jpeg")));
+          if(fileTypes[count]==0){
+            mfiles.add(MultipartFile.fromBytes(file,filename:'${title}${count}.jpg',contentType: new MediaType("image", "jpeg")));
+          }
+          else{
+            mfiles.add(MultipartFile.fromBytes(file,filename:'${title}${count}.mp4',contentType: new MediaType("video", "mp4")));
+          }
           count++;
         }
       }

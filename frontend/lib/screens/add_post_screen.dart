@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
@@ -7,10 +8,14 @@ import 'package:frontend/providers/user_provider.dart';
 import 'package:frontend/resources/textpost_methods.dart';
 import 'package:frontend/utils/colors.dart';
 import 'package:frontend/utils/utils.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:photo_view/photo_view.dart';
 import 'package:provider/provider.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:video_player/video_player.dart';
 
 import '../resources/database_methods.dart' as db;
+import '../widgets/full_Video.dart';
 
 class AddPostScreen extends StatefulWidget {
   const AddPostScreen({Key? key}) : super(key: key);
@@ -32,6 +37,10 @@ class _AddPostScreenState extends State<AddPostScreen> {
   final TextEditingController titlec = new TextEditingController();
   final TextEditingController contentc = new TextEditingController();
   List<Uint8List> photos = [];
+  List<Uint8List> videos = [];
+  List<Uint8List> files = [];
+  List<int> fileTypes = [];     //0为图片，1为视频
+  Map<int,Uint8List> videonails = {};   //视频缩略图
 
   @override
   void initState() {
@@ -84,11 +93,19 @@ class _AddPostScreenState extends State<AddPostScreen> {
   }
 
   _selectImage(BuildContext parentContext) async {
+    if(files.length==9){
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("最多只能添加9张图片或视频哦"),
+        ),
+      );
+      return;
+    }
     return showDialog(
       context: parentContext,
       builder: (BuildContext context) {
         return SimpleDialog(
-          title: const Text('更换头像'),
+          title: const Text('添加图片'),
           children: <Widget>[
             SimpleDialogOption(
                 padding: const EdgeInsets.all(20),
@@ -97,9 +114,10 @@ class _AddPostScreenState extends State<AddPostScreen> {
                   Navigator.pop(context);
                   Uint8List file = await pickImage(ImageSource.camera);
                   setState(() {
-                    _file = file;
-                    photos.add(file);
-                    print(photos.length);
+                    //photos.add(file);
+                    files.add(file);
+                    fileTypes.add(0);
+                    print(files.length);
                   });
                 }),
             SimpleDialogOption(
@@ -109,9 +127,9 @@ class _AddPostScreenState extends State<AddPostScreen> {
                   Navigator.of(context).pop();
                   Uint8List file = await pickImage(ImageSource.gallery);
                   setState(() {
-                    _file = file;
-                    photos.add(file);
-                    print(photos.length);
+                    files.add(file);
+                    fileTypes.add(0);
+                    print(files.length);
                   });
                 }),
             SimpleDialogOption(
@@ -127,41 +145,187 @@ class _AddPostScreenState extends State<AddPostScreen> {
     );
   }
 
-  buildTable(){
-    int count = 0;
-    if(photos==null){
-      return Center(
-        child: IconButton(
+  _selectVideo(BuildContext parentContext) async {
+    if(files.length==9){
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("最多只能添加9张图片或视频哦"),
+        ),
+      );
+      return;
+    }
+    return showDialog(
+      context: parentContext,
+      builder: (BuildContext context) {
+        return SimpleDialog(
+          title: const Text('添加视频'),
+          children: <Widget>[
+            SimpleDialogOption(
+                padding: const EdgeInsets.all(20),
+                child: const Text('录像'),
+                onPressed: () async {
+                  Navigator.pop(context);
+                  List<Uint8List> file = await pickVideo(ImageSource.camera);
+                  setState((){
+                    files.add(file[0]);
+                    fileTypes.add(1);
+                    print(files.length);
+                    videonails[files.length-1] = file[1];
+                  });
+                }),
+            SimpleDialogOption(
+                padding: const EdgeInsets.all(20),
+                child: const Text('上传本地视频'),
+                onPressed: () async {
+                  Navigator.of(context).pop();
+                  List<Uint8List> file = await pickVideo(ImageSource.gallery);
+                  setState((){
+                    files.add(file[0]);
+                    fileTypes.add(1);
+                    print(files.length);
+                    videonails[files.length-1] = file[1];
+                  });
+                }),
+            SimpleDialogOption(
+              padding: const EdgeInsets.all(20),
+              child: const Text("取消"),
+              onPressed: () {
+                Navigator.pop(context);
+              },
+            )
+          ],
+        );
+      },
+    );
+  }
+
+  buildTable() {
+    print("buildtable");
+    print(fileTypes);
+    if(files==null){
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          IconButton(
             icon: const Icon(
-              Icons.upload,
+              Icons.image,
             ),
             onPressed: ()async{
               await _selectImage(context);
               setState(() {});
             }
+         ),
+        IconButton(
+            icon: const Icon(
+              Icons.video_call,
+            ),
+            onPressed: ()async{
+              await _selectVideo(context);
+              setState(() {});
+            }
         ),
+        ]
       );
     }
     List<Container> arow = [];
-    for(var photo in photos){
-      arow.add(
-        Container(
-          margin: const EdgeInsets.all(10.0), // 设置边距
-          child: ListView(
-            shrinkWrap: true,
-            children:[
-              SizedBox(
-                height: MediaQuery.of(context).size.height * 0.12,
-                width: MediaQuery.of(context).size.width*0.1,
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(10.0), // 设置圆角半径
-                  child: Image.memory(photo,fit: BoxFit.fill),
-                ),
-              ),
-            ]
+    int count = 0;
+    for(var file in files){
+      if(fileTypes[count]==0){
+        arow.add(
+          Container(
+            margin: const EdgeInsets.all(10.0), // 设置边距
+            child: ListView(
+              shrinkWrap: true,
+              children:[
+                GestureDetector(
+                  onTap: () {
+                    Navigator.push(context,
+                      MaterialPageRoute(
+                        builder: (context) =>
+                          Scaffold(
+                            backgroundColor: Colors.black87,
+                            body: GestureDetector(
+                                child: Center(
+                                      child: PhotoView(
+                                        imageProvider: MemoryImage(file)
+                                      ),
+                                    ),
+                                onTap: () {
+                                  Navigator.pop(context);
+                                },
+                            )
+                          )
+                      )
+                    );
+                  },
+                  onDoubleTap: (){
+                    files.remove(file);
+                    setState(() {
+                    });
+                  },
+                  child:
+                    SizedBox(
+                      height: MediaQuery.of(context).size.height * 0.12,
+                      width: MediaQuery.of(context).size.width*0.1,
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(10.0), // 设置圆角半径
+                        child: Image.memory(file,fit: BoxFit.fill),
+                      ),
+                    ),
+                )
+              ]
+            )
+          ),
+        );
+      }
+      else{
+        print("get a video");
+        arow.add(
+          Container(
+            margin: const EdgeInsets.all(10.0), // 设置边距
+            child:ListView(
+              shrinkWrap: true,
+              children: [
+                GestureDetector(
+                  onTap: () {
+                    Navigator.push(context,
+                      MaterialPageRoute(
+                        builder: (context) => FullVideoWidget(videoFile: file),
+                      )
+                    );
+                  },
+                  onDoubleTap: (){
+                    files.remove(file);
+                    setState(() {
+                    });
+                  },
+                  child:
+                    SizedBox(
+                      height: MediaQuery.of(context).size.height * 0.12,
+                      width: MediaQuery.of(context).size.width*0.1,
+                      child:Stack(
+                          children:[
+                            Align(
+                              alignment: Alignment.center,
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(10.0), // 设置圆角半径
+                                child: Image.memory(videonails[count]!,fit: BoxFit.fill),
+                              ),
+                            ),
+                            Align(
+                              alignment: Alignment.center,
+                              child: Icon(Icons.play_circle,color: Colors.white,size: MediaQuery.of(context).size.width*0.1,),
+                            )
+                          ]
+                      )
+                    ),
+                )
+              ],
+            )
           )
-        ),
-      );
+        );
+      }
+      count++;
     }
     return Expanded(child:
     Column(
@@ -172,24 +336,29 @@ class _AddPostScreenState extends State<AddPostScreen> {
           shrinkWrap: true,
           children: arow,
         )),
-        Center(
-          child: IconButton(
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            IconButton(
               icon: const Icon(
-                Icons.upload,
+                Icons.image,
               ),
               onPressed: ()async{
                 await _selectImage(context);
                 setState(() {});
               }
-          ),
+            ),
+            IconButton(
+              icon: const Icon(
+                Icons.video_call,
+              ),
+              onPressed: ()async{
+                await _selectVideo(context);
+                setState(() {});
+              }
+            ),
+          ]
         ),
-        // Expanded(
-        //     child:GridView.count(
-        //   scrollDirection: Axis.vertical,
-        //   crossAxisCount: 3,
-        //   shrinkWrap: true,
-        //   children: arow,
-        // )),
       ]
     )
     );
@@ -237,22 +406,24 @@ class _AddPostScreenState extends State<AddPostScreen> {
       font_weight = FontWeight.w500;
       titlec.text = "";
       contentc.text = "";
-      photos = [];
+      //photos = [];
+      files = [];
+      fileTypes = [];
     });
   }
   
   void post() async {
     try{
       Map<String ,int> topic2type = {"校园资讯":1,"二手交易":2};
-      if(photos == null){
+      if(files == null){
         print("file is null");
       }
-      List<Uint8List?> files = photos;
+      List<Uint8List?> postfiles = files;
       print(topic2type[topicContent]!);
       Map<Color,String> colors = {Colors.red:"red",Colors.white:"white",Colors.yellow:"yellow"};
       Map<FontWeight,String> weights = {FontWeight.w300:"较细",FontWeight.w500:"适中",FontWeight.w700:"较粗"};
       String res = await db.DataBaseManager().createPost(titlec.text, contentc.text, topic2type[topicContent]!, "position",
-          font_size,colors[font_color]!,weights[font_weight]!,photos);
+          font_size,colors[font_color]!,weights[font_weight]!,postfiles,fileTypes);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(res),
@@ -268,6 +439,8 @@ class _AddPostScreenState extends State<AddPostScreen> {
           titlec.text = "";
           contentc.text = "";
           photos = [];
+          fileTypes = [];
+          files = [];
         });
       }
     }catch(e){
