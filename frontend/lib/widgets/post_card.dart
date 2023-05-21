@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import 'package:frontend/Auth/customAuth.dart';
 import 'package:frontend/models/user.dart' as model;
 import 'package:frontend/providers/user_provider.dart';
 import 'package:frontend/resources/textpost_methods.dart';
@@ -56,13 +57,13 @@ class _PostCardState extends State<PostCard> {
       userinfo = await dbm.getSomeMap(url);
       _file = await dbm.getPhoto(snap['uid']);
       print(snap['title']);
-      print(snap["images"]);
+      //print(snap["images"]);
       Map<String,dynamic>? data;
       data = await db.DataBaseManager().getThePost(snap["id"]);
       for(var image in data!['images']){
         photo.add(base64Decode(image));
       }
-      print(photo);
+      //print(photo);
     } catch (err) {
       showSnackBar(
         context,
@@ -138,8 +139,19 @@ class _PostCardState extends State<PostCard> {
 
   @override
   Widget build(BuildContext context) {
-    final model.User user = Provider.of<UserProvider>(context).getUser;
+    final model.User user = CustomAuth.currentUser;
     final width = MediaQuery.of(context).size.width;
+    print("post_card build");
+    print(user.following);
+    bool isFollowed = false;
+    for(var item in user.following){
+      print(item);
+      print(item.runtimeType);
+      if(item==widget.snap['uid']){
+        isFollowed = true;
+      }
+    }
+    print(isFollowed);
 
     return isLoading
         ? const Center(
@@ -205,6 +217,13 @@ class _PostCardState extends State<PostCard> {
                             fontWeight: FontWeight.bold,
                           ),
                         ),
+                        isFollowed?
+                        Text(
+                          "已关注",
+                          style: const TextStyle(
+                            color:secondaryColor,
+                          ),
+                        ):Container(),
                       ],
                     ),
                   ),

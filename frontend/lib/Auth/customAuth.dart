@@ -23,6 +23,7 @@ User fakeUser1 = User(
   photo: Uint8List(0),
   followers: [],
   following: [],
+  blockList: [],
 );
 User fakeUser2 = User(
   username: 'username2',
@@ -36,6 +37,7 @@ User fakeUser2 = User(
   photo: new Uint8List(0),
   followers: [],
   following: [],
+  blockList: [],
 );
 User fakeUser3 = User(
   username: 'username3',
@@ -49,6 +51,7 @@ User fakeUser3 = User(
   photo: new Uint8List(0),
   followers: [],
   following: [],
+  blockList: [],
 );
 User fakeUser4 = User(
   username: 'username4',
@@ -62,6 +65,7 @@ User fakeUser4 = User(
   photo: new Uint8List(0),
   followers: [],
   following: [],
+  blockList: [],
 );
 User fakeUser5 = User(
   username: 'username5',
@@ -75,6 +79,7 @@ User fakeUser5 = User(
   photo: new Uint8List(0),
   followers: [],
   following: [],
+  blockList: [],
 );
 User fakeUser6 = User(
   username: 'username6',
@@ -88,6 +93,7 @@ User fakeUser6 = User(
   photo: new Uint8List(0),
   followers: [],
   following: [],
+  blockList: [],
 );
 User fakeUser7 = User(
   username: 'username7',
@@ -101,6 +107,7 @@ User fakeUser7 = User(
   photo: new Uint8List(0),
   followers: [],
   following: [],
+  blockList: [],
 );
 User fakeUser8 = User(
   username: 'username8',
@@ -114,6 +121,7 @@ User fakeUser8 = User(
   photo: new Uint8List(0),
   followers: [],
   following: [],
+  blockList: [],
 );
 User fakeUser9 = User(
   username: 'username9',
@@ -127,6 +135,7 @@ User fakeUser9 = User(
   photo: new Uint8List(0),
   followers: [],
   following: [],
+  blockList: [],
 );
 
 
@@ -159,6 +168,7 @@ class CustomAuth {
     photo: Uint8List(0),
     followers: [],
     following: [],
+    blockList: [],
   );
 
   // Implement methods to sign in, sign out and register users
@@ -186,6 +196,10 @@ class CustomAuth {
         'followers': [],
         'following': [],
       };
+      String? temp = await storage.read(key: "following");
+      List<String> following = temp!.split(",");
+      String? temp2 = await storage.read(key: "blockList");
+      List<String> blockList = temp2!.split(",");
       CustomAuth.currentUser = User(
         username: data['username'] as String,
         password: data['password'] as String,
@@ -197,7 +211,8 @@ class CustomAuth {
         profile:data['profile'] as String,
         photo: Uint8List(0),
         followers: data['followers'] as List,
-        following: data['following'] as List,
+        following: following,
+        blockList: blockList,
       );
       Uint8List? _photo = await db.DataBaseManager().getPhoto(uid!);
       CustomAuth.currentUser = User(
@@ -211,7 +226,8 @@ class CustomAuth {
         profile:data['profile'] as String,
         photo: _photo!,
         followers: data['followers'] as List,
-        following: data['following'] as List,
+        following: following,
+        blockList: blockList,
       );
       return state;
     }
@@ -231,7 +247,8 @@ class CustomAuth {
         nickname: currentUser.nickname,
         profile: currentUser.profile,
         followers: currentUser.followers,
-        following: currentUser.following
+        following: currentUser.following,
+        blockList: currentUser.blockList,
     );
     print("customAuth"+currentUser.jwt);
     print(currentUser.username);
@@ -247,6 +264,14 @@ class CustomAuth {
       await storage.write(key: "password", value: currentUser.password);
       await storage.write(key: "nickname", value: currentUser.nickname);
       await storage.write(key: "profile", value: currentUser.profile);
+      String? result = null;
+      currentUser.following.forEach((string) =>
+      {if (result == null) result = string else result = '$result,$string'});
+      await storage.write(key:"following",value: result.toString());
+      result = null;
+      currentUser.blockList.forEach((string) =>
+      {if (result == null) result = string else result = '$result,$string'});
+      await storage.write(key:"blockList",value: result.toString());
     }
     return result;
   }
@@ -263,16 +288,6 @@ class CustomAuth {
       },);
       // await _client.post(Uri.parse('https://your-backend.com/signout'));
       await storage.write(key: "loginState", value: "Fail");
-      // await storage.write(key: "username", value: currentUser.username);
-      // await storage.write(key: "uid", value: currentUser.uid);
-      // await storage.write(key: "jwt", value: currentUser.jwt);
-      // await storage.write(key: "photoUrl", value: currentUser.photoUrl);
-      // await storage.write(key: "email", value: currentUser.email);
-      // await storage.write(key: "password", value: currentUser.password);
-      // await storage.write(key: "nickname", value: currentUser.nickname);
-      // await storage.write(key: "profile", value: currentUser.profile);
-      // _controller.add(null);
-      // _controller.close();
       return 'Success';
     } catch (e) {
       // Handle errors as needed

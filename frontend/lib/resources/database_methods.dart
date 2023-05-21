@@ -65,6 +65,33 @@ class DataBaseManager{
             profile:data['profile'] as String,
             followers: data['followers'] as List,
             following: data['following'] as List,
+            blockList: [],
+          );
+          url = Uri.parse(gv.ip+"/api/user/getfollowedlist/"+data['uid'] as String);
+          Map<String,dynamic> tempfollowing = await getSomeMap(url);
+          List<String> following = [];
+          for(var item in tempfollowing['followedList']){
+            following.add(item['followedUserId'].toString());
+          }
+          url = Uri.parse(gv.ip+"/api/user/getblockedlist/"+data['uid'] as String);
+          Map<String,dynamic> tempblock = await getSomeMap(url);
+          List<String> blockList = [];
+          for(var item in tempblock['blockedList']){
+            blockList.add(item['blockedUserId'].toString());
+          }
+          CustomAuth.currentUser = User(
+            username: data['username'] as String,
+            password: data['password'] as String,
+            uid: data['uid'] as String,
+            jwt: data['jwt'] as String,
+            photoUrl: data['photoUrl'] as String,
+            photo: Uint8List(0),
+            email: data['email'] as String,
+            nickname: data['nickname'] as String,
+            profile:data['profile'] as String,
+            followers: data['followers'] as List,
+            following: following,
+            blockList: blockList,
           );
           result = "Success";
         } else {
@@ -135,7 +162,8 @@ class DataBaseManager{
           nickname: nickname,
           profile: profile,
           followers: CustomAuth.currentUser.followers,
-          following: CustomAuth.currentUser.following);
+          following: CustomAuth.currentUser.following,
+          blockList: CustomAuth.currentUser.blockList);
           res = "Success";
         }
       }
@@ -167,7 +195,9 @@ class DataBaseManager{
             nickname: nickname,
             profile: profile,
             followers: CustomAuth.currentUser.followers,
-            following: CustomAuth.currentUser.following);
+            following: CustomAuth.currentUser.following,
+            blockList: CustomAuth.currentUser.blockList,
+          );
           res = "Success";
         }
         else{
@@ -246,24 +276,7 @@ class DataBaseManager{
   }
 
   Future<void> followUser(String uid) async {
-    var url = Uri.parse(gv.ip+"/api/user/register");
-    await _client.post(
-      url,
-      headers:{
-        HttpHeaders.authorizationHeader: CustomAuth.currentUser.jwt,
-        "content-type": ContentType.json.toString(),
-      },
-      // body: bodyParams,
-      body:jsonEncode({
-        "username":"username",
-        "nickname":"nickname",
-        "password":"password",
-      }),
-    ).then((http.Response response){
-      print(jsonDecode(response.body)['message']);
-      print(jsonDecode(response.body)['userId']);
-    });
-    url = Uri.parse(gv.ip+"/api/user/followuser/"+uid);
+    Uri url = Uri.parse(gv.ip+"/api/user/followuser/"+uid);
     await _client.post(
       url,
       headers:{
@@ -272,8 +285,61 @@ class DataBaseManager{
       },
     ).then((http.Response response){
       print(jsonDecode(response.body));
-      if(CustomAuth.currentUser.following.indexOf(jsonDecode(response.body)['followed_id']) == -1){
-        CustomAuth.currentUser.following.add(jsonDecode(response.body)['followed_id']);
+      if(CustomAuth.currentUser.following.indexOf(uid) == -1){
+        CustomAuth.currentUser.following.add(uid);
+        print(CustomAuth.currentUser.following);
+      }
+      print(jsonDecode(response.body)['message']);
+    });
+  }
+
+  Future<void> unFollowUser(String uid) async {
+    Uri url = Uri.parse(gv.ip+"/api/user/cancelfollow/"+uid);
+    await _client.post(
+      url,
+      headers:{
+        HttpHeaders.authorizationHeader: CustomAuth.currentUser.jwt,
+        "content-type": ContentType.json.toString(),
+      },
+    ).then((http.Response response){
+      print(jsonDecode(response.body));
+      if(CustomAuth.currentUser.following.indexOf(uid) != -1){
+        CustomAuth.currentUser.following.remove(uid);
+        print(CustomAuth.currentUser.following);
+      }
+      print(jsonDecode(response.body)['message']);
+    });
+  }
+  Future<void> blockUser(String uid) async {
+    Uri url = Uri.parse(gv.ip+"/api/user/blockuser/"+uid);
+    await _client.post(
+      url,
+      headers:{
+        HttpHeaders.authorizationHeader: CustomAuth.currentUser.jwt,
+        "content-type": ContentType.json.toString(),
+      },
+    ).then((http.Response response){
+      print(jsonDecode(response.body));
+      if(CustomAuth.currentUser.blockList.indexOf(uid) == -1){
+        CustomAuth.currentUser.blockList.add(uid);
+        print(CustomAuth.currentUser.blockList);
+      }
+      print(jsonDecode(response.body)['message']);
+    });
+  }
+  Future<void> unBlockUser(String uid) async {
+    Uri url = Uri.parse(gv.ip+"/api/user/cancelblock/"+uid);
+    await _client.post(
+      url,
+      headers:{
+        HttpHeaders.authorizationHeader: CustomAuth.currentUser.jwt,
+        "content-type": ContentType.json.toString(),
+      },
+    ).then((http.Response response){
+      print(jsonDecode(response.body));
+      if(CustomAuth.currentUser.blockList.indexOf(uid) != -1){
+        CustomAuth.currentUser.blockList.remove(uid);
+        print(CustomAuth.currentUser.blockList);
       }
       print(jsonDecode(response.body)['message']);
     });
@@ -413,7 +479,7 @@ class DataBaseManager{
     }
   }
 
-  Future<String> createNotice([int type=0,String? content = null,int noticeCreator= 1,int userId = 1]) async{
+  Future<String> createNotice([int type=0,String? content = null,int noticeCreator= 1,int userId = 2]) async{
     //把string的数字转成int
     int uid = int.parse(CustomAuth.currentUser.uid);
     content = content ?? "关注了你";

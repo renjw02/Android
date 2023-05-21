@@ -258,7 +258,12 @@ class UserService():
             where blacklist.user_id = {user_id}
             """
             blocked_result = db.session.execute(text(blocked_sql.format(user_id=user_id)))
-            blocked_list = [dict(zip(result.keys(), result)) for result in blocked_result]
+            column_names = blocked_result.keys()
+            blocked_list = []
+
+            for row in blocked_result.fetchall():
+                blocked_dict = dict(zip(column_names, row))
+                blocked_list.append(blocked_dict)
             return blocked_list, True
         except Exception as e:
             print(e)

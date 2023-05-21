@@ -15,6 +15,7 @@ class User {
   final String profile;
   final List followers;
   final List following;
+  final List blockList;
 
   User(
       {required this.username,
@@ -27,7 +28,8 @@ class User {
         required this.nickname,
         required this.profile,
         required this.followers,
-        required this.following});
+        required this.following,
+        required this.blockList});
 
   // static User fromSnap(DocumentSnapshot snap) {
   //   var snapshot = snap.data() as Map<String, dynamic>;
@@ -55,6 +57,7 @@ class User {
     "profile":profile,
     "followers": followers,
     "following": following,
+    "blockList":blockList,
   };
   data() {
     return {
@@ -69,6 +72,7 @@ class User {
       "profile":profile,
       "followers": followers,
       "following": following,
+      "blockList":blockList,
     };
   }
 }

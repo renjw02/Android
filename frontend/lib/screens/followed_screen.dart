@@ -10,6 +10,7 @@ import 'package:provider/provider.dart';
 
 import '../Auth/customAuth.dart';
 import '../resources/database_methods.dart' as db;
+import '../utils/global_variable.dart' as gv;
 
 class FollowedScreen extends StatefulWidget {
   final List<dynamic>? followedList;
@@ -84,9 +85,10 @@ class _FollowedScreenState extends State<FollowedScreen> {
     for(var item in followedList){
       print("start");
       print(item);
-      var url = Uri.parse("http://127.0.0.1:5000/api/user/user/"+item['followedUserId'].toString());
+      var url = Uri.parse(gv.ip+"/api/user/user/"+item['followedUserId'].toString());
       print(url);
       Map<String,dynamic> userinfo = await db.DataBaseManager().getSomeMap(url);
+      print(userinfo);
       Uint8List _photo = await db.DataBaseManager().getPhoto(item['followedUserId'].toString());
       rows.add(Row(
         mainAxisSize: MainAxisSize.min,
@@ -98,17 +100,26 @@ class _FollowedScreenState extends State<FollowedScreen> {
             MemoryImage(_photo),
             radius: 40,
           ),
-          TextButton(
-            onPressed:(){
-              Navigator.of(context).pushReplacement(
-                MaterialPageRoute(
-                  builder: (context) =>
-                  ProfileScreen(uid: item['followedUserId'].toString()),
-                ),
-              );
-            },
-            child:Text(userinfo['username']),
+          SizedBox(
+            width: 20.0,
           ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children:[
+              TextButton(
+                onPressed:(){
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) =>
+                      ProfileScreen(uid: item['followedUserId'].toString()),
+                    ),
+                  );
+                },
+                child:Text(userinfo['username'],style: TextStyle(fontWeight: FontWeight.bold),),
+              ),
+              Text(userinfo['profile']==null?"profile":userinfo['profile']),
+            ]
+          )
         ],
       ));
     }

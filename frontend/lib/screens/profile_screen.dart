@@ -32,6 +32,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
   int followers = 0;
   Map<String, dynamic> followed = {};
   bool isFollowed = false;
+  bool isBlocked = false;
   bool isLoading = false;
   String currentUserUid = "";
   Uint8List? _photo;
@@ -65,14 +66,15 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
       url = Uri.parse(gv.ip+"/api/user/getfollowerlist/"+widget.uid);
       userFollowers = await dbm.getSomeMap(url);
       print(userFollowers);
-      // print("followtest");
-      // await followtest();
       Map<String, dynamic> userFollowed={}; //获取我关注的人
       url = Uri.parse(gv.ip+"/api/user/getfollowedlist/"+widget.uid);
       userFollowed = await dbm.getSomeMap(url);
       print(userFollowed.runtimeType);
       print(userFollowed['followedList'].runtimeType);
       print(userFollowed['followedList'].length);
+      Map<String, dynamic> blockList={}; //获取屏蔽列表
+      url = Uri.parse(gv.ip+"/api/user/getblockedlist/"+currentUserUid);
+      blockList = await dbm.getSomeMap(url);
 
       print(userinfo);
       print(userinfo['id']);
@@ -90,6 +92,14 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
       print(followed['followedList'].length);
       print(userinfo['username']);
       if(userData['id'].toString() == currentUserUid){
+        List<String> tempfollowing = [];
+        for(var item in userFollowed['followedList']){
+          tempfollowing.add(item['followedUserId'].toString());
+        }
+        List<String> tempblock = [];
+        for(var item in blockList['blockedList']){
+          tempblock.add(item['blockedUserId'].toString());
+        }
         CustomAuth.currentUser = new User(
           username: CustomAuth.currentUser.username,
           uid: CustomAuth.currentUser.uid,
@@ -101,11 +111,26 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
           profile:CustomAuth.currentUser.profile,
           photo: CustomAuth.currentUser.photo,
           followers: userFollowers['followerList'],
-          following: userFollowed['followedList'],
+          following: tempfollowing,
+          blockList: tempblock,
         );
       }
-      isFollowed = userFollowers['followerList'].indexOf(currentUserUid) != -1;
+      isFollowed = false;
+      for(var item in userFollowers['followerList']){
+        if(item['followerId'].toString() == currentUserUid){
+          isFollowed = true;
+        }
+      }
+      isBlocked = false;
+      print(blockList);
+      for(var item in blockList['blockedList']){
+        if(item['blockedUserId'].toString() == widget.uid){
+          isBlocked = true;
+        }
+      }
+
       print(isFollowed);
+      print(isBlocked);
       //isFollowed = true;
       setState(() {});
     } catch (e) {
@@ -117,10 +142,6 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
     setState(() {
       isLoading = false;
     });
-  }
-  Future<void> followtest() async {
-    await db.DataBaseManager().followUser("2");
-    print("followtest");
   }
 
   @override
@@ -191,7 +212,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                                       Navigator.of(context).push(
                                         MaterialPageRoute(
                                           builder: (context) =>
-                                              FollowedScreen(followedList : CustomAuth.currentUser.following,),
+                                              FollowedScreen(followedList : followed['followedList'],),
                                           //const LoginScreen(),
                                         ),
                                       );
@@ -258,12 +279,11 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                                       ],
                                     )
                                 ),
-                                buildStatColumn(CustomAuth.currentUser.followers.length, "粉丝数"),
+                                buildStatColumn(followers, "粉丝数"),
                               ],
                             ),
                             Row(
-                              mainAxisAlignment:
-                              MainAxisAlignment.spaceEvenly,
+                              mainAxisAlignment:MainAxisAlignment.spaceEvenly,
                               children: [
                                 currentUserUid ==
                                     widget.uid
@@ -327,66 +347,73 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                                           },
                                         ):Text("你谁啊")
                                     ) ,]
-                                ): isFollowed
+                                ): Row(
+                                  children:[
+                                    isFollowed
                                     ? FollowButton(
-                                  text: '取消关注',
-                                  backgroundColor: Colors.white,
-                                  textColor: Colors.black,
-                                  borderColor: Colors.grey,
-                                  function: () async {
-                                    // await FireStoreMethods()
-                                    //     .followUser(
-                                    //   FirebaseAuth.instance
-                                    //       .currentUser!.uid,
-                                    //   userData['uid'],
-                                    // );
-                                    //  取消对当前信息页面用户的关注
-                                    setState(() {
-                                      isFollowed = false;
-                                      followers--;
-                                    });
-                                  },
-                                )
-                                    : FollowButton(
-                                  text: '关注',
-                                  backgroundColor: Colors.blue,
-                                  textColor: Colors.white,
-                                  borderColor: Colors.blue,
-                                  function: () async {
-                                    // await FireStoreMethods()
-                                    //     .followUser(
-                                    //   FirebaseAuth.instance
-                                    //       .currentUser!.uid,
-                                    //   userData['uid'],
-                                    // );
-                                    //  关注当前信息页面用户
+                                    text: '取消关注',
+                                    backgroundColor: Colors.white,
+                                    textColor: Colors.black,
+                                    borderColor: Colors.grey,
+                                    function: () async {
+                                      //  取消对当前信息页面用户的关注
+                                      await db.DataBaseManager().unFollowUser(widget.uid);
+                                      setState(() {
+                                        isFollowed = false;
+                                        followers--;
+                                      });
+                                    },
+                                  )
+                                      : FollowButton(
+                                    text: '关注',
+                                    backgroundColor: Colors.blue,
+                                    textColor: Colors.white,
+                                    borderColor: Colors.blue,
+                                    function: () async {
+                                      //  关注当前信息页面用户
+                                      await db.DataBaseManager().followUser(widget.uid);
+                                      setState(() {
+                                        isFollowed = true;
+                                        followers++;
+                                      });
+                                    },
+                                  ),isBlocked
+                                        ? FollowButton(
+                                      text: '取消屏蔽',
+                                      backgroundColor: Colors.white,
+                                      textColor: Colors.black,
+                                      borderColor: Colors.grey,
+                                      function: () async {
+                                        //  取消对当前信息页面用户的关注
+                                        await db.DataBaseManager().unBlockUser(widget.uid);
+                                        setState(() {
+                                          isBlocked = false;
+                                        });
+                                      },
+                                    )
+                                        : FollowButton(
+                                      text: '屏蔽',
+                                      backgroundColor: Colors.blue,
+                                      textColor: Colors.white,
+                                      borderColor: Colors.blue,
+                                      function: () async {
+                                        //  关注当前信息页面用户
+                                        await db.DataBaseManager().blockUser(widget.uid);
+                                        setState(() {
+                                          isBlocked = true;
+                                        });
+                                      },
+                                    )
 
-                                    setState(() {
-                                      isFollowed = true;
-                                      followers++;
-                                    });
-                                  },
-                                )
-                              ],
+                                ],
+                              )
+                              ]
                             ),
                           ],
                         ),
                       ),
                     ],
                   ),
-                  // Container(
-                  //   alignment: Alignment.centerLeft,
-                  //   padding: const EdgeInsets.only(
-                  //     top: 15,
-                  //   ),
-                  //   child: Text(
-                  //     // userData['username'],  //TODO
-                  //     userData['nickname'],  //TODO
-                  //     style: TextStyle(
-                  //       fontWeight: FontWeight.bold,
-                  //     ),
-                  //   ),
-                  // ),
                   Container(
                     alignment: Alignment.centerLeft,
                     padding: const EdgeInsets.only(
