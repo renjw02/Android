@@ -231,97 +231,151 @@ class _AddPostScreenState extends State<AddPostScreen> {
     int count = 0;
     for(var file in files){
       if(fileTypes[count]==0){
+        int temp = count;
         arow.add(
           Container(
             margin: const EdgeInsets.all(10.0), // 设置边距
-            child: ListView(
-              shrinkWrap: true,
-              children:[
-                GestureDetector(
-                  onTap: () {
-                    Navigator.push(context,
-                      MaterialPageRoute(
-                        builder: (context) =>
-                          Scaffold(
-                            backgroundColor: Colors.black87,
-                            body: GestureDetector(
-                                child: Center(
-                                      child: PhotoView(
-                                        imageProvider: MemoryImage(file)
-                                      ),
-                                    ),
-                                onTap: () {
-                                  Navigator.pop(context);
-                                },
-                            )
-                          )
+            child:GestureDetector(
+              onTap: () {
+                Navigator.push(context,
+                  MaterialPageRoute(
+                    builder: (context) =>
+                      Scaffold(
+                        backgroundColor: Colors.black87,
+                        body: GestureDetector(
+                          child: Center(
+                            child: PhotoView(
+                              imageProvider: MemoryImage(file)
+                            ),
+                          ),
+                          onTap: () {
+                            Navigator.pop(context);
+                          },
+                        )
                       )
-                    );
-                  },
-                  onDoubleTap: (){
-                    files.remove(file);
-                    setState(() {
-                    });
-                  },
-                  child:
-                    SizedBox(
-                      height: MediaQuery.of(context).size.height * 0.12,
-                      width: MediaQuery.of(context).size.width*0.1,
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(10.0), // 设置圆角半径
-                        child: Image.memory(file,fit: BoxFit.fill),
-                      ),
-                    ),
-                )
-              ]
+                  )
+                );
+              },
+              onDoubleTap: (){
+                files.removeAt(temp);
+                fileTypes.removeAt(temp);
+                setState(() {
+                });
+              },
+              child:
+              ClipRRect(
+                  borderRadius: BorderRadius.circular(10.0), // 设置圆角半径
+                  child: SizedBox(
+                    height: MediaQuery.of(context).size.height * 0.2,
+                    width: MediaQuery.of(context).size.width*0.3,
+                    child: Image.memory(file,fit: BoxFit.cover),
+                  )
+              ),
             )
           ),
         );
       }
       else{
         print("get a video");
+        int temp = count;
         arow.add(
           Container(
             margin: const EdgeInsets.all(10.0), // 设置边距
-            child:ListView(
-              shrinkWrap: true,
-              children: [
-                GestureDetector(
-                  onTap: () {
-                    Navigator.push(context,
+              child:GestureDetector(
+                onTap: () {
+                  Navigator.push(context,
                       MaterialPageRoute(
                         builder: (context) => FullVideoWidget(videoFile: file),
                       )
-                    );
-                  },
-                  onDoubleTap: (){
-                    files.remove(file);
-                    setState(() {
-                    });
-                  },
-                  child:
-                    SizedBox(
-                      height: MediaQuery.of(context).size.height * 0.12,
-                      width: MediaQuery.of(context).size.width*0.1,
-                      child:Stack(
-                          children:[
-                            Align(
-                              alignment: Alignment.center,
-                              child: ClipRRect(
-                                borderRadius: BorderRadius.circular(10.0), // 设置圆角半径
-                                child: Image.memory(videonails[count]!,fit: BoxFit.fill),
-                              ),
-                            ),
-                            Align(
-                              alignment: Alignment.center,
-                              child: Icon(Icons.play_circle,color: Colors.white,size: MediaQuery.of(context).size.width*0.1,),
-                            )
-                          ]
-                      )
+                  );
+                },
+                onDoubleTap: (){
+                  files.removeAt(temp);
+                  fileTypes.removeAt(temp);
+                  videonails.remove(temp);
+                  setState(() {
+                  });
+                },
+                child:
+                Stack(
+                  children: [
+                    Align(
+                      alignment: Alignment.center,
+                      child:
+                      ClipRRect(
+                          borderRadius: BorderRadius.circular(10.0), // 设置圆角半径
+                          child: SizedBox(
+                            height: MediaQuery.of(context).size.height * 0.2,
+                            width: MediaQuery.of(context).size.width*0.3,
+                            child: Image.memory(videonails[count]!,fit: BoxFit.cover),
+                          )
+                      ),
                     ),
+                    Align(
+                      alignment: Alignment.topLeft,
+                      child: Icon(Icons.play_circle,color: Colors.white,size: MediaQuery.of(context).size.width*0.1,),
+                    )
+                  ],
                 )
-              ],
-            )
+                // SizedBox(
+                //     height: MediaQuery.of(context).size.height * 0.12,
+                //     width: MediaQuery.of(context).size.width*0.1,
+                //     child:Stack(
+                //         children:[
+                //           Align(
+                //             alignment: Alignment.center,
+                //             child: ClipRRect(
+                //               borderRadius: BorderRadius.circular(10.0), // 设置圆角半径
+                //               child: Image.memory(videonails[count]!,fit: BoxFit.fill),
+                //             ),
+                //           ),
+                //           Align(
+                //             alignment: Alignment.center,
+                //             child: Icon(Icons.play_circle,color: Colors.white,size: MediaQuery.of(context).size.width*0.1,),
+                //           )
+                //         ]
+                //     )
+                // ),
+              )
+            // child:ListView(
+            //   shrinkWrap: true,
+            //   children: [
+            //     GestureDetector(
+            //       onTap: () {
+            //         Navigator.push(context,
+            //           MaterialPageRoute(
+            //             builder: (context) => FullVideoWidget(videoFile: file),
+            //           )
+            //         );
+            //       },
+            //       onDoubleTap: (){
+            //         files.remove(file);
+            //         setState(() {
+            //         });
+            //       },
+            //       child:
+            //         SizedBox(
+            //           height: MediaQuery.of(context).size.height * 0.12,
+            //           width: MediaQuery.of(context).size.width*0.1,
+            //           child:Stack(
+            //               children:[
+            //                 Align(
+            //                   alignment: Alignment.center,
+            //                   child: ClipRRect(
+            //                     borderRadius: BorderRadius.circular(10.0), // 设置圆角半径
+            //                     child: Image.memory(videonails[count]!,fit: BoxFit.fill),
+            //                   ),
+            //                 ),
+            //                 Align(
+            //                   alignment: Alignment.center,
+            //                   child: Icon(Icons.play_circle,color: Colors.white,size: MediaQuery.of(context).size.width*0.1,),
+            //                 )
+            //               ]
+            //           )
+            //         ),
+            //     )
+            //   ],
+            // )
           )
         );
       }

@@ -20,15 +20,29 @@ pickVideo(ImageSource source) async {
   final ImagePicker _imagePicker = ImagePicker();
   XFile? _file = await _imagePicker.pickVideo(source: source);
   if (_file != null) {
-    File videoThumbnailFile = await _getVideoThumbnail(_file!);
+    File videoThumbnailFile = await getVideoThumbnail(_file!);
     return [await _file.readAsBytes(),await videoThumbnailFile.readAsBytes()];
   }
   print('No Video Selected');
 }
 
-Future<File> _getVideoThumbnail(XFile videoFile) async {
+Future<File> getVideoThumbnail(XFile videoFile) async {
   Uint8List? thumbnail = await VideoThumbnail.thumbnailData(
     video: videoFile.path,
+    imageFormat: ImageFormat.JPEG,
+    quality: 25,
+  );
+  var tempDir = await getTemporaryDirectory();
+  //生成file文件格式
+  String videoThumbnail = '${tempDir.path}/image_${DateTime.now().millisecond}.jpg';
+  var file = await File(videoThumbnail).create();
+  file.writeAsBytesSync(thumbnail!);
+  return file;
+}
+
+Future<File> getVideoThumbnail2(File videoFile,String videoPath) async {
+  Uint8List? thumbnail = await VideoThumbnail.thumbnailData(
+    video: videoPath,
     imageFormat: ImageFormat.JPEG,
     quality: 25,
   );
@@ -48,3 +62,5 @@ showSnackBar(BuildContext context, String text) {
     ),
   );
 }
+
+

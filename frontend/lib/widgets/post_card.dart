@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'dart:typed_data';
+import 'dart:io';
 
+import 'package:cross_file/src/types/interface.dart';
 import 'package:flutter/material.dart';
 import 'package:frontend/Auth/customAuth.dart';
 import 'package:frontend/models/user.dart' as model;
@@ -13,10 +15,12 @@ import 'package:frontend/utils/global_variable.dart';
 import 'package:frontend/utils/utils.dart';
 import 'package:frontend/widgets/like_animation.dart';
 import 'package:intl/intl.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 
 import '../utils/global_variable.dart' as gv;
 import '../resources/database_methods.dart' as db;
+import '../utils/utils.dart' as ut;
 
 class PostCard extends StatefulWidget {
   final snap;
@@ -39,6 +43,8 @@ class _PostCardState extends State<PostCard> {
   Map<String,FontWeight> weights = {"较细":FontWeight.w300,"适中":FontWeight.w500,"较粗":FontWeight.w700};
   bool isLoading = false;
   List<dynamic> photo = [];
+  List<int> fileTyeps = [];
+
 
   @override
   void initState() {
@@ -62,6 +68,21 @@ class _PostCardState extends State<PostCard> {
       data = await db.DataBaseManager().getThePost(snap["id"]);
       for(var image in data!['images']){
         photo.add(base64Decode(image));
+        fileTyeps.add(0);
+      }
+      if(photo.length<3){
+        for(var video in data!['videos']){
+          var tempDir = await getTemporaryDirectory();
+          //生成file文件格式
+          String filePath = '${tempDir.path}/video_${DateTime.now().millisecond}.mp4';
+          var file = await File(filePath).create();
+          //转成file文件
+          file.writeAsBytesSync(base64Decode(video));
+          File thumbnail = await ut.getVideoThumbnail2(file,filePath);
+          Uint8List temp = await thumbnail.readAsBytes();
+          photo.add(temp);
+          fileTyeps.add(1);
+        }
       }
       //print(photo);
     } catch (err) {
@@ -86,6 +107,7 @@ class _PostCardState extends State<PostCard> {
     }
   }
   buildImages(List<dynamic>? images){
+    print("buildimages");
     List<Container> widgets = [];
     if(images==null){
       return Row(
@@ -95,6 +117,7 @@ class _PostCardState extends State<PostCard> {
       );
     }
     int count=0;
+    print(fileTyeps);
     for(Uint8List image in images!){
       if(count==3){
         count++;
@@ -105,19 +128,77 @@ class _PostCardState extends State<PostCard> {
         );
         break;
       }
-      widgets.add(
-        Container(
-          //margin: const EdgeInsets.all(10.0), // 设置边距
-          child: SizedBox(
-            height: MediaQuery.of(context).size.height * 0.3,
-            width: MediaQuery.of(context).size.width*0.3,
-            child: ClipRRect(
+      if(fileTyeps[count]==0){
+        widgets.add(
+          Container(
+            padding: const EdgeInsets.all(10.0), // 设置边距
+            child:
+              ClipRRect(
                 borderRadius: BorderRadius.circular(20.0), // 设置圆角半径
-                child: Image.memory(image,fit: BoxFit.fitWidth),
-            ),
+                child: SizedBox(
+                  height: MediaQuery.of(context).size.height * 0.2,
+                  width: MediaQuery.of(context).size.width*0.3,
+                  child: Image.memory(image,fit: BoxFit.cover),
+                )
+              ),
           ),
-        ),
-      );
+        );
+      }
+      else{
+        widgets.add(
+          Container(
+            //margin: const EdgeInsets.all(10.0), // 设置边距
+            child:Stack(
+              children: [
+                ClipRRect(
+                    borderRadius: BorderRadius.circular(20.0), // 设置圆角半径
+                    child: SizedBox(
+                      height: MediaQuery.of(context).size.height * 0.2,
+                      width: MediaQuery.of(context).size.width*0.3,
+                      child: Image.memory(image,fit: BoxFit.cover),
+                    )
+                ),
+                // Align(
+                //   alignment: Alignment.center,
+                //   child:
+                //     ClipRRect(
+                //         borderRadius: BorderRadius.circular(20.0), // 设置圆角半径
+                //         child: SizedBox(
+                //           height: MediaQuery.of(context).size.height * 0.2,
+                //           width: MediaQuery.of(context).size.width*0.3,
+                //           child: Image.memory(image,fit: BoxFit.cover),
+                //         )
+                //     ),
+                // ),
+                Align(
+                  alignment: Alignment.bottomRight,
+                  child: Icon(Icons.play_circle,color: Colors.white,size: MediaQuery.of(context).size.width*0.1,),
+                )
+              ],
+            )
+            // child: SizedBox(
+            //     height: MediaQuery.of(context).size.height * 0.3,
+            //     width: MediaQuery.of(context).size.width*0.3,
+            //     child:Stack(
+            //         children:[
+            //           Align(
+            //             alignment: Alignment.center,
+            //             child: ClipRRect(
+            //               clipper: ClipperRPath(),
+            //               borderRadius: BorderRadius.circular(20.0), // 设置圆角半径
+            //               child: Image.memory(image,fit: BoxFit.cover),
+            //             ),
+            //           ),
+            //           Align(
+            //             alignment: Alignment.center,
+            //             child: Icon(Icons.play_circle,color: Colors.white,size: MediaQuery.of(context).size.width*0.1,),
+            //           )
+            //         ]
+            //     )
+            // ),
+          ),
+        );
+      }
       count++;
     }
     if(count==4){
@@ -493,3 +574,5 @@ class _PostCardState extends State<PostCard> {
     );
   }
 }
+
+
