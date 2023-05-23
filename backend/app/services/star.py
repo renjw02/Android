@@ -27,9 +27,9 @@ class StarService():
             print(e)
             return "error", False
         
-    def cancel_collection(self, star_id, post_id):
+    def cancel_collection(self, user_id, post_id):
         try:
-            db.session.query(Star).filter(Star.id == star_id).delete()
+            db.session.query(Star).filter(and_(Star.user_id == user_id, Star.post_id == post_id)).delete()
             db.session.query(Post).filter(Post.id == post_id).update({
                 "starNum": Post.star_num - 1
             })
@@ -67,9 +67,9 @@ class StarService():
             print(e)
             return False
         
-    def check_collection(self, star_id):
+    def check_collection(self, user_id, post_id):
         try:
-            s = Star.query.filter(Star.id == star_id).first()
+            s = Star.query.filter(and_(Star.user_id == user_id, Star.post_id == post_id)).first()
             if s is None:
                 return False
             else:

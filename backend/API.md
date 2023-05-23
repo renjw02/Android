@@ -758,7 +758,7 @@ def cancel_collection():
   ```
   {
   	"post_id"
-  	"collection_id"
+  	"user_id"
   }
   ```
 + 返回：json + 状态码
