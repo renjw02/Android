@@ -49,9 +49,9 @@ def cancel_collection():
         content = request.get_json()
         if content is None:
             return jsonify({'message': "no content"}), 400
-        result = service.check_collection(content['collection_id'])
+        result = service.check_collection(content['user_id'], content['post_id'])
 
-        flag = service.cancel_collection(content['collection_id'], content['post_id'])
+        flag = service.cancel_collection(content['user_id'], content['post_id'])
         if flag:
             return jsonify({
                 'message': "ok",

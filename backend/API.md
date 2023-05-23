@@ -837,7 +837,7 @@ def cancel_collection():
   ```
   {
   	"post_id"
-  	"collection_id"
+  	"user_id"
   }
   ```
 
