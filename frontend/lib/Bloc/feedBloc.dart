@@ -12,10 +12,18 @@ class FeedsBloc implements Bloc {
   QuerySnapshot get selectedQuery => _querySnapshot;
 
   // 1
-  final _queryController = StreamController<QuerySnapshot>();
+  final _queryController = StreamController<QuerySnapshot>.broadcast();
 
   // 2
-  Stream<QuerySnapshot> get queryStream => _queryController.stream;
+  Stream<QuerySnapshot> get queryStream => _queryController.stream.asBroadcastStream()!;
+
+  FeedsBloc(String arg) {
+    // queryStream = _queryController.stream.asBroadcastStream();
+    print('Creating FeedsBloc object');
+    print(arg);
+    print('FeedsBloc object created');
+    submitQuery();
+  }
 
   // 3
   void selectQuery(QuerySnapshot querySnapshot) {
@@ -24,14 +32,18 @@ class FeedsBloc implements Bloc {
   }
 
   void submitQuery() async {
+    print('Submitting query...');
     QuerySnapshot querySnapshot = await db.DataBaseManager().feedsQuery();
     _queryController.sink.add(querySnapshot);
+    _querySnapshot = querySnapshot;
+    print('Query submitted');
     // selectQuery(querySnapshot);
   }
 
   // 4
   @override
   void dispose() {
+    print('Disposing FeedsBloc object');
     _queryController.close();
   }
 }

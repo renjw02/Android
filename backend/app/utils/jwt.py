@@ -52,6 +52,8 @@ def verify_jwt(token):
 
     try:
         payload = jwt.decode(token, secret, algorithms=['HS256'])
+        print("payload");
+        print(payload)
     except Exception as e:
         print(e)
         payload = None

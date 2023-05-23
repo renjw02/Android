@@ -7,7 +7,7 @@ from sqlalchemy import and_, or_, text
 
 from app.extension import db
 from app.models import Post, Comment, User, Picture, Video, Support
-import sys
+import sys,os
 
 class PostService():
     
@@ -276,6 +276,8 @@ class PostService():
             print("asd")
             for row in comment_result.fetchall():
                 comment_dict = dict(zip(column_names, row))
+                comment_dict["created"] = comment_dict["created"][:16]
+                comment_dict["updated"] = comment_dict["updated"][:16]
                 comment_list.append(comment_dict)
             print("asd")
             # post = [dict(zip(result.keys(), result))
@@ -303,7 +305,6 @@ class PostService():
         except Exception as e:
             print(e)
             return None, False
-
 
     def get_comment(self, comment_id):
         try:
@@ -424,6 +425,26 @@ class PostService():
             print(e)
             return [], False
         
+    def get_post_imageUrls(self, post_id):
+        try:
+            # 查询指定帖子的所有图片
+            sql = """
+            SELECT path
+            FROM picture
+            WHERE post_id = :post_id
+            """
+            results = db.session.execute(text(sql), {'post_id': post_id})
+            # 获取查询结果中的图片路径
+            image_paths = [result[0] for result in results]
+
+            # 从图片路径中提取图片名称，并将名称替换回路径
+            image_names = [os.path.basename(path) for path in image_paths]
+            print(image_names)
+            return image_names, True
+        except Exception as e:
+            print(e)
+            return [], False
+        
     def get_videos(self, post_id):
         try:
             sql = """
@@ -440,6 +461,14 @@ class PostService():
                 videos.append(video_dict)
             # videos = [dict(zip(result.keys(), result)) for result in results]
             return videos, True
+        except Exception as e:
+            print(e)
+            return [], False
+        
+    def get_videoUrls(self, post_id):
+        try:
+            p = Post.query.filter(Post.id == post_id).first();
+            return [video.path for video in p.videos], True
         except Exception as e:
             print(e)
             return [], False

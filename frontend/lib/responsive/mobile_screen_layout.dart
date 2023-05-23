@@ -6,6 +6,7 @@ import 'package:frontend/utils/global_variable.dart';
 
 import '../screens/add_post_screen.dart';
 import '../screens/feed_screen.dart';
+import '../screens/feeds_screen.dart';
 import '../screens/notification_screen.dart';
 import '../screens/profile_screen.dart';
 import '../screens/search_screen.dart';
@@ -49,16 +50,16 @@ class _MobileScreenLayoutState extends State<MobileScreenLayout> {
     print("moible:"+CustomAuth.currentUser.uid);
     return Scaffold(
       body: PageView(
+        controller: pageController,
+        onPageChanged: onPageChanged,
         children:
         [
-          const FeedScreen(),
+          FeedsScreen(cateFilters: [],timeFilters: [],sortFilters: [],),
           const SearchScreen(),
           const AddPostScreen(),
           const NotificationScreen(),
           ProfileScreen(uid: CustomAuth.currentUser.uid,),
         ],
-        controller: pageController,
-        onPageChanged: onPageChanged,
       ),
       bottomNavigationBar: CupertinoTabBar(
         backgroundColor: mobileBackgroundColor,

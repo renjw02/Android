@@ -10,55 +10,59 @@ import 'package:frontend/widgets/post_card.dart';
 import '../models/DocumentSnapshot.dart';
 import '../models/post.dart';
 import '../models/querySnapshot.dart';
-Post post1 = Post(
-  id: 1,
-  uid:"1",
-  title:"title1",
-  content: "content1",
-  last_replied_user_id: "1",
-  last_replied_time: "time",
-  created:"time",
-  updated: "time",
-  type:1,
-  position: "position",
-  support_num: 7,
-  comment_num: 7,
-  star_num: 7,
-  font_size:16,
-  font_color: "white",
-  font_weight: "适中",
-  supportList: ["-1"],
-  starList: ["-1"],
-  images: [],
-  videos: [],
-);
-Post post2 = Post(
-  id: 2,
-  uid:"1",
-  title:"title2",
-  content: "content2",
-  last_replied_user_id: "1",
-  last_replied_time: "time",
-  created:"time",
-  updated: "time",
-  type:1,
-  position: "position",
-  support_num: 7,
-  comment_num: 7,
-  star_num: 7,
-  font_size:16,
-  font_color: "white",
-  font_weight: "适中",
-  supportList: ["-1"],
-  starList: ["-1"],
-  images: [],
-  videos: [],
-);
+// Post post1 = Post(
+//   id: 1,
+//   userId:"1",
+//   title:"title1",
+//   nickname: "nickname1",
+//   comments: [2],
+//   content: "content1",
+//   last_replied_user_id: "1",
+//   last_replied_time: "time",
+//   created:"time",
+//   updated: "time",
+//   type:1,
+//   position: "position",
+//   support_num: 7,
+//   comment_num: 7,
+//   star_num: 7,
+//   font_size:16,
+//   font_color: "white",
+//   font_weight: "适中",
+//   supportList: ["-1"],
+//   starList: ["-1"],
+//   images: [],
+//   videos: [],
+// );
+// Post post2 = Post(
+//   id: 2,
+//   userId:"1",
+//   title:"title2",
+//   nickname: "nickname2",
+//   comments: [],
+//   content: "content2",
+//   last_replied_user_id: "1",
+//   last_replied_time: "time",
+//   created:"time",
+//   updated: "time",
+//   type:1,
+//   position: "position",
+//   support_num: 7,
+//   comment_num: 7,
+//   star_num: 7,
+//   font_size:16,
+//   font_color: "white",
+//   font_weight: "适中",
+//   supportList: ["-1"],
+//   starList: ["-1"],
+//   images: [],
+//   videos: [],
+// );
 
-List<Post> doc1 = [post1,post2];
+// List<Post> doc1 = [post1,post2];
 
 //初始化一个QuerySnapshot对象
-QuerySnapshot querySnapshot = QuerySnapshot(docs: doc1, readTime: DateTime.now());
+// QuerySnapshot querySnapshot = QuerySnapshot(docs: doc1, readTime: DateTime.now());
 
 
 
@@ -74,7 +78,7 @@ class _CommentsScreenState extends State<CommentsScreen> {
   @override
   void initState() {
     super.initState();
-    test = Stream<QuerySnapshot>.value(querySnapshot);
+    // test = Stream<QuerySnapshot>.value(querySnapshot);
     _streamController = StreamController<QuerySnapshot>();
     //将test加入到_streamController中
     _streamController.addStream(test);

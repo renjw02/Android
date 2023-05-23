@@ -128,6 +128,19 @@ def get_post_detail(postId):
     except:
         return jsonify({'message': "exception!"}), 400
 
+# 获取指定帖子的图片列表
+@bp.route('/getpictureslist/<int:postId>', methods=['GET'])
+@login_required
+def get_pictures(postId):
+    """
+    获取某个帖子的所有图片地址
+    """
+    image_urls,hasUrls  = service.get_post_imageUrls(postId)
+    print(image_urls)
+    if hasUrls:
+        return jsonify(image_urls)
+    else:
+        return jsonify({'message': "error"}), 500
 
 # 获取一页的帖子列表
 # 分类：全部、已关注用户、热门、类型
@@ -302,6 +315,35 @@ def delete_comment(commentId):
     except:
         return jsonify({'message': "exception!"}), 400
 
+# 添加评论
+# @bp.route('/addcomment/<int:postId>/<int:commentId>', methods=['POST'])
+# @login_required
+# def add_comment(postId, commentId):
+#     try:
+#         if postId == 0:
+#             return jsonify({'message': "not a post"}), 400
+#         if commentId == 0:
+#             return jsonify({'message': "not a comment"}), 400
+#         comment ,flag = service.get_comment(commentId)
+#         if not flag:
+#             return jsonify({'message': "comment not found"}), 500
+#         else:
+#             # 找到对应的帖子,给帖子的comments数据加上这个评论
+#             post, flag = service.get_post_detail(postId)
+#             if not flag:
+#                 return jsonify({'message': "post not found"}), 500
+#             else:
+#                 post['comment'].append(comment)
+#                 result = service.update_post(post['title'], post['content'], postId, 
+#                                      post['position'], post['font_size'], 
+#                                      post['font_color'], post['font_weight'])
+#                 if result:
+#                     return jsonify({'message': "ok"}), 200
+#                 else:
+#                     return jsonify({'message': "error"}), 500
+#     except:
+#         return jsonify({'message': "exception!"}), 400
+    
 
 # 获取回复
 @bp.route('/getcomment/<int:commentId>', methods=['GET'])

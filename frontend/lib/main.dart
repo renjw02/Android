@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/providers/user_provider.dart';
+import 'package:frontend/resources/feeds_db_provider.dart';
 import 'package:frontend/responsive/mobile_screen_layout.dart';
 import 'package:frontend/responsive/responsive_layout.dart';
 import 'package:frontend/responsive/web_screen_layout.dart';
@@ -10,8 +11,9 @@ import 'package:provider/provider.dart';
 import 'Auth/customAuth.dart';
 
 void main() async {
-  final CustomAuth _auth = CustomAuth();
   WidgetsFlutterBinding.ensureInitialized();
+  final CustomAuth _auth = CustomAuth();
+  dbProvider = FeedsDbProvider();
   runApp(MyApp(auth: _auth,));
 }
 

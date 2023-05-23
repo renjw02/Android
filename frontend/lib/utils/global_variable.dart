@@ -17,3 +17,19 @@ var feedsQueryUrl = Uri.parse("$serverIp:$serverPort/api/getpostlist");
 var noticeListQueryUrl = Uri.parse("$serverIp:$serverPort/api/notice/getnoticelist");
 
 
+enum FeedsFilter { all, top, hot, follow, other }
+
+FeedsFilter stringToNewsFilter(String filter) {
+  switch (filter) {
+    case 'all':
+      return FeedsFilter.all;
+    case 'top':
+      return FeedsFilter.top;
+    case 'hot':
+      return FeedsFilter.hot;
+    case 'follow':
+      return FeedsFilter.follow;
+    default:
+      return FeedsFilter.other;
+  }
+}

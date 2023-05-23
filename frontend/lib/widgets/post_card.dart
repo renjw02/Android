@@ -13,7 +13,8 @@ import 'package:frontend/utils/utils.dart';
 import 'package:frontend/widgets/like_animation.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-
+import 'package:cached_network_image/cached_network_image.dart';
+import '../Auth/customAuth.dart';
 import '../utils/global_variable.dart' as gv;
 import '../resources/database_methods.dart' as db;
 
@@ -38,7 +39,7 @@ class _PostCardState extends State<PostCard> {
   Map<String,FontWeight> weights = {"较细":FontWeight.w300,"适中":FontWeight.w500,"较粗":FontWeight.w700};
   bool isLoading = false;
   List<dynamic> photo = [];
-
+  late final List<String> imageUrls;
   @override
   void initState() {
     setState(() {
@@ -54,14 +55,19 @@ class _PostCardState extends State<PostCard> {
       db.DataBaseManager dbm = db.DataBaseManager();
       var url = Uri.parse(gv.ip+"/api/user/user/"+snap['uid']);
       userinfo = await dbm.getSomeMap(url);
-      _file = await dbm.getPhoto(snap['uid']);
+      _file = await dbm.getPhoto(snap['uid']); //头像
+
       print(snap['title']);
       print(snap["images"]);
       Map<String,dynamic>? data;
       data = await db.DataBaseManager().getThePost(snap["id"]);
+      print('snap');
+      print(snap);
+      imageUrls = (await dbm.getImageUrls(snap["id"]))!;
       for(var image in data!['images']){
         photo.add(base64Decode(image));
       }
+      print("photo:");
       print(photo);
     } catch (err) {
       showSnackBar(
@@ -182,13 +188,18 @@ class _PostCardState extends State<PostCard> {
                       ),
                     );
                   },
-                  child:CircleAvatar(
-                    radius: 16,
-                    backgroundImage: MemoryImage(_file!),
-                    // backgroundImage: NetworkImage(
-                    //   widget.snap['profImage'].toString(),
-                    // ),
-                  )
+                  child:ClipOval(
+                    child: CachedNetworkImage(
+                      imageUrl: "${gv.ip}/api/user/downloadavatar?name=${widget.snap['uid']}.jpg",
+                      httpHeaders: {
+                        'Authorization': CustomAuth.currentUser.jwt,
+                      },
+                      placeholder: (context, url) => const CircularProgressIndicator(),
+                      errorWidget: (context, url, error) => const Icon(Icons.error),
+                      width: 32,
+                      height: 32,
+                    ),
+                  ),
                 ),
                 Expanded(
                   child: Padding(
@@ -314,7 +325,10 @@ class _PostCardState extends State<PostCard> {
             child: Stack(
               alignment: Alignment.center,
               children: [
-                buildImages(photo),
+                // buildImages(photo),
+                ImageList(
+                  imageUrls: imageUrls,
+                ),
                 AnimatedOpacity(
                   duration: const Duration(milliseconds: 200),
                   opacity: isLikeAnimating ? 1 : 0,
@@ -471,6 +485,39 @@ class _PostCardState extends State<PostCard> {
           )
         ],
       ),
+    );
+  }
+}
+
+class ImageList extends StatelessWidget {
+  final List<String> imageUrls;
+
+  const ImageList({Key? key, required this.imageUrls}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return GridView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: imageUrls.length,
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 3,
+        crossAxisSpacing: 4.0,
+        mainAxisSpacing: 4.0,
+      ),
+      itemBuilder: (BuildContext context, int index) {
+        final imageUrl = imageUrls[index];
+
+        return CachedNetworkImage(
+          imageUrl: imageUrl,
+          httpHeaders: {
+            'Authorization': CustomAuth.currentUser.jwt,
+          },
+          placeholder: (context, url) => const CircularProgressIndicator(),
+          errorWidget: (context, url, error) => const Icon(Icons.error),
+          fit: BoxFit.cover,
+        );
+      },
     );
   }
 }

@@ -585,7 +585,21 @@ def comment_post(postId):
   	"message"
   }
   ```
+### 添加评论
+```
+@bp.route('/addcomment/<int:postId>/<int:commentId>', methods=['POST'])
+@login_required
+def add_comment(postId,commentId):
+```
 
++ 接收：整形整数postId,整形整数commentId,  
++  json
+
+  ```
+  {
+  	"message"
+  }
+  ```
 ### 获取回复
 
 ```

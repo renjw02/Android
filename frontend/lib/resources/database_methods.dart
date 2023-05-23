@@ -12,6 +12,7 @@ import 'package:http_parser/http_parser.dart';
 
 import '../models/message.dart';
 import '../models/notice.dart';
+import '../models/comment.dart';
 import '../models/querySnapshot.dart';
 import '../models/user.dart';
 import '../utils/global_variable.dart'as gv;
@@ -288,6 +289,7 @@ class DataBaseManager{
       for(Uint8List? file in files){
         if(file != null){
           mfiles.add(MultipartFile.fromBytes(file,filename:'${title}${count}.jpg',contentType: new MediaType("image", "jpeg")));
+
           count++;
         }
       }
@@ -327,15 +329,15 @@ class DataBaseManager{
 
   List<Post> convertPost(List<dynamic> data){
     List<Post> doc = [];
-    print(data);
+    print("convertPost");
     for(var item in data){
-      print(item);
-      print(item.runtimeType);
       doc.add(
           Post(
             id:item["id"],
-            uid:item["userId"].toString(),
+            userId:item["userId"].toString(),
             title:item["title"],
+            nickname: item["nickname"],
+            comments: item["comments"] == [] as List<Comment> ? [] : item["comments"] as List<Comment>,
             content:item["content"],
             last_replied_user_id: item["lastRepliedUserId"].toString(),
             last_replied_time:item["lastRepliedTime"],
@@ -382,24 +384,14 @@ class DataBaseManager{
       if(hot != null){
         paras["hot"] = hot;
       }
-      print(paras);
       var response = await dio.get(gv.ip+"/api/post/getpostlist",queryParameters: paras);
-      print("asd1");
-      print(response.data);
-      print(response.data.runtimeType);
       var m = Map.from(response.data);
-      print(m);
-      print(m.runtimeType);
-      print(response.statusCode);
-      print(response.statusCode.runtimeType);
       if (response.statusCode == 200) {
         // return m['posts'];
         querySnapshot = QuerySnapshot(
           docs: convertPost(m['posts']), readTime: DateTime.now(),
         );
         print("获取动态成功");
-        print(querySnapshot.docs.length);
-        print(querySnapshot.docs);
         return querySnapshot;
       }
       else{
@@ -411,6 +403,51 @@ class DataBaseManager{
       print("获取动态错误");
       return querySnapshot;
     }
+  }
+
+  Future<List<List<int>>> getNewPostList([int page=1,int size=10,int userId=0, String? orderByWhat=null,int type=0, bool? onlyFollowing=null,
+    bool? hot=null]) async{
+    List<int> newFeedIdList =[];
+    List<int> feedCreatorIdList =[];
+    try{
+      var dio = new Dio();
+      dio.options.headers[HttpHeaders.authorizationHeader]=CustomAuth.currentUser.jwt;
+      Map<String,dynamic> paras = {
+        "page":page,
+        "size":size,
+        "userId":userId,
+        "type":type,
+      };
+      if(orderByWhat != null){
+        paras["orderByWhat"] = orderByWhat;
+      }
+      if(onlyFollowing != null){
+        paras["onlyFollowing"] = onlyFollowing;
+      }
+      if(hot != null){
+        paras["hot"] = hot;
+      }
+      var response = await dio.get(gv.ip+"/api/post/getpostlist",queryParameters: paras);
+      var m = Map.from(response.data);
+      if (response.statusCode == 200) {
+        // return m['posts'];
+        // querySnapshot = QuerySnapshot(
+        //   docs: convertPost(m['posts']), readTime: DateTime.now(),
+        // );
+        for(var item in m['posts']){
+          newFeedIdList.add(item['id']);
+          feedCreatorIdList.add(item['userId']);
+        }
+        print("获取动态成功");
+      }
+      else{
+        print("获取动态失败");
+      }
+    }catch (exception) {
+      print(exception);
+      print("获取动态错误");
+    }
+    return [newFeedIdList,feedCreatorIdList];
   }
 
   Future<String> createNotice([int type=0,String? content = null,int noticeCreator= 1,int userId = 1]) async{
@@ -623,19 +660,12 @@ class DataBaseManager{
       var dio = new Dio();
       dio.options.headers[HttpHeaders.authorizationHeader]=CustomAuth.currentUser.jwt;
       var response = await dio.get(gv.ip+"/api/post/getpost/"+id.toString());
-      print("getthepost asd1");
-      // print(response.data);
-      // print(response.data.runtimeType);
-      var m = Map.from(response.data);
-      //print(m);
-      print(m.runtimeType);
-      print(response.statusCode);
-      print(response.statusCode.runtimeType);
-      Map<String,dynamic> result = {};
       if (response.statusCode == 200) {
-        result['images'] = m['images'];
-        result['videos'] = m['videos'];
-        return result;
+        // result['images'] = m['images'];
+        // result['videos'] = m['videos'];
+        print("获取动态成功");
+        print(response.data['post']);
+        return response.data['post'];
       }
       else{
         print("获取动态失败");
@@ -648,23 +678,6 @@ class DataBaseManager{
     }
   }
 
-  // ### 注册
-  // @bp.route('register', methods=['POST'])
-  // def user_register():
-  //
-  // + 接收：json
-  // {
-  // "username"    只能大小写字母、数字、*-_@
-  // "password"    必须字母+数字，不能有其他
-  // "nickname"    任意，不超过14字符
-  // }
-  // + 返回：json + 状态码
-  // {
-  // "message"
-  // "userId"
-  // "username"
-  // "nickname"
-  // }
   Future<String> register(String username, String password, String nickname) async {
     var url = Uri.parse(gv.ip+"/api/user/register");
     Map<String, String> headersMap = new Map();
@@ -845,6 +858,39 @@ class DataBaseManager{
       print("获取私信列表错误");
     }
     return querySnapshot;
+  }
+
+  Future<List<String>?> getImageUrls(id) async {
+    try{
+      var dio = new Dio();
+      dio.options.headers[HttpHeaders.authorizationHeader]=CustomAuth.currentUser.jwt;
+      var response = await dio.get(gv.ip+"/api/post/getpictureslist/"+id.toString());
+      print("getImageUrls asd1");
+      print(response.data);
+      print("response.statusCode:");
+      print(response.statusCode);
+      Map<String,dynamic> result = {};
+      if (response.statusCode == 200) {
+         //将response.data转换成List<string>
+        List<String> imageUrls = [];
+        for (var i = 0; i < response.data.length; i++) {
+          imageUrls.add(response.data[i]);
+        }
+        //将每个url前面加上ip,port
+        imageUrls = imageUrls.map((e) => gv.ip+"/api/media/photo?name=" +e).toList();
+        print("imageUrls:");
+        print(imageUrls);
+        return imageUrls;
+      }
+      else{
+        print("获取动态失败");
+        return null;
+      }
+    }catch (exception) {
+      print(exception);
+      print("获取动态错误");
+      return null;
+    }
   }
 
 }
