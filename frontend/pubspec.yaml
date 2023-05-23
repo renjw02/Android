@@ -55,8 +55,7 @@ dependencies:
   share_plus: ^7.0.1
   bloc:
   geolocator: ^9.0.2
-  #location: ^4.3.0
-  geocode: ^1.0.1
+  geocoding: ^2.1.0
   #flutter_bmflocation: ^3.3.0
   flutter_chat_ui: ^1.0.0
 

@@ -2,7 +2,7 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
-import 'package:geocode/geocode.dart';
+import 'package:geocoding/geocoding.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:frontend/providers/user_provider.dart';
 import 'package:frontend/resources/post_methods.dart';
@@ -28,12 +28,10 @@ class _AddPostScreenState extends State<AddPostScreen> {
   Uint8List? _file;
   bool isLoading = false;
   String topicContent = "选择一个话题";
-  //LocationData? currentLocation;
-  Address? address;
   int font_size = 16;
   Color font_color = Colors.white;
   var font_weight = FontWeight.w500;  //fontWeight: FontWeight.w100 ~ w900
-  Position? position;
+  String position = "位置";
   final TextEditingController titlec = new TextEditingController();
   final TextEditingController contentc = new TextEditingController();
   List<Uint8List> photos = [];
@@ -41,34 +39,12 @@ class _AddPostScreenState extends State<AddPostScreen> {
   List<Uint8List> files = [];
   List<int> fileTypes = [];     //0为图片，1为视频
   Map<int,Uint8List> videonails = {};   //视频缩略图
+  String _locationMessage = "position";
 
   @override
   void initState() {
     super.initState();
-
-    // print("getlocation");
-    // Geolocator.getLastKnownPosition().then((value){
-    //   if(value == null){
-    //     print("last is null");
-    //     Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.best).then((Position p){
-    //       position = p;
-    //     });
-    //   }
-    //   else{
-    //     position = value;
-    //   }
-    //   // Geolocator.
-    //   // var coordinates = new Coordinates(position.latitude, position.longitude);
-    //   // var addresses = await GeoCode.local.findAddressesFromCoordinates(coordinates);
-    //   // first = addresses.first;
-    //   // print("${first.featureName} : ${first.addressLine}");
-    //   print(position);
-    //   getaddress(position!.latitude, position!.longitude);
-    //   print(address);
-    // }).catchError((onError){
-    //   print("error");
-    //   print(onError);
-    // });
+    _getCurrentLocation();
   }
 
   @override
@@ -78,18 +54,25 @@ class _AddPostScreenState extends State<AddPostScreen> {
     contentc.dispose();
   }
 
-  void getaddress(double lat,double lang) async {
-    GeoCode geoCode = GeoCode();
-    address = await geoCode.reverseGeocoding(latitude: lat, longitude: lang);
-  }
+  void _getCurrentLocation() async {
+    print("getcurrentlocation");
+    LocationPermission permission;
+    permission = await Geolocator.requestPermission();
+    print("asd");
+    final position1 = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+    print("asd");
+    print(position1);
+    print("asd");
+    List<Placemark> placemarks = await placemarkFromCoordinates(position1.latitude, position1.longitude);
+    Placemark place = placemarks[0];
+    print("asd");
 
-  Future<String> _getAddress(double? lat, double? lang) async {
-    if (lat == null || lang == null) return "";
-    GeoCode geoCode = GeoCode();
-    Address address =
-    await geoCode.reverseGeocoding(latitude: lat, longitude: lang);
-    //return "${address.streetAddress}, ${address.city}, ${address.countryName}, ${address.postal}";
-    return "${address.city}, ${address.countryName}";
+    setState(() {
+      _locationMessage = "${place.locality}, ${place.street}, ${place.country},${place.administrativeArea},"+
+          "${place.name},${place.subAdministrativeArea},${place.subLocality},${place.thoroughfare},${place.subThoroughfare}";
+      position = place.street!;
+    });
+    print(_locationMessage);
   }
 
   _selectImage(BuildContext parentContext) async {
@@ -317,65 +300,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
                     )
                   ],
                 )
-                // SizedBox(
-                //     height: MediaQuery.of(context).size.height * 0.12,
-                //     width: MediaQuery.of(context).size.width*0.1,
-                //     child:Stack(
-                //         children:[
-                //           Align(
-                //             alignment: Alignment.center,
-                //             child: ClipRRect(
-                //               borderRadius: BorderRadius.circular(10.0), // 设置圆角半径
-                //               child: Image.memory(videonails[count]!,fit: BoxFit.fill),
-                //             ),
-                //           ),
-                //           Align(
-                //             alignment: Alignment.center,
-                //             child: Icon(Icons.play_circle,color: Colors.white,size: MediaQuery.of(context).size.width*0.1,),
-                //           )
-                //         ]
-                //     )
-                // ),
               )
-            // child:ListView(
-            //   shrinkWrap: true,
-            //   children: [
-            //     GestureDetector(
-            //       onTap: () {
-            //         Navigator.push(context,
-            //           MaterialPageRoute(
-            //             builder: (context) => FullVideoWidget(videoFile: file),
-            //           )
-            //         );
-            //       },
-            //       onDoubleTap: (){
-            //         files.remove(file);
-            //         setState(() {
-            //         });
-            //       },
-            //       child:
-            //         SizedBox(
-            //           height: MediaQuery.of(context).size.height * 0.12,
-            //           width: MediaQuery.of(context).size.width*0.1,
-            //           child:Stack(
-            //               children:[
-            //                 Align(
-            //                   alignment: Alignment.center,
-            //                   child: ClipRRect(
-            //                     borderRadius: BorderRadius.circular(10.0), // 设置圆角半径
-            //                     child: Image.memory(videonails[count]!,fit: BoxFit.fill),
-            //                   ),
-            //                 ),
-            //                 Align(
-            //                   alignment: Alignment.center,
-            //                   child: Icon(Icons.play_circle,color: Colors.white,size: MediaQuery.of(context).size.width*0.1,),
-            //                 )
-            //               ]
-            //           )
-            //         ),
-            //     )
-            //   ],
-            // )
           )
         );
       }
@@ -550,7 +475,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
                 // if (currentLocation != null)
                 // Text("Location: ${currentLocation?.latitude}, ${currentLocation?.longitude}"),
                 const Divider(),
-                //if (currentLocation != null) Text("Address: $address"),
+                Text("位置: $position")
               ],
             ),
             Column(
@@ -558,7 +483,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
               DropdownButton(
                 value: font_size, //style: style,
                 icon: Icon(Icons.arrow_right), iconSize: 40, iconEnabledColor: Colors.green.withOpacity(0.7),
-                hint: Text('请选择地区'), isExpanded: true, underline: Container(height: 1, color: Colors.green.withOpacity(0.7)),
+                hint: Text('请选择字体大小'), isExpanded: true, underline: Container(height: 1, color: Colors.green.withOpacity(0.7)),
                 items: [
                 DropdownMenuItem(
                 child: Row(children: <Widget>[Text('小字体',style: TextStyle(fontSize: 12)), SizedBox(width: 10)]),
