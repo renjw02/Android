@@ -11,13 +11,13 @@ import '../utils/global_variable.dart';
 
 class FeedsBloc {
 
-  late final _newFilter;
+  late final newFilter;
 
   FeedsBloc(FeedsFilter filter) {
     if (kDebugMode) {
       print("FeedsBloc constructor");
     }
-    _newFilter = filter;
+    newFilter = filter;
     _itemsFetcher.transform(_itemTransformer()).pipe(_itemOutput);
   }
 
@@ -38,7 +38,9 @@ class FeedsBloc {
   }
 
   //sink
-  Function(int) get fetchItems => _itemsFetcher.sink.add;
+  Function(int) get fetchItems {
+    return _itemsFetcher.sink.add;
+  }
 
   fetchTopIds() async {
     /// all, top, hot, follow, other

@@ -4,9 +4,9 @@ import 'package:frontend/utils/colors.dart';
 import 'package:frontend/utils/global_variable.dart';
 
 import '../Auth/customAuth.dart';
-import '../screens/add_post_screen.dart';
-import '../screens/feed_screen.dart';
-import '../screens/notification_screen.dart';
+import '../screens/feeds/add_post_screen.dart';
+import '../screens/feeds/feeds_screen.dart';
+import '../screens/notice/notification_screen.dart';
 import '../screens/profile_screen.dart';
 import '../screens/search_screen.dart';
 
@@ -100,7 +100,7 @@ class _WebScreenLayoutState extends State<WebScreenLayout> {
         physics: const NeverScrollableScrollPhysics(),
         children:
         [
-          const FeedScreen(),
+          FeedsScreen(cateFilters: [],timeFilters: [],sortFilters: [],),
           const SearchScreen(),
           const AddPostScreen(),
           const NotificationScreen(),

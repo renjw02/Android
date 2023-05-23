@@ -4,10 +4,9 @@ import 'package:frontend/Auth/customAuth.dart';
 import 'package:frontend/utils/colors.dart';
 import 'package:frontend/utils/global_variable.dart';
 
-import '../screens/add_post_screen.dart';
-import '../screens/feed_screen.dart';
-import '../screens/feeds_screen.dart';
-import '../screens/notification_screen.dart';
+import '../screens/feeds/add_post_screen.dart';
+import '../screens/feeds/feeds_screen.dart';
+import '../screens/notice/notification_screen.dart';
 import '../screens/profile_screen.dart';
 import '../screens/search_screen.dart';
 

@@ -2,14 +2,14 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import '../resources/database_methods.dart' as db;
-import '../Bloc/bloc_provider.dart';
-import '../Bloc/contactsBloc.dart';
-import '../Bloc/noticesBloc.dart';
-import '../models/querySnapshot.dart';
-import '../utils/colors.dart';
-import '../utils/global_variable.dart';
-import '../widgets/contact_user_card.dart';
+import '../../resources/database_methods.dart' as db;
+import '../../Bloc/bloc_provider.dart';
+import '../../Bloc/contactsBloc.dart';
+import '../../Bloc/noticesBloc.dart';
+import '../../models/querySnapshot.dart';
+import '../../utils/colors.dart';
+import '../../utils/global_variable.dart';
+import '../../widgets/contact_user_card.dart';
 class MessageScreen extends StatefulWidget {
   const MessageScreen({Key? key}) : super(key: key);
   @override

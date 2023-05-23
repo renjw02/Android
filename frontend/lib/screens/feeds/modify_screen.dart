@@ -7,10 +7,10 @@ import 'package:frontend/utils/colors.dart';
 import 'package:frontend/utils/utils.dart';
 import 'package:provider/provider.dart';
 
-import '../Auth/customAuth.dart';
-import '../models/user.dart';
-import '../resources/database_methods.dart' as db;
-import '../screens/profile_screen.dart';
+import '../../Auth/customAuth.dart';
+import '../../models/user.dart';
+import '../../resources/database_methods.dart' as db;
+import '../profile_screen.dart';
 
 class ModifyScreen extends StatefulWidget {
   const ModifyScreen({Key? key}) : super(key: key);

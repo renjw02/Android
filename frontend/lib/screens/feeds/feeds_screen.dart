@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/screens/more_types_screen.dart';
-import '../Bloc/feeds_bloc_provider.dart';
-import '../utils/colors.dart';
+import 'package:frontend/screens/feeds/more_types_screen.dart';
+import '../../Bloc/feeds_bloc_provider.dart';
+import '../../utils/colors.dart';
 // import '../widgets/item_tile.dart';
 import 'feeds_list_screen.dart';
-import '../utils/global_variable.dart';
+import '../../utils/global_variable.dart';
 
 class FeedsScreen extends StatefulWidget {
   FeedsScreen({super.key, required this.cateFilters, required this.timeFilters, required this.sortFilters});

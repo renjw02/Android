@@ -3,9 +3,9 @@ import 'dart:typed_data';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:frontend/screens/notice_screen.dart';
+import 'package:frontend/screens/notice/notice_screen.dart';
 
-import '../screens/chat_screen.dart';
+import '../screens/notice/chat_screen.dart';
 import '../screens/profile_screen.dart';
 import '../utils/colors.dart';
 // import '../utils/global_variable.dart';

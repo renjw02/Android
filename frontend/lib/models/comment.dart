@@ -7,6 +7,7 @@ class Comment {
   int userId;
   int postId;
   int commentId;
+  String nickname;
   String content;
   DateTime created;
   DateTime updated;
@@ -16,6 +17,7 @@ class Comment {
     required this.userId,
     required this.postId,
     required this.commentId,
+    required this.nickname,
     required this.content,
     required this.created,
     required this.updated,
@@ -27,6 +29,7 @@ class Comment {
       userId: json['userId'] as int,
       postId: json['postId'] as int,
       commentId: json['commentId'] as int,
+      nickname: json['nickname'] as String,
       content: json['content'] as String,
       created: DateTime.parse(json['created'] as String),
       updated: DateTime.parse(json['updated'] as String),
@@ -39,6 +42,7 @@ class Comment {
       'userId': userId,
       'postId': postId,
       'commentId': commentId,
+      'nickname': nickname,
       'content': content,
       'created': created.toIso8601String(),
       'updated': updated.toIso8601String(),
@@ -50,6 +54,7 @@ class Comment {
       'userId': userId,
       'postId': postId,
       'commentId': commentId,
+      'nickname': nickname,
       'content': content,
       'created': created.toIso8601String(),
       'updated': updated.toIso8601String(),
@@ -72,6 +77,7 @@ class Comment {
       userId: map['userId'] as int,
       postId: map['postId'] as int,
       commentId: map['commentId'] as int,
+      nickname: map['nickname'] as String,
       content: map['content'] as String,
       created: DateTime.parse(map['created'] as String),
       updated: DateTime.parse(map['updated'] as String),
@@ -80,7 +86,7 @@ class Comment {
 
   @override
   String toString() {
-    return 'Comment{id: $id, userId: $userId, postId: $postId, commentId: $commentId, content: $content, created: $created, updated: $updated}';
+    return 'Comment{id: $id, userId: $userId, postId: $postId, commentId: $commentId, nickname:$nickname, content: $content, created: $created, updated: $updated}';
   }
 
   static Comment fromString(String str) {
@@ -89,15 +95,17 @@ class Comment {
     final userId = int.parse(parts[1].split(':')[1].trim());
     final postId = int.parse(parts[2].split(':')[1].trim());
     final commentId = int.parse(parts[3].split(':')[1].trim());
-    final content = parts[4].split(':')[1].trim();
-    final created = DateTime.parse(parts[5].split(':')[1].trim());
-    final updated =DateTime.parse(parts[6].split(':')[1].trim());
+    final nickname = parts[4].split(':')[1].trim();
+    final content = parts[5].split(':')[1].trim();
+    final created = DateTime.parse(parts[6].split(':')[1].trim());
+    final updated =DateTime.parse(parts[7].split(':')[1].trim());
 
     return Comment(
       id: id,
       userId: userId,
       postId: postId,
       commentId: commentId,
+      nickname: nickname,
       content: content,
       created: created,
       updated: updated,

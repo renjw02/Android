@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/Bloc/comments_bloc_provider.dart';
-import '../Bloc/feeds_bloc_provider.dart';
-import '../widgets/feed_card.dart';
+import '../../Bloc/feeds_bloc_provider.dart';
+import '../../widgets/feed_card.dart';
 // import '../widgets/item_tile.dart';
 
 class FeedsListScreen extends StatefulWidget {
@@ -13,12 +13,21 @@ class FeedsListScreen extends StatefulWidget {
 }
 
 class _FeedsListScreenState extends State<FeedsListScreen> {
+  late FeedsBloc _bloc;
+  // onRefresh() async{
+  //   print('onRefresh');
+  //   setState(()async {
+  //     await _bloc.clearCache();
+  //     await _bloc.fetchTopIds();
+  //   });
+  // }
   @override
   Widget build(BuildContext context) {
     // final bloc = NewsBlocProvider.of(context;
-    final bloc = FeedsBlocProvider.withKeyOf(context, ValueKey(widget.e));
-    bloc.fetchTopIds();
-    return Center(child: refreshWidget(_buildList(bloc), bloc));
+    print("FeedsListScreen build");
+    _bloc = FeedsBlocProvider.withKeyOf(context, ValueKey(widget.e));
+    _bloc.fetchTopIds();
+    return Center(child: refreshWidget(_buildList(_bloc), _bloc));
   }
 
   Widget _buildList(FeedsBloc bloc) {
@@ -60,6 +69,7 @@ class _FeedsListScreenState extends State<FeedsListScreen> {
                         child: FeedCard(
                           snapshot.data![index],
                           creatorId: creatorSnapshot.data![index],
+                          onRefreshBloc: _bloc,
                         ));
                     // return const Text(
                     //   'Hello, world!',

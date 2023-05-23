@@ -14,60 +14,70 @@ class Comment extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: MediaQuery.of(context).size.width ,
-      color: Colors.blue.withOpacity(0.05),
       child: Column(
-
         children: [
-          Divider(
-            color: Colors.grey,
-            thickness: 1,),
           Container(
+            decoration: BoxDecoration(
+              border: Border.all(
+                color: Colors.grey, // 设置边框颜色
+                width: 1, // 设置边框宽度
+              ),
+              color: Colors.blue.withOpacity(0.05),
+              borderRadius: BorderRadius.circular(20), // 设置圆角半径
+            ),
             padding: const EdgeInsets.only(left: 20,right: 0),
-            child: Row(
-              children: [
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(5.0),
-                  child: CircleAvatar(
-                    child: cni.CachedNetworkImage(
-                      imageUrl:
-                      "${gv.ip}/api/user/downloadavatar?name=${comment.userId}.jpg",
-                      httpHeaders: {
-                        'Authorization': CustomAuth.currentUser.jwt,
-                      },
-                      placeholder: (context, url) => const SizedBox(
-                          width: 10, height: 10, child: CircularProgressIndicator()),
-                      errorWidget: (context, url, error) => const Icon(Icons.error),
-                      fit: BoxFit.cover,
+            margin: const EdgeInsets.only(left: 18,right: 18,top: 8),
+            child: Flex(
+                direction: Axis.horizontal,
+                children: [
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(30.0),
+                    child: CircleAvatar(
+                      child: cni.CachedNetworkImage(
+                        imageUrl:
+                        "${gv.ip}/api/user/downloadavatar?name=${comment.userId}.jpg",
+                        httpHeaders: {
+                          'Authorization': CustomAuth.currentUser.jwt,
+                        },
+                        placeholder: (context, url) => const SizedBox(
+                            width: 10, height: 10, child: CircularProgressIndicator()),
+                        errorWidget: (context, url, error) => const Icon(Icons.error),
+                        fit: BoxFit.cover,
+                      ),
                     ),
                   ),
-                ),
-                Column(
-                    children:[
-                      Container(
-                        width: MediaQuery.of(context).size.width * 0.75,
-                        margin: const EdgeInsets.only(left: 18,right: 0,top: 8),
-                        padding: const EdgeInsets.only(left: 0,right: 0,top: 18),
-                        child: ListTile(
-                            title: comment.content == null ? Container() : Text(textConverter(comment!.content)),
-                            subtitle: comment.userId == null
-                                ? const Text("the comments already deleted")
-                                : Padding(
-                                padding: const EdgeInsets.only(top: 8,right: 8),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  children: <Widget>[
-                                    Text(comment.userId.toString()),
-                                    Text(comment.created.toString().substring(5,10)),
-                                  ],
-                                )
-                            )),
-                      ),
-                      const Divider(),
-                    ],
-                    // comment.comments.forEach((kidcomment) => children.add(Comment( itemMap , comment:commentModel.Comment.fromDbMap(kidcomment))));
-                ),
-              ],
-            ),
+                  Expanded(
+                    child:Container(
+                            // width: MediaQuery.of(context).size.width * 0.5,
+                            margin: const EdgeInsets.only(left: 18,right: 0,top: 8),
+                            padding: const EdgeInsets.only(left: 0,right: 0,top: 0),
+                            child: ListTile(
+                                title: comment.content == null ? Container() : Text(textConverter(comment.content)),
+                                subtitle: comment.nickname == null
+                                    ? const Text("the comments already deleted")
+                                    : Padding(
+                                      padding: const EdgeInsets.only(top: 8, right: 8),
+                                      child: Row(
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        children: <Widget>[
+                                          Text(
+                                            comment.nickname,
+                                            style: const TextStyle(fontSize: 14, color: Colors.grey),
+                                          ),
+                                          Text(
+                                            comment.created.toString().substring(5, 10),
+                                            style: const TextStyle(fontSize: 14, color: Colors.grey),
+                                          ),
+                                        ],
+                                      ),
+                                    )
+
+                            ),
+                          ),
+                  ),
+                ],
+              ),
+
           ),
         ],
       ),

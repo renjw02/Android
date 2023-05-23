@@ -10,7 +10,7 @@ import 'package:frontend/utils/utils.dart';
 import 'package:provider/provider.dart';
 import 'package:geolocator/geolocator.dart';
 
-import '../resources/database_methods.dart' as db;
+import '../../resources/database_methods.dart' as db;
 
 class AddPostScreen extends StatefulWidget {
   const AddPostScreen({Key? key}) : super(key: key);
@@ -133,7 +133,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
       return Center(
         child: IconButton(
             icon: const Icon(
-              Icons.upload,
+              Icons.add_photo_alternate,
             ),
             onPressed: ()async{
               await _selectImage(context);
@@ -175,7 +175,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
         Center(
           child: IconButton(
               icon: const Icon(
-                Icons.upload,
+                Icons.add_photo_alternate,
               ),
               onPressed: ()async{
                 await _selectImage(context);
@@ -310,97 +310,181 @@ class _AddPostScreenState extends State<AddPostScreen> {
         padding: const EdgeInsets.all(20),
         child: Column(
           children: [
+            // Row(
+            //   mainAxisAlignment:MainAxisAlignment.spaceBetween,
+            //   children: [
+            //     IconButton(
+            //       icon: const Icon(
+            //         Icons.topic,
+            //       ),
+            //       onPressed: () => _selectTopic(context),
+            //     ),
+            //     Text("${topicContent}"),
+            //     // if (currentLocation != null)
+            //     // Text("Location: ${currentLocation?.latitude}, ${currentLocation?.longitude}"),
+            //     const Divider(),
+            //     //if (currentLocation != null) Text("Address: $address"),
+            //   ],
+            // ),
             Row(
-              mainAxisAlignment:MainAxisAlignment.spaceBetween,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 IconButton(
-                  icon: const Icon(
-                    Icons.topic,
-                  ),
+                  icon: const Icon(Icons.topic),
                   onPressed: () => _selectTopic(context),
                 ),
-                Text("${topicContent}"),
-                // if (currentLocation != null)
-                // Text("Location: ${currentLocation?.latitude}, ${currentLocation?.longitude}"),
-                const Divider(),
-                //if (currentLocation != null) Text("Address: $address"),
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.only(right: 30),
+                    child: TextButton(
+                      onPressed: () => _selectTopic(context) ,
+                      child: Text(
+                        topicContent,
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ),
+                ),
+
+                GestureDetector(
+                  onTap: () {
+                    // do something on tap
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.only(right: 30),
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.location_on,
+                          color: Colors.grey,
+                        ),
+                        SizedBox(width: 5),
+                        Text(
+                          'Location',
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: Colors.grey,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
               ],
             ),
-            Column(
-              children: [
-              DropdownButton(
-                value: font_size, //style: style,
-                icon: Icon(Icons.arrow_right), iconSize: 40, iconEnabledColor: Colors.green.withOpacity(0.7),
-                hint: Text('请选择地区'), isExpanded: true, underline: Container(height: 1, color: Colors.green.withOpacity(0.7)),
-                items: [
-                DropdownMenuItem(
-                child: Row(children: <Widget>[Text('小字体',style: TextStyle(fontSize: 12)), SizedBox(width: 10)]),
-                value: 12),
-                DropdownMenuItem(
-                child: Row(children: <Widget>[Text('适中',style: TextStyle(fontSize: 16)), SizedBox(width: 10)]),
-                value: 16),
-                DropdownMenuItem(
-                child: Row(children: <Widget>[Text('大字体', style: TextStyle(fontSize: 20)), SizedBox(width: 10)]),
-                value: 20)
-                ],
-                onChanged: (value) => setState(() => font_size = value!)
-              ),
-              DropdownButton(
-                  value: font_color, //style: style,
-                  icon: Icon(Icons.arrow_right), iconSize: 40, iconEnabledColor: Colors.red.withOpacity(0.7),
-                  hint: Text('请选择字体颜色'), isExpanded: true, underline: Container(height: 1, color: Colors.green.withOpacity(0.7)),
-                  items: [
+            Row(
+                children: [
+                SizedBox(
+                  width: MediaQuery.of(context).size.width*0.33,
+                  child: DropdownButton(
+                    value: font_size, //style: style,
+                    icon: Icon(Icons.arrow_drop_down), iconSize: 30, iconEnabledColor: Colors.deepPurple.withOpacity(0.7),
+                    hint: Text('请选择地区'), isExpanded: true,
+                    underline: Container(height: 1, color: Colors.deepPurple.withOpacity(0.7)),
+                    items: [
                     DropdownMenuItem(
-                        child: Row(children: <Widget>[Text('红色',style: TextStyle(color: Colors.red, fontSize: 16)), SizedBox(width: 10)]),
-                        value: Colors.red),
+                    child: Row(children: <Widget>[Icon(Icons.text_fields, color: Colors.deepPurple),SizedBox(width: 20),
+                      Text('小字体',style: TextStyle(fontSize: 12)), SizedBox(width: 5)]),
+                    value: 12),
                     DropdownMenuItem(
-                        child: Row(children: <Widget>[Text('白色',style: TextStyle(color: Colors.white, fontSize: 16)), SizedBox(width: 10)]),
-                        value: Colors.white),
+                    child: Row(children: <Widget>[Icon(Icons.text_fields, color: Colors.deepPurple),SizedBox(width: 15),Text('适中',style: TextStyle(fontSize: 16)), SizedBox(width: 5)]),
+                    value: 16),
                     DropdownMenuItem(
-                        child: Row(children: <Widget>[Text('黄色', style: TextStyle(color: Colors.yellow, fontSize: 16)), SizedBox(width: 10)]),
-                        value: Colors.yellow)
-                  ],
-                  onChanged: (value) => setState(() => font_color = value!)
-              ),
-              DropdownButton(
-                  value: font_weight, //style: style,
-                  icon: Icon(Icons.arrow_right), iconSize: 40, iconEnabledColor: Colors.blue.withOpacity(0.7),
-                  hint: Text('请选择字体粗细'), isExpanded: true, underline: Container(height: 1, color: Colors.green.withOpacity(0.7)),
-                  items: [
-                    DropdownMenuItem(
-                        child: Row(children: <Widget>[Text('较细', style: TextStyle(fontWeight: FontWeight.w300)), SizedBox(width: 10) ]),
-                        value: FontWeight.w300),
-                    DropdownMenuItem(
-                        child: Row(children: <Widget>[Text('适中', style: TextStyle(fontWeight: FontWeight.w500)), SizedBox(width: 10)]),
-                        value: FontWeight.w500),
-                    DropdownMenuItem(
-                        child: Row(children: <Widget>[Text('较粗', style: TextStyle(fontWeight: FontWeight.w700)), SizedBox(width: 10)]),
-                        value: FontWeight.w700)
-                  ],
-                  onChanged: (value) => setState(() => font_weight = value!)
+                    child: Row(children: <Widget>[Icon(Icons.text_fields, color: Colors.deepPurple),SizedBox(width: 5),Text('大字体', style: TextStyle(fontSize: 20)), SizedBox(width: 5)]),
+                    value: 20)
+                    ],
+                    onChanged: (value) => setState(() => font_size = value!)
+                  ),
+                ),
+                SizedBox(width: MediaQuery.of(context).size.width*0.03),
+                SizedBox(
+                  width: MediaQuery.of(context).size.width*0.25,
+                  child: DropdownButton(
+                      value: font_color, //style: style,
+                      icon: Icon(Icons.arrow_drop_down), iconSize: 30, iconEnabledColor: Colors.red.withOpacity(0.7),
+                      hint: Text('请选择字体颜色'), isExpanded: true, underline: Container(height: 1, color: Colors.red.withOpacity(0.7)),
+                      items: [
+                        DropdownMenuItem(
+                            child: Row(children: <Widget>[Icon(Icons.color_lens, color: Colors.red),
+                              SizedBox(width: 5),Text('红色',style: TextStyle(color: Colors.red, fontSize: 16)), SizedBox(width: 5)]),
+                            value: Colors.red),
+                        DropdownMenuItem(
+                            child: Row(children: <Widget>[Icon(Icons.color_lens, color: Colors.white),
+                              SizedBox(width: 5),Text('白色',style: TextStyle(color: Colors.white, fontSize: 16)), SizedBox(width: 5)]),
+                            value: Colors.white),
+                        DropdownMenuItem(
+                            child: Row(children: <Widget>[Icon(Icons.color_lens, color: Colors.yellow),
+                              SizedBox(width: 5),Text('黄色', style: TextStyle(color: Colors.yellow, fontSize: 16)), SizedBox(width: 5)]),
+                            value: Colors.yellow)
+                      ],
+                      onChanged: (value) => setState(() => font_color = value!)
+                  ),
+                ),
+                SizedBox(width: MediaQuery.of(context).size.width*0.03),
+                SizedBox(
+                  width: MediaQuery.of(context).size.width*0.25,
+                  child: DropdownButton(
+                      value: font_weight, //style: style,
+                      icon: Icon(Icons.arrow_drop_down), iconSize: 30, iconEnabledColor: Colors.teal.withOpacity(0.7),
+                      hint: Text('请选择字体粗细'), isExpanded: true, underline: Container(height: 1, color: Colors.teal.withOpacity(0.7)),
+                      items: [
+                        DropdownMenuItem(
+                            child: Row(children: <Widget>[Icon(Icons.format_bold, color: Colors.teal),
+                              SizedBox(width: 5),Text('较细', style: TextStyle(fontWeight: FontWeight.w300)), SizedBox(width: 5) ]),
+                            value: FontWeight.w300),
+                        DropdownMenuItem(
+                            child: Row(children: <Widget>[Icon(Icons.format_bold, color: Colors.teal),
+                              SizedBox(width: 5),
+                              Text('适中', style: TextStyle(fontWeight: FontWeight.w500)), SizedBox(width: 5)]),
+                            value: FontWeight.w500),
+                        DropdownMenuItem(
+                            child: Row(children: <Widget>[Icon(Icons.format_bold, color: Colors.teal),
+                              SizedBox(width: 5),
+                              Text('较粗', style: TextStyle(fontWeight: FontWeight.w700)), SizedBox(width: 5)]),
+                            value: FontWeight.w700)
+                      ],
+                      onChanged: (value) => setState(() => font_weight = value!)
+                  ),
+                ),
+
+                ]
+
               ),
 
-              ]
-
+            TextField(
+                controller: titlec,
+                decoration: const InputDecoration(
+                  border: InputBorder.none,
+                  hintText: "如何评价",
+                  labelText: "标题",
+                  prefixIcon: Icon(Icons.title),
+                ),
+                maxLines: 1,
             ),
-            TextField(
-              controller: titlec,
-              decoration: const InputDecoration(
-                hintText: "如何评价",
-                labelText: "标题",
-                prefixIcon: Icon(Icons.title),
+            Expanded(
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.grey.withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                padding: EdgeInsets.symmetric(horizontal: 16),
+                child: TextField(
+                  controller: contentc,
+                  decoration: const InputDecoration(
+                    border: InputBorder.none,
+                    hintText: "请输入内容",
+                    hintStyle: TextStyle(color: Colors.white),
+                  ),
+                  maxLines: null,
+                  keyboardType: TextInputType.multiline,
+                  style: TextStyle(fontSize: 18),
+                ),
               ),
-              maxLines: 1,
-          ),
-            TextField(
-              controller: contentc,
-              decoration: const InputDecoration(
-                hintText: "如何评价",
-                labelText: "内容",
-                prefixIcon: Icon(Icons.content_copy),
-              ),
-              maxLines: null,
-              minLines: 1,
             ),
           buildTable(),
 

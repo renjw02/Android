@@ -6,10 +6,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:flutter_chat_ui/flutter_chat_ui.dart';
 import 'package:frontend/screens/profile_screen.dart';
-import '../models/querySnapshot.dart';
-import '../resources/database_methods.dart' as db;
-import '../utils/global_variable.dart' as gv;
-import '../models/message.dart' as msg;
+import '../../models/querySnapshot.dart';
+import '../../resources/database_methods.dart' as db;
+import '../../utils/global_variable.dart' as gv;
+import '../../models/message.dart' as msg;
 // For the testing purposes, you should probably use https://pub.dev/packages/uuid.
 String randomString() {
   final random = Random.secure();

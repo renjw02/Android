@@ -43,8 +43,6 @@ class FeedsApiProvider implements Source{
     if (kDebugMode) {
       print("NewsApiProvider fetchItem: $id");
     }
-    //先等待0.05秒，模拟网络延迟
-    await Future.delayed(const Duration(milliseconds: 50));
     //content是Map<String, dynamic>类型
     Map<String, dynamic>? content = await db.DataBaseManager().getThePost(id);
     List<String>? imageUrls = await db.DataBaseManager().getImageUrls(id);

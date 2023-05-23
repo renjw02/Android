@@ -1,20 +1,24 @@
-import 'dart:async';
-import 'package:cached_network_image/cached_network_image.dart' as cni;
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart' show timeDilation;
 import 'package:frontend/utils/colors.dart';
-import '../Auth/customAuth.dart';
-import '../models/post.dart';
-import '../resources/web_service/comment_api_service.dart';
-import '../utils/global_variable.dart' as gv;
-import '../widgets/comment.dart';
-import '../resources/database_methods.dart' as db;
-import '../models/comment.dart' as commentModel;
+
+import '../../Auth/customAuth.dart';
+import '../../Bloc/feeds_bloc.dart';
+import '../../Bloc/feeds_bloc_provider.dart';
+import '../../models/post.dart';
+
+import '../../widgets/comment.dart';
+
+import '../../models/comment.dart' as commentModel;
+import '../../widgets/Avatar.dart' as avatar;
+import 'comment_panel.dart';
+
 class FeedsDetailScreen extends StatefulWidget {
   final int id;
   final Post post;
-  final bloc;
-  const FeedsDetailScreen({super.key, required this.id, required this.post, this.bloc});
+  final FeedsBloc onRefreshBloc;
+  const FeedsDetailScreen({super.key, required this.id, required this.post, required this.onRefreshBloc});
 
   @override
   State<FeedsDetailScreen> createState() => _FeedsDetailScreenState();
@@ -29,10 +33,47 @@ class _FeedsDetailScreenState extends State<FeedsDetailScreen>
       isCommentPanelOpen = false;
     });
   }
-
+  void _viewFullScreenImage(String imageUrl) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => Scaffold(
+          body: Stack(
+            children: [
+              Center(
+                child: CachedNetworkImage(
+                  imageUrl: imageUrl,
+                  httpHeaders: {
+                    'Authorization': CustomAuth.currentUser.jwt,
+                  },
+                  placeholder: (context, url) =>
+                  const CircularProgressIndicator(),
+                  errorWidget: (context, url, error) => const Icon(Icons.error),
+                ),
+              ),
+              SafeArea(
+                child: Align(
+                  alignment: Alignment.topLeft,
+                  child: Container(
+                    margin: const EdgeInsets.only(top: 5, left: 5),
+                    child: IconButton(
+                      icon: const Icon(Icons.close),
+                      //设置图标的大小
+                      iconSize: 35,
+                      onPressed: () => Navigator.of(context).pop(),
+                    ),
+                  ),
+                ),
+              )
+            ],
+          ),
+        ),
+      ),
+    );
+  }
   @override
   Widget build(BuildContext context) {
-    timeDilation = 0.5;
+    // final bloc = FeedsBlocProvider.of(context);
+    // timeDilation = 0.5;
     return Scaffold(
         appBar: AppBar(
           title: Text(widget.post.title),
@@ -40,7 +81,7 @@ class _FeedsDetailScreenState extends State<FeedsDetailScreen>
         body: AnimatedSize(
           duration: const Duration(milliseconds: 200),
           child: isCommentPanelOpen
-              ? CommentPanel(onClose: _onScroll, postId: widget.post.id,bloc : widget.bloc)
+              ? CommentPanel(onClose: _onScroll, post: widget.post, onRefreshBloc: widget.onRefreshBloc)
               : _buildBody( context),
         ),
         bottomNavigationBar: BottomAppBar(
@@ -54,24 +95,24 @@ class _FeedsDetailScreenState extends State<FeedsDetailScreen>
                   iconSize: 40,
                   // padding: EdgeInsets.all(10), // 内边距10
                   constraints: const BoxConstraints(
-                      minWidth: 120, maxWidth: 150), // 宽度在50-70之间
+                      minWidth: 105, maxWidth: 150), // 宽度在50-70之间
                   icon: Stack(children: [
                     Container(
-                      width: 120,
-                      height: 40,
+                      width: 105,
+                      height: 32,
                       decoration: BoxDecoration(
-                          color: isLike ? Colors.lightBlue : Colors.grey,
-                          borderRadius: BorderRadius.circular(20)),
+                          color: isLike ? Colors.lightBlue : Colors.white,
+                          borderRadius: BorderRadius.circular(16)),
                     ),
                     Positioned(
                         left: isLike ? -5 : 20,
-                        top: 5,
+                        top: 2,
                         child: Row(children: [
                           Text('点赞',
                               style: TextStyle(
                                 color:
                                     isLike ? Colors.transparent : Colors.blue,
-                                fontSize: 18,
+                                fontSize: 15,
                               )),
                           Icon(
                             Icons.arrow_upward,
@@ -120,11 +161,12 @@ class _FeedsDetailScreenState extends State<FeedsDetailScreen>
   Widget _buildBody(BuildContext context) {
     return Column(
       children: [
-        SizedBox(
-          height: isCommentPanelOpen
-              ? (MediaQuery.of(context).size.height - 155) * 0.4
-              : (MediaQuery.of(context).size.height - 155) * 1,
-          width: MediaQuery.of(context).size.width,
+
+        Expanded(
+          // height: isCommentPanelOpen
+          //     ? (MediaQuery.of(context).size.height - 155) * 0.4
+          //     : (MediaQuery.of(context).size.height - 155) * 1,
+          // width: MediaQuery.of(context).size.width,
           child: _buildListBody(context, widget.post),
         ),
       ],
@@ -152,6 +194,7 @@ class _FeedsDetailScreenState extends State<FeedsDetailScreen>
           )
         ),
       ))
+
       ..add(const Divider(
         height: 1,
         color: Colors.grey,))
@@ -164,6 +207,34 @@ class _FeedsDetailScreenState extends State<FeedsDetailScreen>
           ),
         ),
       ))
+      ..add (SizedBox(
+        width: MediaQuery.of(context).size.width,
+        height: MediaQuery.of(context).size.width * 0.9,
+        child: PageView.builder(
+          itemCount: item.images.length,
+          itemBuilder: (context, index) {
+            return GestureDetector(
+              onTap: () {
+                _viewFullScreenImage(item.images[index]);
+              },
+              child: Container(
+                margin: const EdgeInsets.all(5),
+                child: CachedNetworkImage(
+                  imageUrl: item.images[index],
+                  httpHeaders: {
+                    'Authorization': CustomAuth.currentUser.jwt,
+                  },
+                  // placeholder: (context, url) => const CircularProgressIndicator(),
+                  errorWidget: (context, url, error) => const Icon(Icons.error),
+                ),
+              ),
+            );
+          },
+          pageSnapping: true,
+        ),
+      ))
+      ..add(const SizedBox(
+        height: 15,))
       ..add(const Divider(
         height: 1,
         color: Colors.grey,))
@@ -250,18 +321,10 @@ class _UserProfileWidgetState extends State<UserProfileWidget> {
         children: [
           ClipRRect(
             borderRadius: BorderRadius.circular(5.0),
-            child: CircleAvatar(
-              child: cni.CachedNetworkImage(
-                imageUrl:
-                    "${gv.ip}/api/user/downloadavatar?name=${widget.creatorId}.jpg",
-                httpHeaders: {
-                  'Authorization': CustomAuth.currentUser.jwt,
-                },
-                placeholder: (context, url) => const SizedBox(
-                    width: 10, height: 10, child: CircularProgressIndicator()),
-                errorWidget: (context, url, error) => const Icon(Icons.error),
-                fit: BoxFit.cover,
-              ),
+            child: avatar.UserAvatar(
+              userId: widget.creatorId,
+              width: 50,
+              height: 50,
             ),
           ),
           const SizedBox(width: 16),
@@ -301,7 +364,7 @@ class _UserProfileWidgetState extends State<UserProfileWidget> {
                 width: 100,
                 height: 40,
                 decoration: BoxDecoration(
-                    color: isFollowed ? Colors.lightBlue : Colors.grey,
+                    color: isFollowed ? Colors.lightBlue : Colors.white,
                     borderRadius: BorderRadius.circular(20)),
               ),
               Positioned(
@@ -328,166 +391,3 @@ class _UserProfileWidgetState extends State<UserProfileWidget> {
   }
 }
 
-class CommentPanel extends StatefulWidget {
-  final VoidCallback onClose;
-  final int postId;
-  final bloc;
-  CommentPanel({required this.onClose, required this.postId, this.bloc});
-
-  @override
-  State<CommentPanel> createState() => _CommentPanelState();
-}
-
-class _CommentPanelState extends State<CommentPanel> {
-  final double _dragDistanceThreshold = 10;
-
-  bool isSend  = false;
-  final TextEditingController textEditingController = TextEditingController();
-  void sendComment() {
-    String commentText = textEditingController.text;
-    post(commentText);
-    print(commentText);
-    print('发送');
-    setState(() async{
-      isSend = true;
-      widget.bloc.clearCache();
-      widget.bloc.fetchTopIds();
-    });
-  }
-  @override
-  void dispose(){
-    textEditingController.dispose();
-    super.dispose();
-  }
-
-  void post(String commentText) async {
-    try{
-    String result = await CommentApiService().createComment(
-          widget.postId,
-        commentText,);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(result),
-        ),
-      );
-    textEditingController.text = '';
-      print(result);
-    }catch(e){
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("请填写动态类型、标题及内容"),
-        ),
-      );
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final screenHeight = MediaQuery.of(context).size.height;
-    return GestureDetector(
-      onVerticalDragUpdate: (details) {
-        print("detial.delta.dy = ${details.delta.dy}");
-        if (details.delta.dy > _dragDistanceThreshold) {
-          widget.onClose();
-        }
-      },
-      child: Column(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(20.0),
-            margin: const EdgeInsets.only(top: 30),
-            child: const Text(
-              '评论',
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
-          Expanded(
-            child: Align(
-              alignment: Alignment.bottomCenter,
-              child: FractionallySizedBox(
-                heightFactor: 1.0,
-                widthFactor: 1.0,
-                child: Container(
-                  decoration: const BoxDecoration(
-                    color: chatPrimaryColor,
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(20),
-                      topRight: Radius.circular(20), // 右上角为圆角
-                    ),
-                  ),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      SizedBox(height: 20),
-                      Row(
-                        children: [
-                          const SizedBox(width: 16),
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(20.0),
-                            child: CircleAvatar(
-                              child: cni.CachedNetworkImage(
-                                imageUrl:
-                                "${gv.ip}/api/user/downloadavatar?name=${
-                                CustomAuth.currentUser.uid
-                                }.jpg",
-                                httpHeaders: {
-                                  'Authorization': CustomAuth.currentUser.jwt,
-                                },
-                                placeholder: (context, url) => const SizedBox(
-                                    width: 10, height: 10, child: CircularProgressIndicator()),
-                                errorWidget: (context, url, error) => const Icon(Icons.error),
-                                fit: BoxFit.cover,
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 10),
-                          Expanded(    // 中间评论输入框
-                            child: SizedBox(
-                              height: 50.0,
-                              child: TextField(
-                                controller: textEditingController,
-                                decoration: const InputDecoration(
-                                  hintText: '评论千万条，友善第一条...',
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.all(
-                                      Radius.circular(25),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 10),
-                          InkWell(
-                            onTap: () {
-                              sendComment();
-                            },
-                            child: Ink(
-                              decoration: const BoxDecoration(
-                                shape: BoxShape.circle,
-                              ),
-                              child: const IconButton(
-                                icon: Icon(Icons.send),
-                                iconSize: 40,
-                                color: Colors.blue,
-                                onPressed: null, // 设置为null，以便在InkWell中处理tap手势
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 16),
-                        ],
-                      )
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}

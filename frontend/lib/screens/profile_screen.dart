@@ -13,9 +13,9 @@ import 'package:http/http.dart' as http;
 import '../Auth/customAuth.dart';
 import '../models/user.dart';
 import '../resources/database_methods.dart' as db;
-import 'message_screen.dart';
+import 'notice/message_screen.dart';
 import 'followed_screen.dart';
-import 'modify_screen.dart';
+import 'feeds/modify_screen.dart';
 import '../utils/global_variable.dart' as gv;
 
 class ProfileScreen extends StatefulWidget {

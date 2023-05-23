@@ -4,7 +4,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:async/async.dart' as async;
 import 'package:frontend/models/user.dart' as model;
-import 'package:frontend/screens/feeds_detail_screen.dart';
+import 'package:frontend/screens/feeds/feeds_detail_screen.dart';
+import 'package:frontend/widgets/Avatar.dart';
 import 'package:provider/provider.dart';
 import '../Auth/customAuth.dart';
 import '../Bloc/comments_bloc_provider.dart';
@@ -13,7 +14,6 @@ import '../Bloc/feeds_bloc_provider.dart';
 import '../models/post.dart';
 import '../providers/user_provider.dart';
 import '../resources/textpost_methods.dart';
-import '../screens/comments_screen.dart';
 import '../screens/profile_screen.dart';
 import '../utils/colors.dart';
 import '../utils/global_variable.dart';
@@ -24,7 +24,8 @@ import 'like_animation.dart';
 class FeedCard extends StatefulWidget {
   final int id;
   final int creatorId;
-  const FeedCard(this.id, {super.key, required this.creatorId});
+  final FeedsBloc onRefreshBloc;
+  const FeedCard(this.id, {super.key, required this.creatorId, required this.onRefreshBloc});
 
   @override
   _FeedCardState createState() => _FeedCardState();
@@ -66,17 +67,18 @@ class _FeedCardState extends State<FeedCard>
       );
     }
   }
-
   @override
   Widget build(BuildContext context) {
     final bloc = FeedsBlocProvider.of(context);
     final model.User currentUser = Provider.of<UserProvider>(context).getUser;
     final width = MediaQuery.of(context).size.width;
     // final commentsBloc = CommentsBlocProvider.withKeyOf(context, ValueKey(widget.id));
+    print(bloc.newFilter);
+    // bloc.fetchTopIds();
     bloc.fetchItems(widget.id);
+    print("bloc.fetchItems(widget.id)");
 
     // bloc.fetchUsers(widget.creatorId);
-
     return StreamBuilder(
       stream: bloc.items,
       builder: (BuildContext context,
@@ -93,14 +95,19 @@ class _FeedCardState extends State<FeedCard>
             future: _futureItem(itemSnap),
             builder: (BuildContext context, AsyncSnapshot<Post> itemSnapshot) {
               if (!itemSnapshot.hasData) return _defaultNewsContainer();
-              return _buildItemTile(context, itemSnapshot, currentUser, width, bloc);
+              {
+                print("itemSnapshot.data!.comment_num");
+                print(itemSnapshot.data!.comment_num);
+                return _buildItemTile(context, itemSnapshot, currentUser, width, bloc);
+              }
             });
       },
     );
   }
 
   Widget _buildItemTile(BuildContext context, AsyncSnapshot<Post> snap,
-      model.User currentUser, double width,  var bloc) {
+      model.User currentUser, double width,  FeedsBloc bloc) {
+
     return Container(
       // boundary needed for web
       decoration: BoxDecoration(
@@ -155,21 +162,9 @@ class _FeedCardState extends State<FeedCard>
                       ),
                     );
                   },
-                  child: ClipOval(
-                    child: CachedNetworkImage(
-                      imageUrl:
-                          "$ip/api/user/downloadavatar?name=${snap.data!.userId}.jpg",
-                      httpHeaders: {
-                        'Authorization': CustomAuth.currentUser.jwt,
-                      },
-                      placeholder: (context, url) =>
-                          const CircularProgressIndicator(),
-                      errorWidget: (context, url, error) =>
-                          const Icon(Icons.error),
-                      width: 32,
-                      height: 32,
-                    ),
-                  ),
+                  child: UserAvatar(
+                    userId: snap.data!.userId, width: 32,height: 32,
+                  )
                 ),
                 Expanded(
                   child: Padding(
@@ -388,7 +383,7 @@ class _FeedCardState extends State<FeedCard>
 
                     Navigator.of(context).push(
                     MaterialPageRoute(
-                      builder: (context) => FeedsDetailScreen(id:  widget.id, post: snap.data!,bloc: bloc),
+                      builder: (context) => FeedsDetailScreen(id:  widget.id, post: snap.data!, onRefreshBloc: widget.onRefreshBloc),
                     ),
                   );
                   },
