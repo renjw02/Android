@@ -600,6 +600,22 @@ packages:
       url: "https://mirrors.sjtug.sjtu.edu.cn/dart-pub/"
     source: hosted
     version: "2.0.4"
+  share_plus:
+    dependency: "direct main"
+    description:
+      name: share_plus
+      sha256: "44fc0bc2d35a8fafa1b564e1c6888bdc4fbb2d0197e4a4c21bac0e66123be9cd"
+      url: "https://mirrors.sjtug.sjtu.edu.cn/dart-pub/"
+    source: hosted
+    version: "7.0.1"
+  share_plus_platform_interface:
+    dependency: transitive
+    description:
+      name: share_plus_platform_interface
+      sha256: "0c6e61471bd71b04a138b8b588fa388e66d8b005e6f2deda63371c5c505a0981"
+      url: "https://mirrors.sjtug.sjtu.edu.cn/dart-pub/"
+    source: hosted
+    version: "3.2.1"
   sky_engine:
     dependency: transitive
     description: flutter

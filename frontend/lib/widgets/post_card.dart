@@ -17,6 +17,7 @@ import 'package:frontend/widgets/like_animation.dart';
 import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
+import 'package:share/share.dart';
 
 import '../utils/global_variable.dart' as gv;
 import '../resources/database_methods.dart' as db;
@@ -150,51 +151,44 @@ class _PostCardState extends State<PostCard> {
             //margin: const EdgeInsets.all(10.0), // 设置边距
             child:Stack(
               children: [
-                ClipRRect(
+                Align(
+                  alignment: Alignment.center,
+                  child:
+                  ClipRRect(
                     borderRadius: BorderRadius.circular(20.0), // 设置圆角半径
                     child: SizedBox(
                       height: MediaQuery.of(context).size.height * 0.2,
                       width: MediaQuery.of(context).size.width*0.3,
                       child: Image.memory(image,fit: BoxFit.cover),
                     )
+                  ),
                 ),
-                // Align(
-                //   alignment: Alignment.center,
-                //   child:
-                //     ClipRRect(
-                //         borderRadius: BorderRadius.circular(20.0), // 设置圆角半径
-                //         child: SizedBox(
-                //           height: MediaQuery.of(context).size.height * 0.2,
-                //           width: MediaQuery.of(context).size.width*0.3,
-                //           child: Image.memory(image,fit: BoxFit.cover),
-                //         )
-                //     ),
+                // ClipRRect(
+                //     borderRadius: BorderRadius.circular(20.0), // 设置圆角半径
+                //     child: SizedBox(
+                //       height: MediaQuery.of(context).size.height * 0.2,
+                //       width: MediaQuery.of(context).size.width*0.3,
+                //       child: Image.memory(image,fit: BoxFit.cover),
+                //     )
                 // ),
                 Align(
-                  alignment: Alignment.bottomRight,
+                  alignment: Alignment.center,
                   child: Icon(Icons.play_circle,color: Colors.white,size: MediaQuery.of(context).size.width*0.1,),
                 )
               ],
             )
-            // child: SizedBox(
-            //     height: MediaQuery.of(context).size.height * 0.3,
-            //     width: MediaQuery.of(context).size.width*0.3,
-            //     child:Stack(
-            //         children:[
-            //           Align(
-            //             alignment: Alignment.center,
-            //             child: ClipRRect(
-            //               clipper: ClipperRPath(),
-            //               borderRadius: BorderRadius.circular(20.0), // 设置圆角半径
-            //               child: Image.memory(image,fit: BoxFit.cover),
-            //             ),
-            //           ),
-            //           Align(
-            //             alignment: Alignment.center,
-            //             child: Icon(Icons.play_circle,color: Colors.white,size: MediaQuery.of(context).size.width*0.1,),
-            //           )
-            //         ]
-            //     )
+
+            // Align(
+            //   alignment: Alignment.center,
+            //   child:
+            //     ClipRRect(
+            //         borderRadius: BorderRadius.circular(20.0), // 设置圆角半径
+            //         child: SizedBox(
+            //           height: MediaQuery.of(context).size.height * 0.2,
+            //           width: MediaQuery.of(context).size.width*0.3,
+            //           child: Image.memory(image,fit: BoxFit.cover),
+            //         )
+            //     ),
             // ),
           ),
         );
@@ -499,7 +493,13 @@ class _PostCardState extends State<PostCard> {
                 )),
                   IconButton( //转发按钮
                     icon: const Icon(Icons.send,),
-                    onPressed: () {}
+                    onPressed: ()async {
+                      await Share.share(
+                          "${widget.snap['title']}\n信息来自flutter应用",
+                          // subject: "分享测试",
+                          // sharePositionOrigin: box!.localToGlobal(Offset.zero) & box.size);
+                      );
+                    }
                   ),
                   Expanded(
                     child: Align(
