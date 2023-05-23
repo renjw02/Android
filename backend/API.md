@@ -681,7 +681,7 @@ def search_post(postId):
 ## star部分
 
 ```
-所有接口路径均以"/api/post"开头
+所有接口路径均以"/api/star"开头
 ```
 
 > + id

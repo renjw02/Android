@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:frontend/Auth/customAuth.dart';
 import 'package:frontend/models/user.dart' as model;
 import 'package:frontend/providers/user_provider.dart';
-import 'package:frontend/resources/textpost_methods.dart';
+import 'package:frontend/resources/post_methods.dart';
 import 'package:frontend/screens/comments_screen.dart';
 import 'package:frontend/screens/profile_screen.dart';
 import 'package:frontend/utils/colors.dart';
@@ -45,6 +45,7 @@ class _PostCardState extends State<PostCard> {
   bool isLoading = false;
   List<dynamic> photo = [];
   List<int> fileTyeps = [];
+  Map<String,int> collections = {};   //uid对应collection_id
 
 
   @override
@@ -99,7 +100,7 @@ class _PostCardState extends State<PostCard> {
 
   deletePost(String postId) async {  //TODO
     try {
-      await TextPostMethods().deletePost(postId);
+      await postMethods().deletePost(postId);
     } catch (err) {
       showSnackBar(
         context,
@@ -389,8 +390,8 @@ class _PostCardState extends State<PostCard> {
           // IMAGE SECTION OF THE POST
           GestureDetector(
             onDoubleTap: () async {
-              String res = await TextPostMethods().supportPost(   //TODO
-                widget.snap['id'].toString(),
+              String res = await postMethods().supportPost(   //TODO
+                widget.snap['id'],
                 user.uid,
                 widget.snap['supportList'],
               );
@@ -446,8 +447,8 @@ class _PostCardState extends State<PostCard> {
                       color: Colors.red,)
                     : const Icon(Icons.favorite_border,),
                     onPressed: () async {
-                      String res = await TextPostMethods().supportPost(
-                        widget.snap['postId'].toString(),
+                      String res = await postMethods().supportPost(
+                        widget.snap['id'],
                         user.uid,
                         widget.snap['supportList'],
                       );
@@ -504,14 +505,32 @@ class _PostCardState extends State<PostCard> {
                   Expanded(
                     child: Align(
                       alignment: Alignment.bottomRight,
-                      child:IconButton(
-                        icon: widget.snap['starList'].contains(user.uid)
-                            ? const Icon(
-                          Icons.star,
-                          color: Colors.red,
-                        ) : const Icon(Icons.star_border),
-                        onPressed:(){},
-                      ),
+                      child:Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          IconButton(
+                            icon: widget.snap['starList'].contains(user.uid)
+                                ? const Icon(
+                              Icons.star,
+                              color: Colors.yellow,
+                            ) : const Icon(Icons.star_border),
+                            onPressed:() async {
+                              await postMethods().starPost(widget.snap['id'], user.uid, widget.snap['title'], widget.snap['starList']);
+                              setState(() {
+                              });
+                            },
+                          ),
+                          DefaultTextStyle(
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .titleSmall!
+                                  .copyWith(fontWeight: FontWeight.w800),
+                              child: Text(
+                                '${widget.snap['starList'].length}',
+                                style: Theme.of(context).textTheme.bodyText2,
+                              )),
+                        ],
+                      )
                     )
                   )
                 ],

@@ -19,7 +19,7 @@ class StarService():
             s = Star(post_id=post_id, user_id=user_id, title=title, created=now)
             db.session.add(s)
             db.session.query(Post).filter(Post.id == post_id).update({
-                "starNum": Post.star_num + 1
+                "star_num": Post.star_num + 1
             })
             db.session.commit()
             return s, True
@@ -31,7 +31,7 @@ class StarService():
         try:
             db.session.query(Star).filter(and_(Star.user_id == user_id, Star.post_id == post_id)).delete()
             db.session.query(Post).filter(Post.id == post_id).update({
-                "starNum": Post.star_num - 1
+                "star_num": Post.star_num - 1
             })
             db.session.commit()
             return True

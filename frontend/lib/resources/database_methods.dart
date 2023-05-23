@@ -918,86 +918,85 @@ class DataBaseManager{
     return querySnapshot;
   }
 
+  Future<String> supportPost(int postid,int type) async {
+    String res = "Fail";
+    try{
+      var dio = new Dio();
+      dio.options.headers[HttpHeaders.authorizationHeader]=CustomAuth.currentUser.jwt;
+      var response = await dio.post(gv.ip+"/api/post/supportpost/$postid",data: {"type":type,});
+      print("supportpost asd1");
+      var m = Map.from(response.data);
+      //print(m);
+      print(m);
+      print(m.runtimeType);
+      print(response.statusCode);
+      if (response.statusCode == 200) {
+        res = "Success";
+      }
+      else{
+        print("点赞或取消点赞失败");
+      }
+    }catch (exception) {
+      print(exception);
+      print("点赞或取消点赞失败");
+    }
+    return res;
+  }
+
+  Future<String> starPost(int postid,String uid,String title) async {
+    String res = "Fail";
+    try{
+      var dio = new Dio();
+      dio.options.headers[HttpHeaders.authorizationHeader]=CustomAuth.currentUser.jwt;
+      var response = await dio.post(gv.ip+"/api/star/collectpost",data: {
+        "post_id":postid,
+        "user_id":int.parse(uid),
+        "title":title,
+      });
+      print("starpost asd1");
+      var m = Map.from(response.data);
+      //print(m);
+      print(m);
+      print(m.runtimeType);
+      print(response.statusCode);
+      if (response.statusCode == 200) {
+        res = "Success";
+      }
+      else{
+        print("收藏失败");
+      }
+    }catch (exception) {
+      print(exception);
+      print("收藏失败");
+    }
+    return res;
+  }
+
+  Future<String> cancelStar(int postid,String uid) async {
+    String res = "Fail";
+    try{
+      var dio = new Dio();
+      dio.options.headers[HttpHeaders.authorizationHeader]=CustomAuth.currentUser.jwt;
+      var response = await dio.post(gv.ip+"/api/star/cancelcollection",data: {
+        "post_id":postid,
+        "user_id":int.parse(uid),
+      });
+      print("cancelstar asd1");
+      var m = Map.from(response.data);
+      //print(m);
+      print(m);
+      print(m.runtimeType);
+      print(response.statusCode);
+      if (response.statusCode == 200) {
+        res = "Success";
+      }
+      else{
+        print("取消收藏失败");
+      }
+    }catch (exception) {
+      print(exception);
+      print("取消收藏失败");
+    }
+    return res;
+  }
 }
-  // Future<Map<String, dynamic>> getFollowers(Uri url,String jwt) async{
-  //   Map<String, dynamic> userFollowers = {};
-  //   await _client.get(
-  //     url,
-  //     headers: {
-  //       HttpHeaders.authorizationHeader: jwt,
-  //     },
-  //   ).then((http.Response response) {
-  //     //处理响应信息
-  //     if (response.statusCode == 200) {
-  //       userFollowers = jsonDecode(response.body);
-  //     } else {
-  //       print('error');
-  //       print(response.body);
-  //     }
-  //   }).catchError((e){
-  //     print(e);
-  //   });
-  //   return userFollowers;
-  // }
-  // Future<Map<String, dynamic>> getFollowed(Uri url,String uid,String jwt) async{
-  //   Map<String, dynamic> userFollowed = {};
-  //   await _client.get(
-  //     url,
-  //     headers: {
-  //       HttpHeaders.authorizationHeader: jwt,
-  //     },
-  //   ).then((http.Response response) {
-  //     //处理响应信息
-  //     if (response.statusCode == 200) {
-  //       userFollowed = jsonDecode(response.body);
-  //     } else {
-  //       print('error');
-  //       print(response.body);
-  //     }
-  //   }).catchError((e){
-  //     print(e);
-  //   });
-  //   return userFollowed;
-  // }
-//   Future<QuerySnapshot> feedsQuery([int page=1,int size=10,int userId=0,String? orderByWhat=null,int type=0,bool? onlyFollowing=null,
-//     bool? hot=null]) async {
-//     // return FirebaseFirestore.instance
-//     //     .collection('users')
-//     //     .where('username', isEqualTo: query)
-//     //     .get();
-//     QuerySnapshot querySnapshot = QuerySnapshot(
-//       docs: [], readTime: DateTime.now(),
-//     );
-//     try{
-//       await _client.get(
-//         feedsQueryUrl,
-//         headers:{
-//           HttpHeaders.authorizationHeader: CustomAuth.currentUser.jwt,
-//           // "content-type": ContentType.json.toString(),
-//         },
-//         // body: bodyParams,
-//         // body:jsonEncode({
-//         //   "page":1,
-//         //   "size":10,
-//         //   "userId":CustomAuth.currentUser.uid,
-//         //   "orderByWhat":"post.support_num",
-//         //   "type":0,
-//         // }),
-//       ).then((http.Response response){
-//         print(jsonDecode(response.body)['message']);
-//         Map<String, dynamic> returnData = jsonDecode(response.body);
-//         print(returnData);
-//         querySnapshot = QuerySnapshot(
-//           docs: returnData['posts'], readTime: DateTime.now(),
-//         );
-//       }).catchError((error) {
-//         print("feedsQuery catchError:");
-//         print(error);
-//       });
-//     }catch(e){
-//       print("feedsQuery catch(e):");
-//       print(e);
-//     }
-//
-//     return querySnapshot;
-//   }

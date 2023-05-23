@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:geocode/geocode.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:frontend/providers/user_provider.dart';
-import 'package:frontend/resources/textpost_methods.dart';
+import 'package:frontend/resources/post_methods.dart';
 import 'package:frontend/utils/colors.dart';
 import 'package:frontend/utils/utils.dart';
 import 'package:path_provider/path_provider.dart';
