@@ -20,6 +20,7 @@ class User {
   final String profile;
   final List followers;
   final List following;
+  final List blockList;
 
   User(
       {required this.username,
@@ -32,7 +33,8 @@ class User {
         required this.nickname,
         required this.profile,
         required this.followers,
-        required this.following});
+        required this.following,
+        required this.blockList});
 
   factory User.fromJson(Map<String, dynamic> json) =>
       _$UserFromJson(json);
@@ -78,6 +80,7 @@ class User {
       "profile":profile,
       "followers": followers,
       "following": following,
+      "blockList":blockList,
     };
   }
 

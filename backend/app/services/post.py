@@ -344,11 +344,10 @@ class PostService():
             tmp = Support.query.filter(and_(Support.user_id == user_id, Support.post_id == post_id)).first()
             if tmp is not None:
                 return "already exist", False
-            
             s = Support(post_id=post_id, user_id=user_id, created=now)
             db.session.add(s)
             db.session.query(Post).filter(Post.id == post_id).update({
-                "support_num": Post.favor_num+1,
+                "support_num": Post.support_num+1,
                 "updated": now
             })
             db.session.commit()
@@ -362,7 +361,7 @@ class PostService():
         try:
             db.session.query(Support).filter(and_(Support.user_id == user_id, Support.post_id == post_id)).delete()
             db.session.query(Post).filter(Post.id == post_id).update({
-                "support_num": Post.favor_num-1
+                "support_num": Post.support_num-1
             })
             db.session.commit()
             return 'ok', True

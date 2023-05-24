@@ -66,6 +66,33 @@ class DataBaseManager{
             profile:data['profile'] as String,
             followers: data['followers'] as List,
             following: data['following'] as List,
+            blockList: [],
+          );
+          url = Uri.parse(gv.ip+"/api/user/getfollowedlist/"+data['uid'] as String);
+          Map<String,dynamic> tempfollowing = await getSomeMap(url);
+          List<String> following = [];
+          for(var item in tempfollowing['followedList']){
+            following.add(item['followedUserId'].toString());
+          }
+          url = Uri.parse(gv.ip+"/api/user/getblockedlist/"+data['uid'] as String);
+          Map<String,dynamic> tempblock = await getSomeMap(url);
+          List<String> blockList = [];
+          for(var item in tempblock['blockedList']){
+            blockList.add(item['blockedUserId'].toString());
+          }
+          CustomAuth.currentUser = User(
+            username: data['username'] as String,
+            password: data['password'] as String,
+            uid: data['uid'] as String,
+            jwt: data['jwt'] as String,
+            photoUrl: data['photoUrl'] as String,
+            photo: Uint8List(0),
+            email: data['email'] as String,
+            nickname: data['nickname'] as String,
+            profile:data['profile'] as String,
+            followers: data['followers'] as List,
+            following: following,
+            blockList: blockList,
           );
           result = "Success";
         } else {
@@ -136,7 +163,8 @@ class DataBaseManager{
           nickname: nickname,
           profile: profile,
           followers: CustomAuth.currentUser.followers,
-          following: CustomAuth.currentUser.following);
+          following: CustomAuth.currentUser.following,
+          blockList: CustomAuth.currentUser.blockList);
           res = "Success";
         }
       }
@@ -168,7 +196,9 @@ class DataBaseManager{
             nickname: nickname,
             profile: profile,
             followers: CustomAuth.currentUser.followers,
-            following: CustomAuth.currentUser.following);
+            following: CustomAuth.currentUser.following,
+            blockList: CustomAuth.currentUser.blockList,
+          );
           res = "Success";
         }
         else{
@@ -247,24 +277,7 @@ class DataBaseManager{
   }
 
   Future<void> followUser(String uid) async {
-    var url = Uri.parse(gv.ip+"/api/user/register");
-    await _client.post(
-      url,
-      headers:{
-        HttpHeaders.authorizationHeader: CustomAuth.currentUser.jwt,
-        "content-type": ContentType.json.toString(),
-      },
-      // body: bodyParams,
-      body:jsonEncode({
-        "username":"username",
-        "nickname":"nickname",
-        "password":"password",
-      }),
-    ).then((http.Response response){
-      print(jsonDecode(response.body)['message']);
-      print(jsonDecode(response.body)['userId']);
-    });
-    url = Uri.parse(gv.ip+"/api/user/followuser/"+uid);
+    Uri url = Uri.parse(gv.ip+"/api/user/followuser/"+uid);
     await _client.post(
       url,
       headers:{
@@ -273,23 +286,80 @@ class DataBaseManager{
       },
     ).then((http.Response response){
       print(jsonDecode(response.body));
-      if(CustomAuth.currentUser.following.indexOf(jsonDecode(response.body)['followed_id']) == -1){
-        CustomAuth.currentUser.following.add(jsonDecode(response.body)['followed_id']);
+      if(CustomAuth.currentUser.following.indexOf(uid) == -1){
+        CustomAuth.currentUser.following.add(uid);
+        print(CustomAuth.currentUser.following);
+      }
+      print(jsonDecode(response.body)['message']);
+    });
+  }
+
+  Future<void> unFollowUser(String uid) async {
+    Uri url = Uri.parse(gv.ip+"/api/user/cancelfollow/"+uid);
+    await _client.post(
+      url,
+      headers:{
+        HttpHeaders.authorizationHeader: CustomAuth.currentUser.jwt,
+        "content-type": ContentType.json.toString(),
+      },
+    ).then((http.Response response){
+      print(jsonDecode(response.body));
+      if(CustomAuth.currentUser.following.indexOf(uid) != -1){
+        CustomAuth.currentUser.following.remove(uid);
+        print(CustomAuth.currentUser.following);
+      }
+      print(jsonDecode(response.body)['message']);
+    });
+  }
+  Future<void> blockUser(String uid) async {
+    Uri url = Uri.parse(gv.ip+"/api/user/blockuser/"+uid);
+    await _client.post(
+      url,
+      headers:{
+        HttpHeaders.authorizationHeader: CustomAuth.currentUser.jwt,
+        "content-type": ContentType.json.toString(),
+      },
+    ).then((http.Response response){
+      print(jsonDecode(response.body));
+      if(CustomAuth.currentUser.blockList.indexOf(uid) == -1){
+        CustomAuth.currentUser.blockList.add(uid);
+        print(CustomAuth.currentUser.blockList);
+      }
+      print(jsonDecode(response.body)['message']);
+    });
+  }
+  Future<void> unBlockUser(String uid) async {
+    Uri url = Uri.parse(gv.ip+"/api/user/cancelblock/"+uid);
+    await _client.post(
+      url,
+      headers:{
+        HttpHeaders.authorizationHeader: CustomAuth.currentUser.jwt,
+        "content-type": ContentType.json.toString(),
+      },
+    ).then((http.Response response){
+      print(jsonDecode(response.body));
+      if(CustomAuth.currentUser.blockList.indexOf(uid) != -1){
+        CustomAuth.currentUser.blockList.remove(uid);
+        print(CustomAuth.currentUser.blockList);
       }
       print(jsonDecode(response.body)['message']);
     });
   }
 
   Future<String> createPost(String title,String content,int type,String position,int font_size,String font_color,
-  String font_weight,List<Uint8List?> files) async {
+  String font_weight,List<Uint8List?> files,List<int?> fileTypes) async {
     String res = "动态上传失败";
     try{
       List<MultipartFile> mfiles=[];
       int count=0;
       for(Uint8List? file in files){
         if(file != null){
-          mfiles.add(MultipartFile.fromBytes(file,filename:'${title}${count}.jpg',contentType: new MediaType("image", "jpeg")));
-
+          if(fileTypes[count]==0){
+            mfiles.add(MultipartFile.fromBytes(file,filename:'${title}${count}.jpg',contentType: new MediaType("image", "jpeg")));
+          }
+          else{
+            mfiles.add(MultipartFile.fromBytes(file,filename:'${title}${count}.mp4',contentType: new MediaType("video", "mp4")));
+          }
           count++;
         }
       }
@@ -893,86 +963,85 @@ class DataBaseManager{
     }
   }
 
+  Future<String> supportPost(int postid,int type) async {
+    String res = "Fail";
+    try{
+      var dio = new Dio();
+      dio.options.headers[HttpHeaders.authorizationHeader]=CustomAuth.currentUser.jwt;
+      var response = await dio.post(gv.ip+"/api/post/supportpost/$postid",data: {"type":type,});
+      print("supportpost asd1");
+      var m = Map.from(response.data);
+      //print(m);
+      print(m);
+      print(m.runtimeType);
+      print(response.statusCode);
+      if (response.statusCode == 200) {
+        res = "Success";
+      }
+      else{
+        print("点赞或取消点赞失败");
+      }
+    }catch (exception) {
+      print(exception);
+      print("点赞或取消点赞失败");
+    }
+    return res;
+  }
+
+  Future<String> starPost(int postid,String uid,String title) async {
+    String res = "Fail";
+    try{
+      var dio = new Dio();
+      dio.options.headers[HttpHeaders.authorizationHeader]=CustomAuth.currentUser.jwt;
+      var response = await dio.post(gv.ip+"/api/star/collectpost",data: {
+        "post_id":postid,
+        "user_id":int.parse(uid),
+        "title":title,
+      });
+      print("starpost asd1");
+      var m = Map.from(response.data);
+      //print(m);
+      print(m);
+      print(m.runtimeType);
+      print(response.statusCode);
+      if (response.statusCode == 200) {
+        res = "Success";
+      }
+      else{
+        print("收藏失败");
+      }
+    }catch (exception) {
+      print(exception);
+      print("收藏失败");
+    }
+    return res;
+  }
+
+  Future<String> cancelStar(int postid,String uid) async {
+    String res = "Fail";
+    try{
+      var dio = new Dio();
+      dio.options.headers[HttpHeaders.authorizationHeader]=CustomAuth.currentUser.jwt;
+      var response = await dio.post(gv.ip+"/api/star/cancelcollection",data: {
+        "post_id":postid,
+        "user_id":int.parse(uid),
+      });
+      print("cancelstar asd1");
+      var m = Map.from(response.data);
+      //print(m);
+      print(m);
+      print(m.runtimeType);
+      print(response.statusCode);
+      if (response.statusCode == 200) {
+        res = "Success";
+      }
+      else{
+        print("取消收藏失败");
+      }
+    }catch (exception) {
+      print(exception);
+      print("取消收藏失败");
+    }
+    return res;
+  }
 }
-  // Future<Map<String, dynamic>> getFollowers(Uri url,String jwt) async{
-  //   Map<String, dynamic> userFollowers = {};
-  //   await _client.get(
-  //     url,
-  //     headers: {
-  //       HttpHeaders.authorizationHeader: jwt,
-  //     },
-  //   ).then((http.Response response) {
-  //     //处理响应信息
-  //     if (response.statusCode == 200) {
-  //       userFollowers = jsonDecode(response.body);
-  //     } else {
-  //       print('error');
-  //       print(response.body);
-  //     }
-  //   }).catchError((e){
-  //     print(e);
-  //   });
-  //   return userFollowers;
-  // }
-  // Future<Map<String, dynamic>> getFollowed(Uri url,String uid,String jwt) async{
-  //   Map<String, dynamic> userFollowed = {};
-  //   await _client.get(
-  //     url,
-  //     headers: {
-  //       HttpHeaders.authorizationHeader: jwt,
-  //     },
-  //   ).then((http.Response response) {
-  //     //处理响应信息
-  //     if (response.statusCode == 200) {
-  //       userFollowed = jsonDecode(response.body);
-  //     } else {
-  //       print('error');
-  //       print(response.body);
-  //     }
-  //   }).catchError((e){
-  //     print(e);
-  //   });
-  //   return userFollowed;
-  // }
-//   Future<QuerySnapshot> feedsQuery([int page=1,int size=10,int userId=0,String? orderByWhat=null,int type=0,bool? onlyFollowing=null,
-//     bool? hot=null]) async {
-//     // return FirebaseFirestore.instance
-//     //     .collection('users')
-//     //     .where('username', isEqualTo: query)
-//     //     .get();
-//     QuerySnapshot querySnapshot = QuerySnapshot(
-//       docs: [], readTime: DateTime.now(),
-//     );
-//     try{
-//       await _client.get(
-//         feedsQueryUrl,
-//         headers:{
-//           HttpHeaders.authorizationHeader: CustomAuth.currentUser.jwt,
-//           // "content-type": ContentType.json.toString(),
-//         },
-//         // body: bodyParams,
-//         // body:jsonEncode({
-//         //   "page":1,
-//         //   "size":10,
-//         //   "userId":CustomAuth.currentUser.uid,
-//         //   "orderByWhat":"post.support_num",
-//         //   "type":0,
-//         // }),
-//       ).then((http.Response response){
-//         print(jsonDecode(response.body)['message']);
-//         Map<String, dynamic> returnData = jsonDecode(response.body);
-//         print(returnData);
-//         querySnapshot = QuerySnapshot(
-//           docs: returnData['posts'], readTime: DateTime.now(),
-//         );
-//       }).catchError((error) {
-//         print("feedsQuery catchError:");
-//         print(error);
-//       });
-//     }catch(e){
-//       print("feedsQuery catch(e):");
-//       print(e);
-//     }
-//
-//     return querySnapshot;
-//   }

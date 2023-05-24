@@ -100,7 +100,9 @@ class _ModifyScreenState extends State<ModifyScreen> {
           nickname: CustomAuth.currentUser.nickname,
           profile: p,
           followers: CustomAuth.currentUser.followers,
-          following: CustomAuth.currentUser.following);
+          following: CustomAuth.currentUser.following,
+          blockList: CustomAuth.currentUser.blockList,
+      );
     }
     return res;
   }

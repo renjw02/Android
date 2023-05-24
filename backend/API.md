@@ -695,7 +695,7 @@ def search_post(postId):
 ## star部分
 
 ```
-所有接口路径均以"/api/post"开头
+所有接口路径均以"/api/star"开头
 ```
 
 > + id
@@ -772,7 +772,7 @@ def cancel_collection():
   ```
   {
   	"post_id"
-  	"collection_id"
+  	"user_id"
   }
   ```
 + 返回：json + 状态码

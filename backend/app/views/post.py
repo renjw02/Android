@@ -439,7 +439,6 @@ def support_post(postId):
         else:
             return jsonify({'message': "no type"}), 400
 
-
         if result:
             return jsonify({'message': msg}), 200
         else:
