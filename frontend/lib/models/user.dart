@@ -80,7 +80,7 @@ class User {
       "profile":profile,
       "followers": followers,
       "following": following,
-      "blockList":blockList,
+      "blockList":blockList, //黑名单,
     };
   }
 
@@ -95,7 +95,9 @@ class User {
         profile = db['profile'],
         followers = db['followers'] ?? [],
         following = db['following'] ?? [],
+        blockList = db['blockList'] ?? [],
         email = db['email'] ?? '';
+
 
   Map<String, dynamic> toDbMap() => <String ,dynamic>{
     "password":password,
@@ -108,6 +110,7 @@ class User {
     "profile":profile,
     "followers": followers,
     "following": following,
+    "blockList": blockList, //黑名单,
     "email": email,
   };
 

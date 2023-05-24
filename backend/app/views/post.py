@@ -55,7 +55,7 @@ def create_post():
                     # save_path = './static/images/'
                     save_path = os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.pardir, "static", "images"))
                     print(content_type,file=sys.stderr)
-                    path = os.path.join(save_path, filename)
+                    path = os.path.join(save_path, str(post.id) + "_" + filename)
                     print(content_type,file=sys.stderr)
                     pic, flag = service.upload_picture(post.id, path)
                     print(content_type,file=sys.stderr)
@@ -66,7 +66,7 @@ def create_post():
                     # save_path = './static/videos/'
                     save_path = os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.pardir, "static", "videos"))
                     path = os.path.join(save_path, filename)
-                    vid, flag = service.upload_video(post.id, path)
+                    vid, flag = service.upload_video(post.id, str(post.id) + "_" + path)
                     if not flag:
                         return jsonify({'message': "upload videos falied"}), 400
                 
@@ -94,6 +94,13 @@ def get_post_detail(postId):
         detail, result = service.get_post_detail(postId)
         images, has_picture = service.get_pictures(postId)
         videos, has_video = service.get_videos(postId)
+        fake_support_list, flag2 = service.get_support_list(postId)
+        support_list = []
+        for support in fake_support_list:
+            support_list.append(support['user_id'])
+        if not flag2:
+            return jsonify({'message': "get support list failed"}), 500
+        detail['supportList'] = support_list
         print("asd")
         print(images, has_picture)
         print(videos, has_video)
@@ -142,6 +149,20 @@ def get_pictures(postId):
     else:
         return jsonify({'message': "error"}), 500
 
+# 获取指定帖子的图片列表
+@bp.route('/getvideoslist/<int:postId>', methods=['GET'])
+@login_required
+def get_videos(postId):
+    """
+    获取某个帖子的所有图片地址
+    """
+    video_urls,hasUrls  = service.get_post_videoUrls(postId)
+    print(video_urls)
+    if hasUrls:
+        return jsonify(video_urls)
+    else:
+        return jsonify({'message': "error"}), 500
+    
 # 获取一页的帖子列表
 # 分类：全部、已关注用户、热门、类型
 # 排序：发布时间、点赞数、评论数
@@ -150,6 +171,7 @@ def get_pictures(postId):
 @login_required
 def get_post_list():
     try:
+        print("get_post_list")
         page = 1 if request.args.get('page') is None else int(request.args.get('page'))
         size = 10 if request.args.get('size') is None else int(request.args.get('size'))
         user_id = 0 if request.args.get('userId') is None else request.args.get('userId')
@@ -170,7 +192,12 @@ def get_post_list():
             if not flag1:
                 return jsonify({'message': "get star list failed"}), 500
             post['starList'] = star_list
-            support_list, flag2 = service.get_support_list(post_id)
+            fake_support_list, flag2 = service.get_support_list(post_id)
+            support_list = []
+            for support in fake_support_list:
+                support_list.append(support['user_id'])
+            print(fake_support_list)
+            print(support_list)
             if not flag2:
                 return jsonify({'message': "get support list failed"}), 500
             post['supportList'] = support_list

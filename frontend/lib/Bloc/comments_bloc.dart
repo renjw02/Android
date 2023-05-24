@@ -2,8 +2,8 @@
 import 'package:frontend/models/comment.dart';
 import 'package:frontend/models/post.dart';
 import 'package:rxdart/rxdart.dart';
-import '../resources/comments_repository.dart';
-import '../resources/repository.dart';
+import '../resources/respository/comments_repository.dart';
+import '../resources/respository/feeds_repository.dart';
 
 class CommentsBloc {
   CommentsBloc() {
@@ -22,9 +22,10 @@ class CommentsBloc {
   Function(int) get fetchItemWithComments => _commentsFetcher.sink.add; //一个处理评论数据请求的方法，它会向_commentsFetcher发送一个评论ID，以获取该评论的详细信息。
 
   _commentsTransFormer() {  //一个私有方法，它返回一个ScanStreamTransformer对象，用于将评论数据转换为一个Map<int, Future<ItemModel>>对象，该对象包含每个评论的详细信息和它的子评论。
+    //todo
     return ScanStreamTransformer(
             (Map<int, Future<Comment>> cache, int id, index) {
-          cache[id] = _repository.fetchItem(id)
+          cache[id] = _repository.getComment(id)
             ..then((Comment item) {
               // for (var comment in item.comments) {
               //   fetchItemWithComments(comment.id);

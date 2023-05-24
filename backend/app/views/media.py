@@ -38,3 +38,23 @@ def get_photo():
     except:
         return jsonify({'message': "exception!"}), 400  
     
+
+# 获取视频
+@bp.route('/video', methods=['GET'])
+@login_required
+def get_video():
+    try:
+        print(request,file=sys.stderr)
+        print(request.args,file=sys.stderr)
+        file_name = request.args['name']
+        print(file_name,file=sys.stderr)
+        if file_name is None:
+            return jsonify({'message': "no file name"}), 400
+        path = os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.pardir, "static", "videos", str(file_name)))
+        print(path,file=sys.stderr)
+        videoData = open(path, "rb").read()
+        response = make_response(videoData)
+        response.headers['Content-Type'] = 'video/mp4'
+        return response, 200
+    except:
+        return jsonify({'message': "exception!"}), 400  

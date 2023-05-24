@@ -1,17 +1,18 @@
 // TODO Implement this library.
 import 'package:flutter/foundation.dart';
-import 'package:frontend/models/querySnapshot.dart';
 import 'package:frontend/models/user.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import '../models/post.dart';
+import '../../models/post.dart';
 import 'dart:async';
-import '../utils/global_variable.dart';
-import './feeds_interface.dart';
-import 'database_methods.dart' as db;
+import '../../utils/global_variable.dart';
+import '../interface/feeds_interface.dart';
+import '../database_methods.dart' as db;
+import 'api_service.dart';
+import 'media_api_service.dart' as mediaApi;
 const String url = "https://hacker-news.firebaseio.com/v0";
 
-class FeedsApiProvider implements Source{
+class FeedsApiService implements Source{
   http.Client client = http.Client();
 
   //获取头条新闻id
@@ -27,7 +28,6 @@ class FeedsApiProvider implements Source{
     //在从本地的读取top-stories的json字典的数据代替从客户端获取数据
     // const topStories = "[1, 2]";
     List<List<int>> list;
-
 
     list = await db.DataBaseManager().getNewPostList();
     print("list<int>");
@@ -45,7 +45,7 @@ class FeedsApiProvider implements Source{
     }
     //content是Map<String, dynamic>类型
     Map<String, dynamic>? content = await db.DataBaseManager().getThePost(id);
-    List<String>? imageUrls = await db.DataBaseManager().getImageUrls(id);
+    List<String>? imageUrls = await mediaApi.MediaApiService().getImageUrls(id);
     print("THEcontent: $content");
     content?['images'] = imageUrls;
     print("content: $content");
@@ -63,5 +63,62 @@ class FeedsApiProvider implements Source{
     print("fetchUser:$id");
     print("userinfo: $userinfo");
     return User.fromJson(userinfo);
+  }
+
+  @override
+  Future<String> starPost(int postId, String uid, String title, List stars) async {
+    // TODO: implement starPost
+    print("starpost");
+    print(uid);
+    print(stars);
+    String res = "Fail";
+    if(stars.contains(uid)==false){
+      res = await db.DataBaseManager().starPost(postId, uid,title);
+      if(res == "Success"){
+        stars.add(uid);
+        return "Success";
+      }
+      else{
+        return "Error";
+      }
+    }
+    else{
+      res = await db.DataBaseManager().cancelStar(postId, uid);
+      if(res == "Success"){
+        stars.remove(uid);
+        return "Success";
+      }
+      else{
+        return "Error";
+      }
+    }
+  }
+
+  @override
+  Future<String> supportPost(int postId, String uid, List supports) async {
+    print("supportpost");
+    print(uid);
+    print(supports);
+    String res = "Fail";
+    if(supports.contains(uid)==false){
+      res = await db.DataBaseManager().supportPost(postId, 1);
+      if(res == "Success"){
+        supports.add(uid);
+        return "Success";
+      }
+      else{
+        return "Error";
+      }
+    }
+    else{
+      res = await db.DataBaseManager().supportPost(postId, -1);
+      if(res == "Success"){
+        supports.remove(uid);
+        return "Fail";
+      }
+      else{
+        return "Error";
+      }
+    }
   }
 }

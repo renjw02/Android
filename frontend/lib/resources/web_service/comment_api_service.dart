@@ -1,6 +1,9 @@
+import 'package:frontend/models/user.dart';
+
 import './api_service.dart' ;
 import '../../models/comment.dart';
-class CommentApiService extends ApiService {
+import '../interface/comments_interface.dart';
+class CommentApiService extends ApiService implements Source {
   Future<String> createComment(int postId, String content, [int commentId = 0]) async {
     String url = '/api/post/createcomment/$postId';
     final body = {
@@ -22,4 +25,5 @@ class CommentApiService extends ApiService {
     print(result);
     return Comment.fromJson(result);
   }
+
 }

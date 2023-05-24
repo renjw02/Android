@@ -1,4 +1,6 @@
 // TODO Implement this library.
+import 'dart:convert';
+
 import 'package:flutter/foundation.dart';
 import 'package:frontend/models/user.dart';
 import 'package:sqflite/sqflite.dart';
@@ -6,8 +8,8 @@ import 'package:path_provider/path_provider.dart';
 import 'dart:io';
 import 'package:path/path.dart';
 import 'dart:async';
-import '../models/post.dart';
-import './feeds_interface.dart';
+import '../../models/post.dart';
+import '../interface/feeds_interface.dart';
 
 const String _postTableName = "table_post";
 const String _userTableName = "table_user";
@@ -36,7 +38,7 @@ class FeedsDbProvider implements Source, Cache {
     _db = await openDatabase(path, version: 1,
         onCreate: (Database db, int version) {
       db.execute('''
-            CREATE TABLE $_postTableName (
+            CREATE TABLE IF NOT EXISTS $_postTableName (
               id INTEGER PRIMARY KEY,
               uid TEXT,
               title TEXT,
@@ -62,7 +64,7 @@ class FeedsDbProvider implements Source, Cache {
             )
           ''');
       db.execute('''
-            CREATE TABLE $_userTableName (
+            CREATE TABLE IF NOT EXISTS $_userTableName (
               email TEXT,
               password TEXT,
               uid INTEGER PRIMARY  TEXT,
@@ -75,17 +77,6 @@ class FeedsDbProvider implements Source, Cache {
               followers TEXT,
               following TEXT
             )
-          ''');
-      db.execute('''
-            CREATE TABLE $_commentTableName (
-        id INTEGER PRIMARY KEY,
-        user_id INTEGER NOT NULL,
-        post_id INTEGER NOT NULL,
-        comment_id INTEGER,
-        content TEXT NOT NULL,
-        created DATETIME NOT NULL,
-        updated DATETIME NOT NULL,
-    );
           ''');
     });
     print("FeedsDbProvider init _db success: $_db");
@@ -162,10 +153,6 @@ class FeedsDbProvider implements Source, Cache {
     await _db.delete(_postTableName, where: "id = ?", whereArgs: [id]);
   }
 
-  //unused method
-  // @override
-  // Future<List<int>> fetchTopIds() => null;
-
   ////清理数据库
   @override
   Future<int> clear() {
@@ -182,6 +169,34 @@ class FeedsDbProvider implements Source, Cache {
     }
     throw UnimplementedError();
   }
+
+  @override
+  Future<String> starPost(int postId, String uid, String title, List stars) {
+    // TODO: implement starPost
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<String> supportPost(int postId, String uid, List supports) async {
+    try {
+      var now = DateTime.now();
+      var supportsList = (await _db.query(
+      "SELECT supports FROM posts WHERE id = ?", whereArgs: [postId]
+      ))[0]['supports'] as List;
+    if (supportsList!.contains(uid)) {
+    return "already exist";
+    }
+    supportsList?.add(uid);
+    await _db.rawUpdate(
+    "UPDATE posts SET support_num = support_num + 1, supports = ?, updated = ? WHERE id = ?",
+    [jsonEncode(supportsList), now, postId]
+    );
+    return 'ok';
+    } catch (e) {
+    print(e);
+    // await _db.rollback();
+    return 'errors';
+    }
+  }
 }
 
-FeedsDbProvider? dbProvider;

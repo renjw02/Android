@@ -7,6 +7,7 @@ class postMethods {
     //todo
     print("supportpost");
     print(uid);
+    print(supports);
     String res = "Fail";
     if(supports.contains(uid)==false){
       res = await db.DataBaseManager().supportPost(postId, 1);
@@ -56,21 +57,6 @@ class postMethods {
         return "Error";
       }
     }
-  }
-
-  // Post comment
-  Future<String> postComment(String postId, String text, String uid,
-      String name, String profilePic) async {
-    //todo
-    String res = "uncompleted";
-    return res;
-  }
-
-  // Delete Post
-  Future<String> deletePost(String postId) async {
-    //todo
-    String res = "uncompleted";
-    return res;
   }
 
 }

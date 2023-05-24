@@ -1,16 +1,13 @@
 // TODO Implement this library.
 import 'package:flutter/foundation.dart';
-import 'package:frontend/models/querySnapshot.dart';
 import 'package:frontend/models/user.dart';
 import 'package:frontend/resources/web_service/api_service.dart';
 import 'package:http/http.dart' as http;
-import 'dart:convert';
-import '../models/post.dart';
 import 'dart:async';
-import '../utils/global_variable.dart';
-import './feeds_interface.dart';
-import 'database_methods.dart' as db;
-import '../models/comment.dart';
+import '../../utils/global_variable.dart';
+import '../interface/comments_interface.dart';
+import '../database_methods.dart' as db;
+import '../../models/comment.dart';
 const String url = "https://hacker-news.firebaseio.com/v0";
 
 class CommentsApiProvider extends ApiService implements Source {
@@ -57,5 +54,21 @@ class CommentsApiProvider extends ApiService implements Source {
     print("fetchUser:$id");
     print("userinfo: $userinfo");
     return User.fromJson(userinfo);
+  }
+
+  @override
+  Future<String> createComment(int postId, String content, [int commentId = 0]) {
+    // TODO: implement createComment
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<Comment> getComment(int commentId) async {
+    String url = '/api/post/getcomment/$commentId';
+    print('getComment: $url');
+    var result = await sendGetRequest(url, {});
+    print('getComment: $result');
+    print(result);
+    return Comment.fromJson(result);
   }
 }

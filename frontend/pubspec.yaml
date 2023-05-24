@@ -63,7 +63,9 @@ dependencies:
   json_annotation:  ^4.8.1
   rxdart:
   sqflite:
-  path_provider:
+  shared_preferences:
+
+#  path_provider:
   path:
   async:
 dev_dependencies:

@@ -18,6 +18,7 @@ User _$UserFromJson(Map<String, dynamic> json) => User(
       profile: json['profile'] ?? '' as String,
       followers: json['followers'] ?? [] as List<dynamic>,
       following: json['following'] ?? [] as List<dynamic>,
+      blockList: json['blockList'] ?? [] as List<dynamic>,
     );
 
 Map<String, dynamic> _$UserToJson(User instance) => <String, dynamic>{
@@ -32,4 +33,5 @@ Map<String, dynamic> _$UserToJson(User instance) => <String, dynamic>{
       'profile': instance.profile,
       'followers': instance.followers,
       'following': instance.following,
+      'blockList': instance.blockList,
     };

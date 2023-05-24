@@ -39,7 +39,7 @@ class ApiService {
     var res;
     try {
       await _client.get(
-          Uri.parse(url),
+          Uri.parse("$serverIp:$serverPort$url"),
           headers: {
             HttpHeaders.authorizationHeader: CustomAuth.currentUser.jwt,
             'Content-Type': 'application/json'

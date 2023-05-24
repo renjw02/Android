@@ -401,7 +401,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
       print(topic2type[topicContent]!);
       Map<Color,String> colors = {Colors.red:"red",Colors.white:"white",Colors.yellow:"yellow"};
       Map<FontWeight,String> weights = {FontWeight.w300:"较细",FontWeight.w500:"适中",FontWeight.w700:"较粗"};
-      String res = await db.DataBaseManager().createPost(titlec.text, contentc.text, topic2type[topicContent]!, "position",
+      String res = await db.DataBaseManager().createPost(titlec.text, contentc.text, topic2type[topicContent]!, "$position",
           font_size,colors[font_color]!,weights[font_weight]!,postfiles,fileTypes);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -459,69 +459,84 @@ class _AddPostScreenState extends State<AddPostScreen> {
             ],
           ),
       body:Container(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.only(top: 10, left: 20, right: 20, bottom: 20),
         child: Column(
           children: [
             // Row(
-            //   mainAxisAlignment:MainAxisAlignment.spaceBetween,
+            //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
             //   children: [
             //     IconButton(
-            //       icon: const Icon(
-            //         Icons.topic,
-            //       ),
+            //       icon: const Icon(Icons.topic),
             //       onPressed: () => _selectTopic(context),
             //     ),
-            //     Text("${topicContent}"),
-            //     // if (currentLocation != null)
-            //     // Text("Location: ${currentLocation?.latitude}, ${currentLocation?.longitude}"),
-            //     const Divider(),
-            //     //if (currentLocation != null) Text("Address: $address"),
+            //     Expanded(
+            //       child: Padding(
+            //         padding: const EdgeInsets.only(right: 30),
+            //         child: TextButton(
+            //           onPressed: () => _selectTopic(context) ,
+            //           child: Text(
+            //             topicContent,
+            //             style: TextStyle(
+            //               fontSize: 18,
+            //               fontWeight: FontWeight.bold,
+            //               color: Colors.white,
+            //             ),
+            //             overflow: TextOverflow.ellipsis,
+            //           ),
+            //         ),
+            //       ),
+            //     ),
+            //
+            //     GestureDetector(
+            //       onTap: () {
+            //         // do something on tap
+            //       },
+            //       child: Padding(
+            //         padding: const EdgeInsets.only(right: 30),
+            //         child: Row(
+            //           children: [
+            //             const Icon(
+            //               Icons.location_on,
+            //               color: Colors.grey,
+            //             ),
+            //             SizedBox(width: 5),
+            //             Text(
+            //               '$position',
+            //               style: TextStyle(
+            //                 fontSize: 8,
+            //                 color: Colors.grey,
+            //               ),
+            //             ),
+            //           ],
+            //         ),
+            //       ),
+            //     ),
             //   ],
             // ),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                IconButton(
-                  icon: const Icon(Icons.topic),
-                  onPressed: () => _selectTopic(context),
-                ),
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.only(right: 30),
-                    child: TextButton(
-                      onPressed: () => _selectTopic(context) ,
-                      child: Text(
-                        topicContent,
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                  ),
-                ),
-
                 GestureDetector(
                   onTap: () {
-                    // do something on tap
+                    //do something on tap
                   },
                   child: Padding(
-                    padding: const EdgeInsets.only(right: 30),
+                    padding: const EdgeInsets.only(right: 0,left: 10),
                     child: Row(
                       children: [
-                        Icon(
+                        const Icon(
                           Icons.location_on,
                           color: Colors.grey,
                         ),
                         SizedBox(width: 5),
                         Text(
-                          'Location',
-                          style: TextStyle(
-                            fontSize: 16,
+                          position,
+                          style: const TextStyle(
+                            fontSize:11,
                             color: Colors.grey,
+                            overflow: TextOverflow.ellipsis,
                           ),
+
                         ),
                       ],
                     ),
@@ -529,6 +544,37 @@ class _AddPostScreenState extends State<AddPostScreen> {
                 ),
               ],
             ),
+            SizedBox(height: 20),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Container(
+                  padding: const EdgeInsets.only(left: 80),
+                  child: IconButton(
+                    icon: const Icon(Icons.topic),
+                    onPressed: () => _selectTopic(context),
+                  ),
+                ),
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.only(right: 80),
+                    child: TextButton(
+                      onPressed: () => _selectTopic(context),
+                      child: Text(
+                        topicContent,
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+
+              ],
+            ),
+
             Row(
                 children: [
                 SizedBox(

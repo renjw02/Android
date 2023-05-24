@@ -4,7 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:rxdart/rxdart.dart';
 import '../models/post.dart';
 import '../models/user.dart';
-import '../resources/repository.dart';
+import '../resources/respository/feeds_repository.dart';
 import '../utils/global_variable.dart';
 
 
@@ -42,9 +42,26 @@ class FeedsBloc {
     return _itemsFetcher.sink.add;
   }
 
+  // Function(int postId, String uid, List supports) get supportPost {
+  //
+  // }
+  Future<String> supportPost(int postId, String uid, List supports) async {
+    String res = "ERROR";
+    print("FeedsBloc supportPost");
+    print(res);
+    res = await _repository.supportPost(postId, uid, supports);
+    print(res);
+    //稍等50ms
+    // await Future.delayed(Duration(milliseconds: 50));
+    _itemsFetcher.sink.add(postId);
+    print(res);
+    return res;
+  }
+
   fetchTopIds() async {
     /// all, top, hot, follow, other
     final feedAndUserIds = await _repository.fetchTopIds();
+
     _topIds.sink.add(feedAndUserIds[0]);
     _userIds.sink.add(feedAndUserIds[1]);
   }

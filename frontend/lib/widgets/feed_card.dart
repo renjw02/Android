@@ -13,7 +13,7 @@ import '../Bloc/feeds_bloc_provider.dart';
 // import '../blocs/comments_bloc_provider.dart';
 import '../models/post.dart';
 import '../providers/user_provider.dart';
-import '../resources/textpost_methods.dart';
+import '../resources/post_methods.dart';
 import '../screens/profile_screen.dart';
 import '../utils/colors.dart';
 import '../utils/global_variable.dart';
@@ -56,27 +56,16 @@ class _FeedCardState extends State<FeedCard>
     //     .then((_) => _animationOpacity = 1);
   }
 
-  deletePost(String postId) async {
-    //TODO
-    try {
-      await TextPostMethods().deletePost(postId);
-    } catch (err) {
-      showSnackBar(
-        context,
-        err.toString(),
-      );
-    }
-  }
   @override
   Widget build(BuildContext context) {
     final bloc = FeedsBlocProvider.of(context);
     final model.User currentUser = Provider.of<UserProvider>(context).getUser;
     final width = MediaQuery.of(context).size.width;
     // final commentsBloc = CommentsBlocProvider.withKeyOf(context, ValueKey(widget.id));
-    print(bloc.newFilter);
+    // print(bloc.newFilter);
     // bloc.fetchTopIds();
     bloc.fetchItems(widget.id);
-    print("bloc.fetchItems(widget.id)");
+    // print("bloc.fetchItems(widget.id)");
 
     // bloc.fetchUsers(widget.creatorId);
     return StreamBuilder(
@@ -222,9 +211,9 @@ class _FeedCardState extends State<FeedCard>
                                                 child: Text(e),
                                               ),
                                               onTap: () {
-                                                deletePost(
-                                                  snap.data!.id.toString(),
-                                                );
+                                                // deletePost(
+                                                //   snap.data!.id.toString(),
+                                                // );
                                                 // remove the dialog box
                                                 Navigator.of(context).pop();
                                               }),
@@ -276,9 +265,15 @@ class _FeedCardState extends State<FeedCard>
           // IMAGE SECTION OF THE POST
           GestureDetector(
             onDoubleTap: () async {
-              String res = await TextPostMethods().supportPost(
+              // String res = await postMethods().supportPost(
+              //   //TODO
+              //   snap.data!.id,
+              //   currentUser.uid,
+              //   snap.data!.supportList,
+              // );
+              String res = await bloc.supportPost(
                 //TODO
-                snap.data!.id.toString(),
+                snap.data!.id,
                 currentUser.uid,
                 snap.data!.supportList,
               );
@@ -286,9 +281,11 @@ class _FeedCardState extends State<FeedCard>
                 if (res == "Success") {
                   snap.data!.support_num++;
                   if (kDebugMode) {
+                    print("support success");
                     print(snap.data!.supportList);
                   }
-                } else {
+                } else{
+                  //TODO
                   snap.data!.support_num--;
                 }
                 isLikeAnimating = true;
@@ -300,7 +297,7 @@ class _FeedCardState extends State<FeedCard>
                 // buildImages(photo),
                 if (snap.data!.images.isNotEmpty)
                   ImageList(
-                    imageUrls: snap.data!.images,
+                    imageUrls: snap.data!.images.map((dynamic) => dynamic.toString()).toList(),
                   ),
                 AnimatedOpacity(
                   duration: const Duration(milliseconds: 200),
@@ -318,7 +315,7 @@ class _FeedCardState extends State<FeedCard>
                     child: const Icon(
                       Icons.favorite,
                       color: Colors.white,
-                      size: 80,
+                      size: 100,
                     ),
                   ),
                 ),
@@ -334,10 +331,10 @@ class _FeedCardState extends State<FeedCard>
             child: Row(
               children: <Widget>[
                 LikeAnimation(
-                  isAnimating: snap.data!.supportList.contains(currentUser.uid),
+                  isAnimating: snap.data!.supportList.map((dynamic) => dynamic.toString()).toList().contains(currentUser.uid),
                   smallLike: true,
                   child: IconButton(
-                    icon: snap.data!.supportList
+                    icon: snap.data!.supportList.map((dynamic) => dynamic.toString()).toList()
                             .contains(currentUser.uid) //判断是否点赞
                         ? const Icon(
                             Icons.favorite,
@@ -347,8 +344,13 @@ class _FeedCardState extends State<FeedCard>
                             Icons.favorite_border,
                           ),
                     onPressed: () async {
-                      String res = await TextPostMethods().supportPost(
-                        snap.data!.id.toString(),
+                      // String res = await postMethods().supportPost(
+                      //   snap.data!.id,
+                      //   currentUser.uid,
+                      //   snap.data!.supportList,
+                      // );
+                      String res = await bloc.supportPost(
+                        snap.data!.id,
                         currentUser.uid,
                         snap.data!.supportList,
                       );
@@ -357,7 +359,8 @@ class _FeedCardState extends State<FeedCard>
                       }
                       if (res == "Success") {
                         snap.data!.support_num++;
-                      } else {
+                      } else{
+                        //TODO
                         snap.data!.support_num--;
                       }
                       setState(() {});
@@ -370,7 +373,7 @@ class _FeedCardState extends State<FeedCard>
                         .titleSmall!
                         .copyWith(fontWeight: FontWeight.w800),
                     child: Text(
-                      '${snap.data!.support_num} ',
+                      '${snap.data!.supportList.length} ',
                       style: Theme.of(context).textTheme.bodyMedium,
                     )),
                 IconButton(

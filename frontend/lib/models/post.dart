@@ -28,10 +28,10 @@ class Post {
   final int font_size;
   final String font_color;
   final String font_weight;
-  List<String> supportList; //喜欢这个贴子的用户
-  List<String> starList;
-  List<String> images;
-  List<String> videos;
+  List<dynamic> supportList; //喜欢这个贴子的用户
+  List<dynamic> starList;
+  List<dynamic> images;
+  List<dynamic> videos;
 
   // final String username;
   // final likes;

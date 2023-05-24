@@ -444,6 +444,26 @@ class PostService():
             print(e)
             return [], False
         
+    def get_post_videoUrls(self, post_id):
+        try:
+            # 查询指定帖子的所有图片
+            sql = """
+            SELECT path
+            FROM video
+            WHERE post_id = :post_id
+            """
+            results = db.session.execute(text(sql), {'post_id': post_id})
+            # 获取查询结果中的图片路径
+            video_paths = [result[0] for result in results]
+
+            # 从图片路径中提取图片名称，并将名称替换回路径
+            video_names = [os.path.basename(path) for path in video_paths]
+            print(video_names)
+            return video_names, True
+        except Exception as e:
+            print(e)
+            return [], False
+
     def get_videos(self, post_id):
         try:
             sql = """
@@ -460,14 +480,6 @@ class PostService():
                 videos.append(video_dict)
             # videos = [dict(zip(result.keys(), result)) for result in results]
             return videos, True
-        except Exception as e:
-            print(e)
-            return [], False
-        
-    def get_videoUrls(self, post_id):
-        try:
-            p = Post.query.filter(Post.id == post_id).first();
-            return [video.path for video in p.videos], True
         except Exception as e:
             print(e)
             return [], False
