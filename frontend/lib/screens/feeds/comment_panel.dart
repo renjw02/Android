@@ -189,6 +189,7 @@ class _CommentPanelState extends State<CommentPanel> {
       print(widget.post.comments);
       final commentsList =
       widget.post.comments.map((kid) => Comment(comment: commentModel.Comment.fromDbMap(kid))).toList();
+      commentsList.sort((a, b) => b.comment.created.compareTo(a.comment.created));
       children.addAll(commentsList);
     }
 

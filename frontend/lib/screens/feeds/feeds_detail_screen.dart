@@ -31,6 +31,16 @@ class _FeedsDetailScreenState extends State<FeedsDetailScreen>
     with SingleTickerProviderStateMixin {
   bool isLike = false;
   bool isCommentPanelOpen = false;
+  Map<String, Color> colors = {
+    "red": Colors.red,
+    "white": Colors.white,
+    "yellow": Colors.yellow
+  };
+  Map<String, FontWeight> weights = {
+    "较细": FontWeight.w300,
+    "适中": FontWeight.w500,
+    "较粗": FontWeight.w700
+  };
   void _onScroll() {
     setState(() {
       isCommentPanelOpen = false;
@@ -204,7 +214,7 @@ class _FeedsDetailScreenState extends State<FeedsDetailScreen>
     List<Widget> children = [];
     children
       ..add(UserProfileWidget(
-        nickname: item.nickname, creatorId: item.userId,created: item.created,),)
+        nickname: item.nickname, creatorId: item.userId,created: item.created,postType: item.type ==1 ? "校园资讯" : item.type == 2 ? "二手交易":"未知",),)
       ..add(Container(
         padding: const EdgeInsets.only(left: 20, top: 0, bottom: 10),
         child: Text(
@@ -225,8 +235,11 @@ class _FeedsDetailScreenState extends State<FeedsDetailScreen>
         child: Center(
           child: Text(
             item.content,
-            style: Theme.of(context).primaryTextTheme.bodyLarge,
-          ),
+            style: TextStyle(
+                fontSize: item.font_size.toDouble(),
+                color: colors[item.font_color],
+                fontWeight: weights[item.font_weight]),
+            ),
         ),
       ))
       ..add (SizedBox(
@@ -309,7 +322,8 @@ class _FeedsDetailScreenState extends State<FeedsDetailScreen>
     print(item.comments);
     final commentsList =
         item.comments.map((kid) => Comment(comment: commentModel.Comment.fromDbMap(kid))).toList();
-
+    //将comment按照时间排序
+    commentsList.sort((a, b) => b.comment.created.compareTo(a.comment.created));
     children.addAll(commentsList);
     return ListView(children: children);
   }
@@ -347,7 +361,8 @@ class UserProfileWidget extends StatefulWidget {
   final String nickname;
   final String creatorId;
   final String created;
-  UserProfileWidget({required this.nickname, required this.creatorId, required this.created});
+  final String postType;
+  UserProfileWidget({required this.nickname, required this.creatorId, required this.created, required this.postType});
 
   @override
   State<UserProfileWidget> createState() => _UserProfileWidgetState();
@@ -413,7 +428,14 @@ class _UserProfileWidgetState extends State<UserProfileWidget> {
               ),
             ),
           ),
-          SizedBox(width: 16),
+          SizedBox(width: 10),
+          Text(
+            widget.postType,
+            style: TextStyle(
+              color: secondaryColor,
+            ),
+          ),
+          SizedBox(width: 10),
           widget.creatorId != CustomAuth.currentUser.uid ? IconButton(
             iconSize: 40,
             // padding: EdgeInsets.all(10), // 内边距10

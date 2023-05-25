@@ -67,7 +67,7 @@ class Comment extends StatelessWidget {
                                             style: const TextStyle(fontSize: 14, color: Colors.grey),
                                           ),
                                           Text(
-                                            comment.created.toString().substring(5, 10),
+                                            comment.created.toString().substring(5, 16),
                                             style: const TextStyle(fontSize: 14, color: Colors.grey),
                                           ),
                                         ],

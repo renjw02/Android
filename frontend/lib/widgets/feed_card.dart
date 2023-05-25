@@ -177,6 +177,8 @@ class _FeedCardState extends State<FeedCard>
                   ),
                 ),
                 snap.data!.userId.toString() == currentUser.uid
+                    ? SizedBox(width: 0) : SizedBox(width: 30),
+                snap.data!.userId.toString() == currentUser.uid
                     ? IconButton(
                         onPressed: () {
                           showDialog(
