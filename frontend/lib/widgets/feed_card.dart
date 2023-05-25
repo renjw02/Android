@@ -6,6 +6,7 @@ import 'package:async/async.dart' as async;
 import 'package:frontend/models/user.dart' as model;
 import 'package:frontend/screens/feeds/feeds_detail_screen.dart';
 import 'package:frontend/widgets/Avatar.dart';
+import 'package:frontend/widgets/video_component.dart';
 import 'package:provider/provider.dart';
 import '../Auth/customAuth.dart';
 import '../Bloc/comments_bloc_provider.dart';
@@ -141,19 +142,8 @@ class _FeedCardState extends State<FeedCard>
             ).copyWith(right: 0),
             child: Row(
               children: [
-                GestureDetector(
-                  onTap: () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (context) =>
-                            ProfileScreen(uid: snap.data!.userId),
-                        //const LoginScreen(),
-                      ),
-                    );
-                  },
-                  child: UserAvatar(
-                    userId: snap.data!.userId, width: 32,height: 32,
-                  )
+                UserAvatar(
+                  userId: snap.data!.userId, width: 32,height: 32,
                 ),
                 Expanded(
                   child: Padding(
@@ -296,8 +286,8 @@ class _FeedCardState extends State<FeedCard>
               children: [
                 // buildImages(photo),
                 if (snap.data!.images.isNotEmpty)
-                  ImageList(
-                    imageUrls: snap.data!.images.map((dynamic) => dynamic.toString()).toList(),
+                  MediaList(
+                    imageUrls: snap.data!.images.map((dynamic) => dynamic.toString()).toList(), videoUrls: snap.data!.videos.map((dynamic) => dynamic.toString()).toList(),
                   ),
                 AnimatedOpacity(
                   duration: const Duration(milliseconds: 200),
@@ -571,6 +561,91 @@ class ImageList extends StatelessWidget {
             return const SizedBox(
               width: 120,
               height: 60,
+            );
+          }
+        },
+      ),
+    );
+  }
+}
+
+class MediaList extends StatelessWidget {
+  final List<String> imageUrls;
+  final List<String> videoUrls;
+
+  const MediaList({
+    Key? key,
+    required this.imageUrls,
+    required this.videoUrls
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final totalMedia = imageUrls.length + videoUrls.length;
+    return Container(
+      margin: const EdgeInsets.only(
+        top: 8.0,
+        bottom: 8.0,
+        left: 20.0,
+        right: 20.0,
+      ),
+      child: GridView.builder(
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        itemCount: totalMedia,
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 3,
+          crossAxisSpacing: 4.0,
+          mainAxisSpacing: 4.0,
+        ),
+        itemBuilder: (BuildContext context, int index) {
+          if (index < imageUrls.length) {
+            final imageUrl = imageUrls[index];
+            if (imageUrl.isNotEmpty) {
+              return ClipRRect(
+                borderRadius: BorderRadius.circular(16.0),
+                child: CachedNetworkImage(
+                  imageUrl: imageUrl,
+                  httpHeaders: {
+                    'Authorization': CustomAuth.currentUser.jwt,
+                  },
+                  placeholder: (context, url) => const SizedBox(
+                      width: 10, height: 10, child: CircularProgressIndicator()),
+                  errorWidget: (context, url, error) => const Icon(Icons.error),
+                  fit: BoxFit.cover,
+                ),
+              );
+            }else {
+              return const SizedBox(
+                width: 120,
+                height: 60,
+              );
+            }
+          } else {
+            index -= imageUrls.length;
+            final videoUrl = videoUrls[index];
+            // final posterUrl = videoUrl.thumbnail;
+            return  Center(
+              child: Stack(
+                  children: [
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(16.0),
+                      child: Center(
+                        child: VideoComponent(
+                          videoUrl: videoUrl,
+                          // canFullScreen: false,
+                        ),
+                      ),
+                    ),
+                    // const Center(
+                    //   child: Icon(
+                    //     Icons.play_circle_filled,
+                    //     size: 20,
+                    //     color: Colors.white,
+                    //   ),
+                    // )
+                  ],
+              ),
             );
           }
         },

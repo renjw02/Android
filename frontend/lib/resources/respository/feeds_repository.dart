@@ -70,8 +70,9 @@ class FeedsRepository{
     //todo
     String res = "Fail";
     try{
-      _sourceList[1].supportPost(postId, uid, supports);
-      res = await _sourceList[0].supportPost(postId, uid, supports);
+      List supportCopy = supports;
+      res = await _sourceList[0].supportPost(postId, uid, supportCopy);
+      await _sourceList[1].supportPost(postId, uid, supports);
     }catch(e){
       print(e);
     }
@@ -81,8 +82,9 @@ class FeedsRepository{
   Future<String> starPost(int postId, String uid, String title,List stars) async {
     //todo
     String res = "Fail";
-    _sourceList[1].starPost(postId, uid, title,stars);
+
     res = await _sourceList[0].starPost(postId, title, title, stars);
+    _sourceList[1].starPost(postId, uid, title,stars);
     return res;
   }
 

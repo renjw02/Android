@@ -178,7 +178,6 @@ class PostService():
             for row in content_result.fetchall():
                 post_dict = dict(zip(column_names, row))
                 post_list.append(post_dict)
-
             count_result = db.session.execute(text(sql_count))
             column_names = count_result.keys()
             count = []

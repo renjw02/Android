@@ -46,8 +46,10 @@ class FeedsApiService implements Source{
     //content是Map<String, dynamic>类型
     Map<String, dynamic>? content = await db.DataBaseManager().getThePost(id);
     List<String>? imageUrls = await mediaApi.MediaApiService().getImageUrls(id);
+    List<String>? videoUrls = await mediaApi.MediaApiService().getVideoUrls(id);
     print("THEcontent: $content");
     content?['images'] = imageUrls;
+    content?['videos'] = videoUrls;
     print("content: $content");
     return Post.fromJson(content!);
   }

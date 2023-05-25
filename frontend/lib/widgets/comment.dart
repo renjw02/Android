@@ -6,6 +6,7 @@ import '../models/comment.dart' as commentModel;
 import '../utils/text_helper.dart';
 import 'package:cached_network_image/cached_network_image.dart' as cni;
 import '../utils/global_variable.dart' as gv;
+import 'Avatar.dart';
 
 class Comment extends StatelessWidget {
   const Comment( {super.key, required this.comment});
@@ -30,22 +31,23 @@ class Comment extends StatelessWidget {
             child: Flex(
                 direction: Axis.horizontal,
                 children: [
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(30.0),
-                    child: CircleAvatar(
-                      child: cni.CachedNetworkImage(
-                        imageUrl:
-                        "${gv.ip}/api/user/downloadavatar?name=${comment.userId}.jpg",
-                        httpHeaders: {
-                          'Authorization': CustomAuth.currentUser.jwt,
-                        },
-                        placeholder: (context, url) => const SizedBox(
-                            width: 10, height: 10, child: CircularProgressIndicator()),
-                        errorWidget: (context, url, error) => const Icon(Icons.error),
-                        fit: BoxFit.cover,
-                      ),
-                    ),
-                  ),
+                  // ClipRRect(
+                  //   borderRadius: BorderRadius.circular(30.0),
+                  //   child: CircleAvatar(
+                  //     child: cni.CachedNetworkImage(
+                  //       imageUrl:
+                  //       "${gv.ip}/api/user/downloadavatar?name=${comment.userId}.jpg",
+                  //       httpHeaders: {
+                  //         'Authorization': CustomAuth.currentUser.jwt,
+                  //       },
+                  //       placeholder: (context, url) => const SizedBox(
+                  //           width: 10, height: 10, child: CircularProgressIndicator()),
+                  //       errorWidget: (context, url, error) => const Icon(Icons.error),
+                  //       fit: BoxFit.cover,
+                  //     ),
+                  //   ),
+                  // ),
+                  UserAvatar(userId: comment.userId.toString(),width: 50,height: 50),
                   Expanded(
                     child:Container(
                             // width: MediaQuery.of(context).size.width * 0.5,

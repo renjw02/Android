@@ -2,7 +2,7 @@
 # -*- encoding: utf-8 -*-
 
 # here put the import lib
-import os
+import os, base64
 
 from flask import Blueprint, jsonify, request, g, make_response
 from app.services import UserService
@@ -52,7 +52,7 @@ def get_video():
             return jsonify({'message': "no file name"}), 400
         path = os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.pardir, "static", "videos", str(file_name)))
         print(path,file=sys.stderr)
-        videoData = open(path, "rb").read()
+        videoData =base64.b64encode(open(path, "rb").read()).decode('utf-8') 
         response = make_response(videoData)
         response.headers['Content-Type'] = 'video/mp4'
         return response, 200

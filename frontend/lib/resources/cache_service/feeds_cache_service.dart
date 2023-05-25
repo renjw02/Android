@@ -64,21 +64,26 @@ class FeedsCacheService implements Source, Cache {
     print("feedsCache fetchItem");
     var list = _prefs.getStringList('post_list');
     Post res;
-    if (list != null) {
-      var posts = list.map((e) => Post.fromJson(jsonDecode(e))).toList();
-      print("posts");
-      print(posts);
-      for(var post in posts){
-        print(post.id);
+    try{
+      if (list != null) {
+        var posts = list.map((e) => Post.fromJson(jsonDecode(e))).toList();
+        print("posts");
+        print(posts);
+        for(var post in posts){
+          print(post.id);
+        }
+        for(var post in posts){
+          print(post.toJson());
+        }
+        res = posts.firstWhere((post) => post.id == id);
+      }else{
+        return null;
       }
-      for(var post in posts){
-        print(post.toJson());
-      }
-      res = posts.firstWhere((post) => post.id == id);
-    }else{
+      return res;
+    }catch(e){
+      print(e);
       return null;
     }
-    return res;
   }
 
   @override

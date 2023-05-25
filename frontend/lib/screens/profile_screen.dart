@@ -13,6 +13,7 @@ import 'package:http/http.dart' as http;
 import '../Auth/customAuth.dart';
 import '../models/user.dart';
 import '../resources/database_methods.dart' as db;
+import 'notice/chat_screen.dart';
 import 'notice/message_screen.dart';
 import 'followed_screen.dart';
 import 'feeds/modify_screen.dart';
@@ -166,7 +167,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
         ),
         centerTitle: false,
         actions: [
-          Container(
+          CustomAuth.currentUser.uid == widget.uid ? Container(
             margin: const EdgeInsets.only(right: 8,top: 8),
             child: IconButton(
               icon: const Icon(
@@ -179,7 +180,30 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                 ),
               ),
             ),
-          ),
+          )
+              :
+          Container(
+            margin: const EdgeInsets.only(right: 8,top: 8),
+            child: IconButton(
+              icon: const Icon(
+                Icons.add_comment_outlined,
+                color: primaryColor,
+              ),
+              onPressed: (){
+                // db.DataBaseManager().createNotice(1, "hello~",int.parse(CustomAuth.currentUser.uid),int.parse(widget.uid));
+                // db.DataBaseManager().createNotice(1, "hello~",int.parse(widget.uid),int.parse(CustomAuth.currentUser.uid));
+                Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => ChatScreen(
+                    user: CustomAuth.currentUser.uid,
+                    opuser: widget.uid,
+                    file: _photo!,
+                  ),
+                ),
+              );
+              }
+            ),
+          ) ,
         ],
       ),
       body: Column(

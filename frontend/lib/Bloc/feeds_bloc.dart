@@ -46,7 +46,7 @@ class FeedsBloc {
   //
   // }
   Future<String> supportPost(int postId, String uid, List supports) async {
-    String res = "ERROR";
+    String res = "Fail";
     print("FeedsBloc supportPost");
     print(res);
     res = await _repository.supportPost(postId, uid, supports);

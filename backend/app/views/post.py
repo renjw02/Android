@@ -65,8 +65,8 @@ def create_post():
                 elif content_type.startswith('video'):
                     # save_path = './static/videos/'
                     save_path = os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.pardir, "static", "videos"))
-                    path = os.path.join(save_path, filename)
-                    vid, flag = service.upload_video(post.id, str(post.id) + "_" + path)
+                    path = os.path.join(save_path, str(post.id) + "_" + filename)
+                    vid, flag = service.upload_video(post.id,  path)
                     if not flag:
                         return jsonify({'message': "upload videos falied"}), 400
                 
@@ -144,10 +144,11 @@ def get_pictures(postId):
     """
     image_urls,hasUrls  = service.get_post_imageUrls(postId)
     print(image_urls)
-    if hasUrls:
-        return jsonify(image_urls)
-    else:
-        return jsonify({'message': "error"}), 500
+    return jsonify(image_urls)
+    # if hasUrls:
+    #     return jsonify(image_urls)
+    # else:
+    #     return jsonify({'message': "error"}), 500
 
 # 获取指定帖子的图片列表
 @bp.route('/getvideoslist/<int:postId>', methods=['GET'])
@@ -158,10 +159,11 @@ def get_videos(postId):
     """
     video_urls,hasUrls  = service.get_post_videoUrls(postId)
     print(video_urls)
-    if hasUrls:
-        return jsonify(video_urls)
-    else:
-        return jsonify({'message': "error"}), 500
+    return jsonify(video_urls)
+    # if hasUrls:
+    #     return jsonify(video_urls)
+    # else:
+    #     return jsonify({'message': "error"}), 500
     
 # 获取一页的帖子列表
 # 分类：全部、已关注用户、热门、类型
@@ -184,6 +186,8 @@ def get_post_list():
                                                         only_following, hot)
 
         print(count)
+        print("post_list:")
+        print(post_list)
         # add supportList and starList
         for post in post_list:
             post_id = post['id']
@@ -201,7 +205,7 @@ def get_post_list():
             if not flag2:
                 return jsonify({'message': "get support list failed"}), 500
             post['supportList'] = support_list
-
+        print("post_list:")
         print(post_list)
         # count 帖子总数
         if result:

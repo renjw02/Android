@@ -1,8 +1,10 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart' show timeDilation;
 import 'package:frontend/utils/colors.dart';
-
+import 'package:video_player/video_player.dart';
+import '../../resources/database_methods.dart' as db;
 import '../../Auth/customAuth.dart';
 import '../../Bloc/feeds_bloc.dart';
 import '../../Bloc/feeds_bloc_provider.dart';
@@ -12,8 +14,9 @@ import '../../widgets/comment.dart';
 
 import '../../models/comment.dart' as commentModel;
 import '../../widgets/Avatar.dart' as avatar;
+import '../../widgets/video_component.dart';
 import 'comment_panel.dart';
-
+import '../../utils/global_variable.dart' as gv;
 class FeedsDetailScreen extends StatefulWidget {
   final int id;
   final Post post;
@@ -33,6 +36,7 @@ class _FeedsDetailScreenState extends State<FeedsDetailScreen>
       isCommentPanelOpen = false;
     });
   }
+
   void _viewFullScreenImage(String imageUrl) {
     Navigator.of(context).push(
       MaterialPageRoute(
@@ -71,6 +75,11 @@ class _FeedsDetailScreenState extends State<FeedsDetailScreen>
     );
   }
   @override
+  void initState() {
+    super.initState();
+    isLike = isLike = widget.post.supportList.map((dynamic) => dynamic.toString()).toList().contains(CustomAuth.currentUser.uid);
+  }
+  @override
   Widget build(BuildContext context) {
     // final bloc = FeedsBlocProvider.of(context);
     // timeDilation = 0.5;
@@ -105,13 +114,13 @@ class _FeedsDetailScreenState extends State<FeedsDetailScreen>
                           borderRadius: BorderRadius.circular(16)),
                     ),
                     Positioned(
-                        left: isLike ? -5 : 20,
+                        left: 40.0 -10.0 * widget.post.supportList.length.toString().length,
                         top: 2,
                         child: Row(children: [
-                          Text('点赞',
+                          Text(widget.post.supportList.length.toString(),
                               style: TextStyle(
                                 color:
-                                    isLike ? Colors.transparent : Colors.blue,
+                                    isLike ? Colors.white : Colors.blue,
                                 fontSize: 15,
                               )),
                           Icon(
@@ -121,8 +130,25 @@ class _FeedsDetailScreenState extends State<FeedsDetailScreen>
                           )
                         ]))
                   ]),
-                  onPressed: () {
+                  onPressed: () async{
+                    String res = await widget.onRefreshBloc.supportPost(
+                      //TODO
+                      widget.post.id,
+                      CustomAuth.currentUser.uid,
+                      widget.post.supportList,
+                    );
                     setState(() {
+                      if (res == "Success") {
+                        widget.post.support_num++;
+                        if (kDebugMode) {
+                          print("support success");
+                          print(widget.post.supportList);
+                        }
+                      } else{
+                        //TODO
+                        widget.post.support_num--;
+                      }
+                      // isLike = widget.post.supportList.map((dynamic) => dynamic.toString()).toList().contains(CustomAuth.currentUser.uid);
                       isLike = !isLike;
                     });
                   },
@@ -135,7 +161,7 @@ class _FeedsDetailScreenState extends State<FeedsDetailScreen>
               IconButton(
                   iconSize: 35,
                   onPressed: () {},
-                  icon: const Icon(Icons.favorite)),
+                  icon: const Icon(Icons.favorite_border)),
               const Spacer(),
               IconButton(
                   iconSize: 35,
@@ -145,7 +171,7 @@ class _FeedsDetailScreenState extends State<FeedsDetailScreen>
                     });
                     // _showDialog(context);
                   },
-                  icon: const Icon(Icons.chat_bubble)),
+                  icon: const Icon(Icons.chat_bubble_outline)),
               const Spacer(),
               IconButton(
                   iconSize: 35,
@@ -177,17 +203,13 @@ class _FeedsDetailScreenState extends State<FeedsDetailScreen>
       BuildContext context, Post item) {
     List<Widget> children = [];
     children
-      // ..add(_buildTitle(context, item))
-      // ..add(const SizedBox(
-      //   height: 12,
-      // ))
       ..add(UserProfileWidget(
         nickname: item.nickname, creatorId: item.userId,created: item.created,),)
       ..add(Container(
         padding: const EdgeInsets.only(left: 20, top: 0, bottom: 10),
         child: Text(
           // 加入蓝色小字体 item.likes.toString()人赞同了该回答
-          '${item.support_num}人赞同了该回答',
+          '${item.supportList.length}人赞同了该回答',
           style:const TextStyle(
             color: Colors.blue,
             fontSize: 12,
@@ -210,25 +232,48 @@ class _FeedsDetailScreenState extends State<FeedsDetailScreen>
       ..add (SizedBox(
         width: MediaQuery.of(context).size.width,
         height: MediaQuery.of(context).size.width * 0.9,
-        child: PageView.builder(
-          itemCount: item.images.length,
+        child:
+        PageView.builder(
+          itemCount: item.images.length + item.videos.length,
           itemBuilder: (context, index) {
-            return GestureDetector(
-              onTap: () {
-                _viewFullScreenImage(item.images[index]);
-              },
-              child: Container(
-                margin: const EdgeInsets.all(5),
-                child: CachedNetworkImage(
-                  imageUrl: item.images[index],
-                  httpHeaders: {
-                    'Authorization': CustomAuth.currentUser.jwt,
-                  },
-                  // placeholder: (context, url) => const CircularProgressIndicator(),
-                  errorWidget: (context, url, error) => const Icon(Icons.error),
+            if (index < item.images.length) {
+              return GestureDetector(
+                onTap: () {
+                  _viewFullScreenImage(item.images[index]);
+                },
+                child: Container(
+                  margin: const EdgeInsets.all(5),
+                  child: CachedNetworkImage(
+                    imageUrl: item.images[index],
+                    httpHeaders: {
+                      'Authorization': CustomAuth.currentUser.jwt,
+                    },
+                  ),
                 ),
-              ),
-            );
+              );
+            } else {
+              index -= item.images.length;
+              return Container(
+                margin: const EdgeInsets.all(5),
+                child: GestureDetector(
+                  // onTap: () {
+                  //   _playVideo(item.videos[index]);
+                  // },
+                  child: Stack(
+                    children: [
+                      Positioned.fill(
+                        child:
+                        VideoComponent(
+                            videoUrl:item.videos[index].toString(),
+                            // canFullScreen: true,
+                        ),
+                      ),
+
+                    ],
+                  ),
+                ),
+              );
+            }
           },
           pageSnapping: true,
         ),
@@ -311,6 +356,21 @@ class UserProfileWidget extends StatefulWidget {
 class _UserProfileWidgetState extends State<UserProfileWidget> {
   bool isFollowed = false;
   @override
+  initState() {
+    super.initState();
+    isFollowed = CustomAuth.currentUser.following.map((dynamic) => dynamic.toString()).toList().contains(widget.creatorId);
+    print(CustomAuth.currentUser.following);
+    print("_UserProfileWidgetState");
+    // Map<String, dynamic> userFollowers={}; //获取关注creator的人
+    // var url = Uri.parse(gv.ip+"/api/user/getfollowerlist/"+widget.creatorId);
+    // userFollowers = await db.DataBaseManager().getSomeMap(url);
+    // for(var item in userFollowers['followerList']){
+    //   if(item['followerId'].toString() == CustomAuth.currentUser.uid){
+    //     isFollowed = true;
+    //   }
+    // }
+  }
+  @override
   Widget build(BuildContext context) {
     return Container(
       margin: const EdgeInsets.only(left: 20,right: 20, top: 10, bottom: 5),
@@ -354,7 +414,7 @@ class _UserProfileWidgetState extends State<UserProfileWidget> {
             ),
           ),
           SizedBox(width: 16),
-          IconButton(
+          widget.creatorId != CustomAuth.currentUser.uid ? IconButton(
             iconSize: 40,
             // padding: EdgeInsets.all(10), // 内边距10
             constraints: const BoxConstraints(
@@ -379,15 +439,25 @@ class _UserProfileWidgetState extends State<UserProfileWidget> {
                         )),
                   ]))
             ]),
-            onPressed: () {
+            onPressed: isFollowed
+                ? () async {
+              await db.DataBaseManager().unFollowUser(widget.creatorId);
               setState(() {
-                isFollowed = !isFollowed;
+                isFollowed = false;
+                print("isFollowed");
+                print(CustomAuth.currentUser.following);
+              });
+            }: () async {
+              await db.DataBaseManager().followUser(widget.creatorId);
+              setState(() {
+                isFollowed = true;
+                print("isFollowed");
+                print(CustomAuth.currentUser.following);
               });
             },
-          ),
+          ) : const SizedBox(width: 0),
         ],
       ),
     );
   }
 }
-

@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import './api_service.dart' ;
 import '../../utils/global_variable.dart' as gv;
 
@@ -37,4 +39,13 @@ class MediaApiService extends ApiService {
   Future<List<String>> getVideoUrls(int postId) async {
     return getMediaUrls(MediaType.video, postId);
   }
+  Future<List<int>> getMedia(String url,String name) async{
+    print('getMedia: $url');
+    var result = await sendGetRequest(url, {'name':name});
+    print(result.runtimeType);
+    // print("result");
+    // print(result);
+    return base64Decode(result);
+  }
+
 }

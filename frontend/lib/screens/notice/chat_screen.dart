@@ -17,9 +17,10 @@ String randomString() {
   return base64UrlEncode(values);
 }
 class ChatScreen extends StatefulWidget {
-  const ChatScreen({super.key, required this.snap,required this.file});
-  final snap;
+  const ChatScreen({super.key, required this.file, this.user, this.opuser});
   final Uint8List file;
+  final user; //当前用户
+  final opuser;
   @override
   State<ChatScreen> createState() => _ChatScreenState();
 }
@@ -40,37 +41,30 @@ class _ChatScreenState extends State<ChatScreen> {
   }
   getData() async {
     try {
-      var snap = widget.snap;
-      _user= types.User(id:snap['userId'].toString() );
-      _opuser= types.User(id:snap['noticeCreator'].toString());
-      //输出snap
-      print("snap");
-      print(snap);
-      print(snap['userId']);
+      _user= types.User(id:widget.user );
+      _opuser= types.User(id:widget.opuser);
+      print("user");
+      print(widget.user);
+      print("opuser");
+      print(widget.opuser);
       db.DataBaseManager dbm = db.DataBaseManager();
-      String noticeCreator = snap['noticeCreator'].toString();
-      var url = Uri.parse("${gv.ip}/api/user/user/$noticeCreator");
+      // String opuserName = snap['noticeCreator'].toString();
+      var url = Uri.parse("${gv.ip}/api/user/user/${widget.opuser}");
       userinfo = await dbm.getSomeMap(url);
       print("userinfo");
 
-      String content = await dbm.noticeContentQuery(snap['noticeId']);
-      snap["hasChecked"] = 1;
-      print("content");
-      print(content);
+      // String content = await dbm.noticeContentQuery(snap['noticeId']);
+      // widget.snap["hasChecked"] = 1;
+      // print("content");
+      // print(content);
 
-      var senderId = snap['noticeCreator'];
-      var receiverId = snap['userId'];
+      var senderId = int.parse(widget.opuser);
+      var receiverId =  int.parse(widget.user);
       QuerySnapshot querySnapshot = await dbm.getChatHistory(senderId, receiverId);
       print("querySnapshot");
       print(querySnapshot.docs);
       refresh(querySnapshot, senderId, receiverId);
-
-
     } catch (err) {
-      // showSnackBar(
-      //   context,
-      //   err.toString(),
-      // );
       print("err");
       print(err);
     }
@@ -119,7 +113,7 @@ class _ChatScreenState extends State<ChatScreen> {
                       Navigator.of(context).push(
                         MaterialPageRoute(
                           builder: (context) =>
-                              ProfileScreen(uid: widget.snap['noticeCreator'].toString()),
+                              ProfileScreen(uid: widget.opuser.toString()),
                         ),
                       );
                     },
@@ -176,8 +170,8 @@ class _ChatScreenState extends State<ChatScreen> {
     //发送消息
     final textMsg = msg.Message(
       id: textMessage.id ,
-      senderId: widget.snap['userId'],
-      receiverId: widget.snap['noticeCreator'], // 这里需要根据具体场景设置receiverId
+      senderId: int.parse(widget.user),
+      receiverId: int.parse(widget.opuser), // 这里需要根据具体场景设置receiverId
       content: textMessage.text,
       created: DateTime.fromMillisecondsSinceEpoch(textMessage.createdAt  ?? 0),
     );

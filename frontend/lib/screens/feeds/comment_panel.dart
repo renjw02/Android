@@ -26,47 +26,51 @@ class _CommentPanelState extends State<CommentPanel> {
 
   bool isSend  = false;
   final TextEditingController textEditingController = TextEditingController();
-  void sendComment() {
+  void sendComment() async{
     String commentText = textEditingController.text;
-    post(commentText);
-    print(commentText);
-    print('发送');
-    setState(() {
-      widget.post.comments.add({
-        "commentId": 0,
-        "content": commentText,
-        "created": DateTime.now().toString().substring(0,16),
-        "id": 16,
-        "nickname": CustomAuth.currentUser.nickname,
-        "postId": widget.post.id,
-        "updated": DateTime.now().toString().substring(0,16),
-        "userId": int.parse(CustomAuth.currentUser.uid) ,
-      });
-      widget.onRefreshBloc.clearCache();
-      widget.onRefreshBloc.fetchTopIds();
-      widget.onRefreshBloc.fetchItems(widget.post.id);
-    });
-    // widget.onRefreshBloc.fetchItems(widget.post.id).then((post) {
-    //   setState(() {
-    //     widget.post.comments.add({
-    //       "commentId": 0,
-    //       "content": commentText,
-    //       "created": DateTime.now().toString().substring(0,16),
-    //       "id": 16,
-    //       "nickname": CustomAuth.currentUser.nickname,
-    //       "postId": widget.post.id,
-    //       "updated": DateTime.now().toString().substring(0,16),
-    //       "userId": CustomAuth.currentUser.uid,
-    //     });
-    //     // print("widget.post:${widget.post}");
-    //     // print("widget.post.comments:${widget.post.comments}");
-    //     // print("post:$post");
-    //     // print("post.comments:${post.comments}");
-    //     // widget.post = post;
-    //     // print("widget.post:${widget.post}");
-    //     // print("widget.post.comments:${widget.post.comments}");
-    //   });
-    // });
+    String res = '';
+    if(commentText != ''){
+      try {
+        res = await post(commentText);
+        print(commentText);
+        print('发送');
+        setState(() {
+          widget.post.comments.add({
+            "commentId": 0,
+            "content": commentText,
+            "created": DateTime.now().toString().substring(0,16),
+            "id": 16,
+            "nickname": CustomAuth.currentUser.nickname,
+            "postId": widget.post.id,
+            "updated": DateTime.now().toString().substring(0,16),
+            "userId": int.parse(CustomAuth.currentUser.uid) ,
+          });
+        });
+      }catch(e){
+        print(e);
+        res = 'Failed';
+      }
+    }
+    widget.onRefreshBloc.clearCache();
+    widget.onRefreshBloc.fetchTopIds();
+    widget.onRefreshBloc.fetchItems(widget.post.id);
+    showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: Text("提示"),
+            content: Text(res),
+            actions: <Widget>[
+              ElevatedButton(
+                child: Text("确定"),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              )
+            ],
+          );
+        }
+    );
   }
   @override
   void dispose(){
@@ -130,18 +134,14 @@ class _CommentPanelState extends State<CommentPanel> {
     widget.onClose();
   }
 
-  void post(String commentText) async {
+  Future<String> post(String commentText) async {
+    String res = "Failed";
     try{
       String result = await CommentApiService().createComment(
         widget.post.id,
         commentText,);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(result),
-        ),
-      );
       textEditingController.text = '';
-
+      res = 'Success';
       // await widget.bloc.clearCache();
       // await widget.bloc.fetchTopIds();
       // await widget.bloc.fetchItems(widget.post.id);
@@ -154,7 +154,9 @@ class _CommentPanelState extends State<CommentPanel> {
           content: Text("请填写动态类型、标题及内容"),
         ),
       );
+      res = '请填写动态类型、标题及内容';
     }
+    return res;
   }
   Widget _buildNoCommentPageBody(BuildContext context) {
     return Container(

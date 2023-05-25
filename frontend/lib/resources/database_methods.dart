@@ -110,6 +110,7 @@ class DataBaseManager{
   //  使用ID获取指定user
   Future<Map<String, dynamic>> getSomeMap(Uri url) async{
     Map<String, dynamic> info = {};
+    print("getSomeMap");
     await _client.get(
       url,
       headers: {

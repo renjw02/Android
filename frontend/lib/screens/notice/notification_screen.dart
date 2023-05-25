@@ -45,7 +45,7 @@ class _NotificationScreenState extends State<NotificationScreen>  with SingleTic
         centerTitle: false,
         title:  const Center(
           child: Text(
-            '通知',
+            '收藏',
           ),
         ),
         // bottom: TabBar(

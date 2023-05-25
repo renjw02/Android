@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'dart:convert';
+import 'package:dio/dio.dart';
 import 'package:frontend/utils/global_variable.dart';
 import 'package:http/http.dart' as http;
 import '../../Auth/customAuth.dart';
@@ -38,20 +39,35 @@ class ApiService {
   Future<dynamic> sendGetRequest(String url, Map<String, dynamic> body) async {
     var res;
     try {
-      await _client.get(
-          Uri.parse("$serverIp:$serverPort$url"),
-          headers: {
-            HttpHeaders.authorizationHeader: CustomAuth.currentUser.jwt,
-            'Content-Type': 'application/json'
-          },
-      ).then((http.Response response) {
-        if (response.statusCode == 200) {
-          res =  jsonDecode(response.body);
-        }
-      }).catchError((error) {
-        print('catchError:');
-        print(error);
-      });
+      // await _client.get(
+      //     Uri.parse("$serverIp:$serverPort$url"),
+      //     headers: {
+      //       HttpHeaders.authorizationHeader: CustomAuth.currentUser.jwt,
+      //       'Content-Type': 'application/json'
+      //     },
+      // ).then((http.Response response) {
+      //   if (response.statusCode == 200) {
+      //     res =  jsonDecode(response.body);
+      //     print('res: $res');
+      //   }
+      // }).catchError((error) {
+      //   print('catchError:');
+      //   print(error);
+      // });
+      final dio = Dio();
+      final response = await dio.get(
+          "$serverIp:$serverPort$url",
+          queryParameters: body,
+          options: Options(
+              headers: {
+                HttpHeaders.authorizationHeader: CustomAuth.currentUser.jwt,
+                'Content-Type': 'application/json'
+              }
+          )
+      );
+      if (response.statusCode == 200) {
+        res = response.data;
+      }
     } catch (e) {
       print(e);
     }

@@ -3,6 +3,7 @@ import 'dart:typed_data';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:frontend/Auth/customAuth.dart';
 import 'package:frontend/screens/notice/notice_screen.dart';
 
 import '../screens/notice/chat_screen.dart';
@@ -100,10 +101,12 @@ class _ContactUserCardState extends State<ContactUserCard> {
         widget.snap["hasChecked"] = 1;
         setState(() {}); // 触发rebuild
         if (widget.snap["noticeType"] == 1) {
+          widget.snap["hasChecked"] = 1;
           Navigator.of(context).push(
             MaterialPageRoute(
               builder: (context) => ChatScreen(
-                snap: widget.snap,
+                user: CustomAuth.currentUser.uid,
+                opuser: widget.snap['noticeCreator'].toString(),
                 file: _file,
               ),
             ),
@@ -140,7 +143,7 @@ class _ContactUserCardState extends State<ContactUserCard> {
                         Navigator.of(context).push(
                           MaterialPageRoute(
                             builder: (context) =>
-                                ProfileScreen(uid: widget.snap['userId'].toString()),
+                                ProfileScreen(uid: widget.snap['noticeCreator'].toString()),
                           ),
                         );
                         //获取聊天内容
@@ -166,11 +169,11 @@ class _ContactUserCardState extends State<ContactUserCard> {
                               ),
                             ),
                             Text(
-                              widget.snap['created'].millisecondsSinceEpoch.toString(),
+                              widget.snap['created'].toString().substring(0,16),
                             ),
-                            Text(
+                            widget.snap['created']==  1 ? Text(
                               widget.snap['content'].toString(),
-                            ),
+                            ) : Container(),
                           ],
                         ),
                       ),

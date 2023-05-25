@@ -14,20 +14,25 @@ class FeedsListScreen extends StatefulWidget {
 
 class _FeedsListScreenState extends State<FeedsListScreen> {
   late FeedsBloc _bloc;
-  // onRefresh() async{
-  //   print('onRefresh');
-  //   setState(()async {
-  //     await _bloc.clearCache();
-  //     await _bloc.fetchTopIds();
-  //   });
-  // }
+  onRefresh() {
+    setState(() {
+      print("onRefresh");
+    });
+  }
+
+  //keepalive
+  fetchTopIds() {
+
+    _bloc.fetchTopIds();
+  }
   @override
   Widget build(BuildContext context) {
     // final bloc = NewsBlocProvider.of(context;
     print("FeedsListScreen build");
     _bloc = FeedsBlocProvider.withKeyOf(context, ValueKey(widget.e));
+    // _bloc.clearCache();
     _bloc.fetchTopIds();
-    return Center(child: refreshWidget(_buildList(_bloc), _bloc));
+    return Center(child: refreshWidget(_buildList(_bloc), _bloc,onRefresh));
   }
 
   Widget _buildList(FeedsBloc bloc) {
@@ -81,12 +86,14 @@ class _FeedsListScreenState extends State<FeedsListScreen> {
         });
   }
 
-  Widget refreshWidget(Widget child, FeedsBloc bloc) {
+  Widget refreshWidget(Widget child, FeedsBloc bloc,VoidCallback setTheState) {
     return RefreshIndicator(
         child: child,
         onRefresh: () async {
+          // print("onRefresh");
           await bloc.clearCache();
           await bloc.fetchTopIds();
+          setTheState();
         });
   }
 }
