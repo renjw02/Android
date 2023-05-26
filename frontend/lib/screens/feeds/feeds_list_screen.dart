@@ -45,7 +45,7 @@ class _FeedsListScreenState extends State<FeedsListScreen> {
     _bloc.fetchIdsByRules(
         1 ,
         10,
-        widget.e == "我的帖子" ? 0: int.parse(CustomAuth.currentUser.uid) ,
+        widget.e == "我的帖子" ? int.parse(CustomAuth.currentUser.uid) : 0 ,
         widget.sortFilters.length ==1?  orderByWhat[widget.sortFilters[0]] : null,
         widget.cateFilters.length == 1 ?type[widget.cateFilters[0]]!: 0  ,
         widget.e == "关注" ? true : null,
