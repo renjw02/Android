@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/Auth/customAuth.dart';
 import 'package:frontend/screens/feeds/more_types_screen.dart';
 import '../../Bloc/feeds_bloc_provider.dart';
 import '../../utils/colors.dart';
@@ -182,6 +183,7 @@ class _FeedsScreenState extends State<FeedsScreen>
                         cateFilters: widget.cateFilters,
                         timeFilters: widget.timeFilters,
                         sortFilters: widget.sortFilters,
+                            uid:CustomAuth.currentUser.uid,
                       )),
                     )
                   : TabBarView(
@@ -196,6 +198,7 @@ class _FeedsScreenState extends State<FeedsScreen>
                             cateFilters: widget.cateFilters,
                             timeFilters: widget.timeFilters,
                             sortFilters: widget.sortFilters,
+                                uid:CustomAuth.currentUser.uid,
                           )),
                         );
                       }).toList(),

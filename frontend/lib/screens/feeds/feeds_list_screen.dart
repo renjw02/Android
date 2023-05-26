@@ -6,8 +6,9 @@ import '../../widgets/feed_card.dart';
 // import '../widgets/item_tile.dart';
 
 class FeedsListScreen extends StatefulWidget {
-  const FeedsListScreen({super.key, required this.e,required this.cateFilters, required this.timeFilters, required this.sortFilters});
+  const FeedsListScreen({super.key, required this.e,required this.cateFilters, required this.timeFilters, required this.sortFilters, required this.uid});
   final String e;
+  final String uid;
   final List<String> cateFilters;
   final List<String> timeFilters;
   final List<String> sortFilters;
@@ -45,7 +46,7 @@ class _FeedsListScreenState extends State<FeedsListScreen> {
     _bloc.fetchIdsByRules(
         1 ,
         10,
-        widget.e == "我的帖子" ? int.parse(CustomAuth.currentUser.uid) : 0 ,
+        widget.e == "我的帖子" ? int.parse(widget.uid) : 0 ,
         widget.sortFilters.length ==1?  orderByWhat[widget.sortFilters[0]] : null,
         widget.cateFilters.length == 1 ?type[widget.cateFilters[0]]!: 0  ,
         widget.e == "关注" ? true : null,

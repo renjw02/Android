@@ -538,6 +538,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                                       cateFilters: [],
                                       timeFilters: [],
                                       sortFilters: [],
+                                      uid: widget.uid,
                                     ),
                                   ),
                                 );
