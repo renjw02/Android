@@ -372,15 +372,19 @@ class _FeedCardState extends State<FeedCard>
                   icon: const Icon(
                     Icons.comment_outlined,
                   ),
-                  onPressed: () {
+                  onPressed: () async {
                     // CommentsBlocProvider.of(context).fetchItemWithComments(widget.id);
                     // commentsBloc.fetchItemWithComments(widget.id);
 
-                    Navigator.of(context).push(
+                    final result = await Navigator.of(context).push(
                     MaterialPageRoute(
                       builder: (context) => FeedsDetailScreen(id:  widget.id, post: snap.data!, onRefreshBloc: widget.onRefreshBloc),
                     ),
-                  );
+                    );
+                    if (result != null) {
+
+                      setState(() {});
+                    }
                   },
                 ),
                 DefaultTextStyle(

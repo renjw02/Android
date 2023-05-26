@@ -51,9 +51,9 @@ class _CommentPanelState extends State<CommentPanel> {
         res = 'Failed';
       }
     }
-    widget.onRefreshBloc.clearCache();
-    widget.onRefreshBloc.fetchTopIds();
-    widget.onRefreshBloc.fetchItems(widget.post.id);
+    // widget.onRefreshBloc.clearCache();
+    // widget.onRefreshBloc.fetchTopIds();
+    // widget.onRefreshBloc.fetchItems(widget.post.id);
     showDialog(
         context: context,
         builder: (context) {

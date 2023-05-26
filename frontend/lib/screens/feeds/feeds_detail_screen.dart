@@ -84,6 +84,14 @@ class _FeedsDetailScreenState extends State<FeedsDetailScreen>
       ),
     );
   }
+
+  void _applyFilters() {
+    Navigator.of(context).pop({
+      'comments_num': widget.post.comment_num,
+    });
+  }
+
+
   @override
   void initState() {
     super.initState();

@@ -34,9 +34,9 @@ class _FeedsListScreenState extends State<FeedsListScreen> {
   }
 
   //keepalive
-  fetchTopIds() {
-    _bloc.fetchTopIds();
-  }
+  // fetchTopIds() {
+  //   _bloc.fetchTopIds();
+  // }
   @override
   Widget build(BuildContext context) {
     // final bloc = NewsBlocProvider.of(context;
@@ -110,8 +110,15 @@ class _FeedsListScreenState extends State<FeedsListScreen> {
         child: child,
         onRefresh: () async {
           // print("onRefresh");
-          await bloc.clearCache();
-          await bloc.fetchTopIds();
+          await _bloc.clearCache();
+          await _bloc.fetchIdsByRules(
+              1 ,
+              10,
+              widget.e == "我的帖子" ? int.parse(widget.uid) : 0 ,
+              widget.sortFilters.length ==1?  orderByWhat[widget.sortFilters[0]] : null,
+              widget.cateFilters.length == 1 ?type[widget.cateFilters[0]]!: 0  ,
+              widget.e == "关注" ? true : null,
+              widget.e == "热度"? true : null);
           setTheState();
         });
   }

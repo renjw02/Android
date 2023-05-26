@@ -104,11 +104,13 @@ class _FeedsScreenState extends State<FeedsScreen>
                     widget.sortFilters.isEmpty ? Container()  :RuleTab(text: widget.sortFilters[0]),
                   ],
                 )
-                : Row(
+                :
+            Row(
                     children: [
                       Expanded(
                         child: Container(
                           height: 40,
+                          margin: const EdgeInsets.only(right: 20),
                           child: TabBar(
                             controller: _tabController,
                             indicator: ShapeDecoration(
