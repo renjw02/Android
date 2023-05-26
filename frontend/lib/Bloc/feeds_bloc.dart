@@ -66,6 +66,21 @@ class FeedsBloc {
     _userIds.sink.add(feedAndUserIds[1]);
   }
 
+  fetchIdsByUserId(String uid) async {
+    final feedAndUserIds = await _repository.fetchIdsByUserId(uid);
+
+    _topIds.sink.add(feedAndUserIds[0]);
+    _userIds.sink.add(feedAndUserIds[1]);
+  }
+
+  fetchIdsByRules([int page=1,int size=10,int userId=0, String? orderByWhat = null,int type = 0, bool? onlyFollowing = null,
+  bool? hot=null]) async {
+    final feedAndUserIds = await _repository.fetchIdsbyRules(page, size, userId, orderByWhat, type, onlyFollowing, hot);
+
+    _topIds.sink.add(feedAndUserIds[0]);
+    _userIds.sink.add(feedAndUserIds[1]);
+  }
+
   clearCache ()=> _repository.clearCache();
 
   _itemTransformer() {

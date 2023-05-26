@@ -45,6 +45,7 @@ class _MoreTypesScreenState extends State<MoreTypesScreen> {
       'cateFilters': _selectedCateFilters,
       'timeFilters': _selectedTimeFilters,
       'sortFilters': _selectedSortFilters,
+      'isFilter': true,
     });
   }
 
@@ -63,8 +64,8 @@ class _MoreTypesScreenState extends State<MoreTypesScreen> {
           runSpacing: 5,
           children: [
             _buildNarrowCard('信息类型', Colors.pink.shade200,['校园资讯', '二手交易'], _selectedCateFilters,false),
-            _buildNarrowCard('发布时间', Colors.orange.shade200,['24小时内','一周内', '一月内'], _selectedTimeFilters,true),
-            _buildCard('排序', Colors.green.shade200,[ '点赞量高优先', '评论量高优先'], _selectedSortFilters,true),
+            // _buildNarrowCard('发布时间', Colors.orange.shade200,['24小时内','一周内', '一月内'], _selectedTimeFilters,true),
+            _buildNarrowCard('排序', Colors.green.shade200,[ '点赞量高优先', '评论量高优先'], _selectedSortFilters,true),
             const SizedBox(height: 20),
             Center(
               child: SizedBox(

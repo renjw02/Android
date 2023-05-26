@@ -238,7 +238,7 @@ class PostService():
                     post.id as id, post.user_id as userId, user.nickname as nickname,
                     post.title as title, post.content as content, post.support_num as supportNum,
                     post.star_num as starNum, post.comment_num as commentNum,
-                    post.created as created, post.updated as updated, 
+                    post.created as created, post.updated as updated, post.type as type,
                     post.last_replied_time as lastRepliedTime, post.font_size as fontSize,
                     post.font_color as fontColor, post.font_weight as fontWeight
                 from

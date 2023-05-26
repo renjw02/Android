@@ -17,7 +17,7 @@ class FeedsApiService implements Source{
 
   //获取头条新闻id
   @override
-  Future<List<List<int>>> fetchTopIds([int page=1,int size=10,int userId=0, String? orderByWhat=null,int type=0, bool? onlyFollowing=null,
+  Future<List<List<int>>> fetchIdsByRules([int page=1,int size=10,int userId=0, String? orderByWhat=null,int type=0, bool? onlyFollowing=null,
     bool? hot=null]) async{
     // final response = await client.get("$url/top-stories.json" as Uri);
     if (kDebugMode) {
@@ -29,7 +29,7 @@ class FeedsApiService implements Source{
     // const topStories = "[1, 2]";
     List<List<int>> list;
 
-    list = await db.DataBaseManager().getNewPostList();
+    list = await db.DataBaseManager().getNewPostList(page, size, userId, orderByWhat, type, onlyFollowing, hot);
     print("list<int>");
     print(list);
     print("list<int>");

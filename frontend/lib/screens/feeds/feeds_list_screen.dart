@@ -1,18 +1,30 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/Auth/customAuth.dart';
 import 'package:frontend/Bloc/comments_bloc_provider.dart';
 import '../../Bloc/feeds_bloc_provider.dart';
 import '../../widgets/feed_card.dart';
 // import '../widgets/item_tile.dart';
 
 class FeedsListScreen extends StatefulWidget {
-  const FeedsListScreen({super.key, required this.e});
+  const FeedsListScreen({super.key, required this.e,required this.cateFilters, required this.timeFilters, required this.sortFilters});
   final String e;
-
+  final List<String> cateFilters;
+  final List<String> timeFilters;
+  final List<String> sortFilters;
   @override
   State<FeedsListScreen> createState() => _FeedsListScreenState();
 }
 
 class _FeedsListScreenState extends State<FeedsListScreen> {
+  Map<String,String> orderByWhat = {
+    "点赞量高优先": "post.support_num",
+    "评论量高优先": "post.comment_num",
+  };
+  Map<String,int> type = {
+    "校园资讯": 1,
+    "二手交易": 2,
+  };
+
   late FeedsBloc _bloc;
   onRefresh() {
     setState(() {
@@ -22,7 +34,6 @@ class _FeedsListScreenState extends State<FeedsListScreen> {
 
   //keepalive
   fetchTopIds() {
-
     _bloc.fetchTopIds();
   }
   @override
@@ -31,7 +42,14 @@ class _FeedsListScreenState extends State<FeedsListScreen> {
     print("FeedsListScreen build");
     _bloc = FeedsBlocProvider.withKeyOf(context, ValueKey(widget.e));
     // _bloc.clearCache();
-    _bloc.fetchTopIds();
+    _bloc.fetchIdsByRules(
+        1 ,
+        10,
+        widget.e == "我的帖子" ? 0: int.parse(CustomAuth.currentUser.uid) ,
+        widget.sortFilters.length ==1?  orderByWhat[widget.sortFilters[0]] : null,
+        widget.cateFilters.length == 1 ?type[widget.cateFilters[0]]!: 0  ,
+        widget.e == "关注" ? true : null,
+        widget.e == "热度"? true : null);
     return Center(child: refreshWidget(_buildList(_bloc), _bloc,onRefresh));
   }
 

@@ -21,7 +21,20 @@ class FeedsRepository{
   ];
 
   //fetchTopIds from network
-  Future<List<List<int>>> fetchTopIds() => _sourceList[1].fetchTopIds();
+  Future<List<List<int>>> fetchTopIds() {
+    return _sourceList[1].fetchIdsByRules();
+  }
+  //[int page=1,int size=10,int userId=0, String? orderByWhat=null,int type=0, bool? onlyFollowing=null,
+  //     bool? hot=null]
+  Future<List<List<int>>> fetchIdsByUserId(String uid) {
+    return _sourceList[1].fetchIdsByRules(1, 10, int.parse(uid), null, 0, null, null);
+  }
+
+  //fetchIds By Rules
+  Future<List<List<int>>> fetchIdsbyRules([int page=1,int size=10,int userId=0, String? orderByWhat = null,int type = 0, bool? onlyFollowing = null,
+    bool? hot=null]) {
+    return _sourceList[1].fetchIdsByRules(page, size, userId, orderByWhat, type, onlyFollowing, hot);
+  }
 
   Future<User> fetchUser(int uid) async {
     if (kDebugMode) {
@@ -93,6 +106,8 @@ class FeedsRepository{
       await cache.clear();
     }
   }
+
+
 
 
 }

@@ -501,10 +501,6 @@ class DataBaseManager{
       var response = await dio.get(gv.ip+"/api/post/getpostlist",queryParameters: paras);
       var m = Map.from(response.data);
       if (response.statusCode == 200) {
-        // return m['posts'];
-        // querySnapshot = QuerySnapshot(
-        //   docs: convertPost(m['posts']), readTime: DateTime.now(),
-        // );
         for(var item in m['posts']){
           newFeedIdList.add(item['id']);
           feedCreatorIdList.add(item['userId']);
@@ -734,7 +730,8 @@ class DataBaseManager{
       if (response.statusCode == 200) {
         // result['images'] = m['images'];
         // result['videos'] = m['videos'];
-        print("获取动态成功");
+        print("获取动态成功!");
+        print(response.data['post']);
         print(response.data['post']);
         return response.data['post'];
       }

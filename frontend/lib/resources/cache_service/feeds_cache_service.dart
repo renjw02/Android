@@ -87,7 +87,8 @@ class FeedsCacheService implements Source, Cache {
   }
 
   @override
-  Future<List<List<int>>> fetchTopIds() {
+  Future<List<List<int>>> fetchIdsByRules([int page=1,int size=10,int userId=0, String? orderByWhat=null,int type=0, bool? onlyFollowing=null,
+    bool? hot=null]) {
     // TODO: implement fetchTopIds
     throw UnimplementedError();
   }
