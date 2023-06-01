@@ -199,5 +199,11 @@ class FeedsDbProvider implements Source, Cache {
     return 'errors';
     }
   }
+
+  @override
+  Future<List<List<int>>> fetchIdsByKeyWords(String keywords) {
+    // TODO: implement fetchIdsByKeyWords
+    throw UnimplementedError();
+  }
 }
 

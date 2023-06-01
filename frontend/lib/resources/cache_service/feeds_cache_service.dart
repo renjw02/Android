@@ -195,5 +195,11 @@ class FeedsCacheService implements Source, Cache {
     }
   }
 
+  @override
+  Future<List<List<int>>> fetchIdsByKeyWords(String keywords) {
+    // TODO: implement fetchIdsByKeyWords
+    throw UnimplementedError();
+  }
+
 }
 

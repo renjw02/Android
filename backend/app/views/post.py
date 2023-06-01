@@ -480,23 +480,28 @@ def support_post(postId):
 # 搜索帖子
 @bp.route('/searchpost', methods=['GET'])
 @login_required
-def search_post(postId):
+def search_post():
     try:
-        content = request.get_json()
+        print("has content")
+        content = request.args['keywords']
         if content is None:
-            return jsonify({'message': "no content"}), 400  
-
-        raw_string = content['keywords']
-        keywords = raw_string.split()
-
+            print("no content")
+            return jsonify({'message': "no content"}), 400          
+        print("has content")
+        # raw_string = content['keywords']
+        # print(raw_string)
+        keywords = content.split()
+        print(keywords)
         result, flag = service.search_post(keywords)
-
+        # print(123)
         if flag:
+
             return jsonify({
                 'message': "ok",
                 'postList': result
             }), 200
         else:
             return jsonify({'message': "error"}), 500
-    except:
+    except Exception as e:
+        print(e)
         return jsonify({'message': "exception!"}), 400

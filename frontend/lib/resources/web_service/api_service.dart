@@ -38,6 +38,8 @@ class ApiService {
 
   Future<dynamic> sendGetRequest(String url, Map<String, dynamic> body) async {
     var res;
+    print('sendGetRequest');
+    print(body);
     try {
       // await _client.get(
       //     Uri.parse("$serverIp:$serverPort$url"),
@@ -67,6 +69,10 @@ class ApiService {
       );
       if (response.statusCode == 200) {
         res = response.data;
+      }else{
+        print('response.statusCode: ${response.statusCode}');
+        print(response.data);
+        print(response.data['message']);
       }
     } catch (e) {
       print(e);

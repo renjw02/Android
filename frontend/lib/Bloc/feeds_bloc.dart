@@ -81,6 +81,12 @@ class FeedsBloc {
     _userIds.sink.add(feedAndUserIds[1]);
   }
 
+  fetchIdsByKeyWords(String keywords) async {
+    final feedAndUserIds = await _repository.fetchIdsByKeyWords(keywords);
+
+    _topIds.sink.add(feedAndUserIds[0]);
+    _userIds.sink.add(feedAndUserIds[1]);
+  }
   clearCache ()=> _repository.clearCache();
 
   _itemTransformer() {

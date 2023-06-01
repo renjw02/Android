@@ -374,13 +374,46 @@ class PostService():
             title_conditions = [Post.title.like(f'%{arg}%') for arg in args]
             content_conditions = [Post.content.like(f'%{arg}%') for arg in args]
             nickname_conditions = [User.nickname.like(f'%{arg}%') for arg in args]
-            query = db.session.query(Post).join(User)
+            query = db.session.query(User, Post).select_from(Post)
+            query = query.join(User, Post.user_id == User.id)
+            # query = db.session.query(Post)
             conditions = or_(*title_conditions, *content_conditions, *nickname_conditions)
-            result = query.filter(conditions).all()
+            # conditions = or_(*title_conditions, *content_conditions)
+            results = query.filter(conditions).all()
 
-            return result, True
+            # print(len(results))
+            # print(results[2])
+            # print(type(results[2].User))
+            results_list = []
+            for result in results:
+                # print(type(result.User), type(result.Post))
+                result_user = result.User.__dict__
+                result_post = result.Post.__dict__
+                # print(result_user)
+                if '_sa_instance_state' in result_user:
+                    del result_user['_sa_instance_state']
+                if 'id' in result_user:
+                    del result_user['id']
+                if 'created' in result_user:
+                    del result_user['created']
+
+                del result_post['_sa_instance_state']
+
+                # print(result_user)
+                # print(result_post)
+                new_result = {**result_user, **result_post}
+                results_list.append(new_result)
+                
+            return results_list, True
         except Exception as e:
-            print(e)
+            import traceback
+            error_type, error_value, tb = sys.exc_info()
+            traceback_info = traceback.extract_tb(tb)
+            filename, line, func, text = traceback_info[-1]
+            print(f"Error type: {error_type}")
+            print(f"Error message: {error_value}")
+            print(f"Error occurred at line {line} in {filename}")
+
             return 'errors', False
     
     def upload_picture(self, post_id, path):

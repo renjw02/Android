@@ -4,12 +4,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:frontend/Auth/customAuth.dart';
 import 'package:frontend/screens/profile_screen.dart';
+import 'package:frontend/screens/search/search_list_screen.dart';
 
-import '../models/DocumentSnapshot.dart';
-import '../models/querySnapshot.dart';
-import '../models/user.dart';
-import '../utils/colors.dart';
-import '../utils/global_variable.dart';
+import '../../Bloc/feeds_bloc_provider.dart';
+import '../../models/DocumentSnapshot.dart';
+import '../../models/querySnapshot.dart';
+import '../../models/user.dart';
+import '../../utils/colors.dart';
+import '../../utils/global_variable.dart';
+import '../feeds/feeds_list_screen.dart';
 
 DocumentSnapshot trend1 = DocumentSnapshot(
   uid: '1',
@@ -164,19 +167,6 @@ class _SearchScreenState extends State<SearchScreen> {
     return Scaffold(
         appBar: AppBar(
           backgroundColor: mobileBackgroundColor,
-          // title: Form(
-          //   child: TextFormField(
-          //     controller: searchController,
-          //     decoration:
-          //     const InputDecoration(labelText: 'Search for a user...'),
-          //     onFieldSubmitted: (String _) {
-          //       setState(() {
-          //         isShowUsers = true;
-          //       });
-          //       print(_);
-          //     },
-          //   ),
-          // ),
           title: Container(
             margin: EdgeInsets.all(10.0),
             height: 35.0,
@@ -184,7 +174,7 @@ class _SearchScreenState extends State<SearchScreen> {
               child: TextFormField(
                 controller: searchController,
                 decoration: InputDecoration(
-                  labelText: 'Search for a user...',
+                  labelText: 'Search for a post...',
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(20.0),
                   ),
@@ -209,81 +199,75 @@ class _SearchScreenState extends State<SearchScreen> {
           ),
         ),
       body: isShowUsers
-          ? FutureBuilder(
-        // future: FirebaseFirestore.instance
-        //     .collection('users')
-        //     .where(
-        //       'username',
-        //       isGreaterThanOrEqualTo: searchController.text,
-        //     )
-        //     .get(),
-        future: _futureValue,
-        builder: (context, snapshot) {
-          if (!snapshot.hasData) {
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
-          }
-          return ListView.builder(
-            itemCount: (snapshot.data! as dynamic).docs.length,
-            itemBuilder: (context, index) {
-              return InkWell(
-                onTap: () => Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (context) => ProfileScreen(
-                      uid: (snapshot.data! as dynamic).docs[index].data()['uid'],
-                    ),
-                  ),
-                ),
-                child: ListTile(
-                  leading: CircleAvatar(
-                    backgroundImage: NetworkImage(
-                      (snapshot.data! as dynamic).docs[index].data()['photoUrl'],
-                    ),
-                    radius: 16,
-                  ),
-                  title: Text(
-                    (snapshot.data! as dynamic).docs[index].data()['username'],
-                  ),
-                ),
-              );
-            },
-          );
-        },
+          ? FeedsBlocProvider(
+        key: ValueKey('search'),
+        filter: stringToNewsFilter('search'),
+        child: Center(
+            child: SearchListScreen(
+              e: 'search',
+              keywords: searchController.text,
+            )),
       )
-          : FutureBuilder(
-        // future: FirebaseFirestore.instance
-        //     .collection('posts')
-        //     .orderBy('datePublished')
-        //     .get(),
-        future: fakeFuture,
-        builder: (context, snapshot) {
-          if (!snapshot.hasData) {
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
-          }
-
-          return StaggeredGridView.countBuilder(
-            crossAxisCount: 3,
-            itemCount: (snapshot.data! as dynamic).docs.length,
-            itemBuilder: (context, index) => Image.network(
-              (snapshot.data! as dynamic).docs[index].data()['postUrl'].toString(),
-              fit: BoxFit.cover,
+          :
+      Container(
+        margin: EdgeInsets.all(20.0),
+        child: Column(
+          children: [
+            const Text(
+              '热门搜索',
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
             ),
-            staggeredTileBuilder: (index) => MediaQuery.of(context)
-                .size
-                .width >
-                webScreenSize
-                ? StaggeredTile.count(
-                (index % 7 == 0) ? 1 : 1, (index % 7 == 0) ? 1 : 1)
-                : StaggeredTile.count(
-                (index % 7 == 0) ? 2 : 1, (index % 7 == 0) ? 2 : 1),
-            mainAxisSpacing: 8.0,
-            crossAxisSpacing: 8.0,
-          );
-        },
-      ),
+            FeedsBlocProvider(
+              key: ValueKey('已筛选'),
+              filter: stringToNewsFilter('已筛选'),
+              child: Center(
+                  child: FeedsListScreen(
+                    e: '热度',
+                    cateFilters: [],
+                    timeFilters: [],
+                    sortFilters: [],
+                    uid:CustomAuth.currentUser.uid,
+                  )),
+            ),
+          ],
+        ),
+      )
+      // FutureBuilder(
+      //   // future: FirebaseFirestore.instance
+      //   //     .collection('posts')
+      //   //     .orderBy('datePublished')
+      //   //     .get(),
+      //   future: fakeFuture,
+      //   builder: (context, snapshot) {
+      //     if (!snapshot.hasData) {
+      //       return const Center(
+      //         child: CircularProgressIndicator(),
+      //       );
+      //     }
+      //
+      //     return StaggeredGridView.countBuilder(
+      //       crossAxisCount: 3,
+      //       itemCount: (snapshot.data! as dynamic).docs.length,
+      //       itemBuilder: (context, index) => Image.network(
+      //         (snapshot.data! as dynamic).docs[index].data()['postUrl'].toString(),
+      //         fit: BoxFit.cover,
+      //       ),
+      //       staggeredTileBuilder: (index) => MediaQuery.of(context)
+      //           .size
+      //           .width >
+      //           webScreenSize
+      //           ? StaggeredTile.count(
+      //           (index % 7 == 0) ? 1 : 1, (index % 7 == 0) ? 1 : 1)
+      //           : StaggeredTile.count(
+      //           (index % 7 == 0) ? 2 : 1, (index % 7 == 0) ? 2 : 1),
+      //       mainAxisSpacing: 8.0,
+      //       crossAxisSpacing: 8.0,
+      //     );
+      //   },
+      // ),
     );
   }
 }

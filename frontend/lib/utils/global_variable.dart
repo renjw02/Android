@@ -3,11 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:frontend/screens/feeds/add_post_screen.dart';
 import 'package:frontend/screens/notice/notification_screen.dart';
 import 'package:frontend/screens/profile_screen.dart';
-import 'package:frontend/screens/search_screen.dart';
+import 'package:frontend/screens/search/search_screen.dart';
 
 const webScreenSize = 600;
 
-const String serverIp = "http://183.172.230.8";
+const String serverIp = "http://183.172.237.120";
 const String serverPort = "5000";
 const ip = "$serverIp:$serverPort";
 var userLogin = Uri.parse( "$serverIp:$serverPort/api/user/login");

@@ -12,7 +12,7 @@ import 'api_service.dart';
 import 'media_api_service.dart' as mediaApi;
 const String url = "https://hacker-news.firebaseio.com/v0";
 
-class FeedsApiService implements Source{
+class FeedsApiService extends ApiService implements Source {
   http.Client client = http.Client();
 
   //获取头条新闻id
@@ -23,10 +23,7 @@ class FeedsApiService implements Source{
     if (kDebugMode) {
       print("NewsApiProvider fetchTopIds");
     }
-    //先等待0.05秒，模拟网络延迟
-    await Future.delayed(const Duration(milliseconds: 50));
-    //在从本地的读取top-stories的json字典的数据代替从客户端获取数据
-    // const topStories = "[1, 2]";
+
     List<List<int>> list;
 
     list = await db.DataBaseManager().getNewPostList(page, size, userId, orderByWhat, type, onlyFollowing, hot);
@@ -104,6 +101,7 @@ class FeedsApiService implements Source{
     String res = "Fail";
     if(supports.contains(uid)==false){
       res = await db.DataBaseManager().supportPost(postId, 1);
+
       if(res == "Success"){
         supports.add(uid);
         return "Success";
@@ -122,5 +120,19 @@ class FeedsApiService implements Source{
         return "Error";
       }
     }
+  }
+
+  @override
+  Future<List<List<int>>> fetchIdsByKeyWords(String keywords) async {
+    print("fetchIdsByKeyWords");
+    String url = '/api/post/searchpost';
+    Map<String,dynamic> result = await sendGetRequest(url, {'keywords': keywords}) as Map<String, dynamic>;
+    List<int> newFeedIdList =[];
+    List<int> feedCreatorIdList =[];
+    for(var item in result['postList']){
+      newFeedIdList.add(item['id']);
+      feedCreatorIdList.add(item['user_id']);
+    }
+    return [newFeedIdList,feedCreatorIdList];
   }
 }

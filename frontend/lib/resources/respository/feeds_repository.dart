@@ -36,6 +36,9 @@ class FeedsRepository{
     return _sourceList[1].fetchIdsByRules(page, size, userId, orderByWhat, type, onlyFollowing, hot);
   }
 
+  Future<List<List<int>>> fetchIdsByKeyWords(String keywords) {
+    return _sourceList[1].fetchIdsByKeyWords(keywords);
+  }
   Future<User> fetchUser(int uid) async {
     if (kDebugMode) {
       print("NewsRepository fetchUser: $uid");

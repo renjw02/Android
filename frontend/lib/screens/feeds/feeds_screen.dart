@@ -32,13 +32,6 @@ class _FeedsScreenState extends State<FeedsScreen>
     super.initState();
     isFilter = false;
     _tabController = TabController(length: tabs.length, vsync: this);
-    // _tabController.addListener(() {
-    //   if (isFilter == false && _tabController.index == 3) {
-    //     // _navigateToMoreTypesScreen();
-    //     // _tabController.index = 0;
-    //     // _tabController.animateTo(0);   // 跳到第5个Tab
-    //   }
-    // });
   }
 
   @override
@@ -128,43 +121,6 @@ class _FeedsScreenState extends State<FeedsScreen>
                           onMore: () {
                             _navigateToMoreTypesScreen();
                           }),
-                      // InkWell(
-                      //   onTap: () {
-                      //     // 处理按钮点击事件
-                      //     //跳转到MoreTypesScreen
-                      //     _navigateToMoreTypesScreen();
-                      //   },
-                      //   child: Container(
-                      //     decoration: const BoxDecoration(
-                      //       color: mobileBackgroundColor,
-                      //       borderRadius: BorderRadius.only(
-                      //         topLeft: Radius.circular(20),
-                      //         bottomLeft: Radius.circular(20),
-                      //       ),
-                      //     ),
-                      //     padding: const EdgeInsets.only(
-                      //         right: 5, left: 5, top: 10, bottom: 10),
-                      //     // margin: const EdgeInsets.only(right:0,left: 10,top: 10),
-                      //     child: const Row(
-                      //       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      //       children: [
-                      //         Text(
-                      //           'More',
-                      //           style: TextStyle(
-                      //             fontSize: 15,
-                      //             fontWeight: FontWeight.w800,
-                      //             color: Colors.white,
-                      //           ),
-                      //         ),
-                      //         Icon(
-                      //           Icons.arrow_forward_ios,
-                      //           color: Colors.white,
-                      //           size: 18,
-                      //         ),
-                      //       ],
-                      //     ),
-                      //   ),
-                      // )
                     ],
                   ),
           ),

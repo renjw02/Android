@@ -8,7 +8,7 @@ import '../screens/feeds/add_post_screen.dart';
 import '../screens/feeds/feeds_screen.dart';
 import '../screens/notice/notification_screen.dart';
 import '../screens/profile_screen.dart';
-import '../screens/search_screen.dart';
+import '../screens/search/search_screen.dart';
 
 class MobileScreenLayout extends StatefulWidget {
   const MobileScreenLayout({Key? key}) : super(key: key);

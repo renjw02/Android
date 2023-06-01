@@ -8,6 +8,7 @@ import '../../models/post.dart';
 abstract class Source{
   Future<List<List<int>>> fetchIdsByRules([int page=1,int size=10,int userId=0, String? orderByWhat = null,int type = 0, bool? onlyFollowing = null,
     bool? hot=null]);
+  Future<List<List<int>>> fetchIdsByKeyWords(String keywords);
   Future<dynamic> fetchItem(int id);
   Future<User?> fetchUser(int id);
   Future<String> supportPost(int postId, String uid, List supports);
