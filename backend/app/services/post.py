@@ -135,7 +135,7 @@ class PostService():
                         )
                         '''
             if hot:
-                where_clause = "where post.support_num > 10 and post.comment_num > 5"
+                where_clause = "where post.support_num > 10 or post.comment_num > 5"
 
             content_base = '''
                 select

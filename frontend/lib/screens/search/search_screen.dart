@@ -220,17 +220,19 @@ class _SearchScreenState extends State<SearchScreen> {
                 fontWeight: FontWeight.bold,
               ),
             ),
-            FeedsBlocProvider(
-              key: ValueKey('已筛选'),
-              filter: stringToNewsFilter('已筛选'),
-              child: Center(
-                  child: FeedsListScreen(
-                    e: '热度',
-                    cateFilters: [],
-                    timeFilters: [],
-                    sortFilters: [],
-                    uid:CustomAuth.currentUser.uid,
-                  )),
+            Expanded(
+              child: FeedsBlocProvider(
+                key: ValueKey('热度'),
+                filter: stringToNewsFilter('热度'),
+                child: Center(
+                    child: FeedsListScreen(
+                      e: '热度',
+                      cateFilters: [],
+                      timeFilters: [],
+                      sortFilters: [],
+                      uid:CustomAuth.currentUser.uid,
+                    )),
+              ),
             ),
           ],
         ),
