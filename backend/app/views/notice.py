@@ -82,7 +82,7 @@ def remove_notice(noticeId):
         return jsonify({'message': "exception!"}), 400
 
 
-# 获取用户私信列表
+# 获取用户通知列表
 @bp.route('/getnoticelist/<int:userId>', methods=['GET'])
 @login_required
 def get_notice_list(userId):

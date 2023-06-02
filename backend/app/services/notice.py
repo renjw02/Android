@@ -12,14 +12,25 @@ class NoticeService():
     
     def create_notice(self, user_id, type, content, creator_id=0, post_id=0):
         try:
+            notice = Notice.query.filter(and_(Notice.user_id==user_id, Notice.type==0, 
+                                              Notice.creator_id==creator_id, 
+                                              Notice.has_checked==False)).first()
             now = datetime.datetime.now()
-            n = Notice(user_id=user_id, type=type, content=content, creator_id=creator_id, 
-                       created=now, has_checked=False, post_id=post_id)
-            db.session.add(n)
-            db.session.commit()
-            return n, True
+            if notice is None:
+                n = Notice(user_id=user_id, type=type, content=content, creator_id=creator_id, 
+                            created=now, has_checked=False, post_id=post_id)
+                db.session.add(n)
+                db.session.commit()
+                return n, True
+            else:
+                db.session.query(Notice).filter(Notice.id == notice.id).update({
+                'created': now
+                })
+                db.session.commit()
+                return "update old one", True
         except Exception as e:
             print(e)
+            db.session.rollback()
             return "error", False
         
     def remove_notice(self, notice_id):
