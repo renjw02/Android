@@ -100,7 +100,7 @@ class _ContactUserCardState extends State<ContactUserCard> {
       onTap: () {
         widget.snap["hasChecked"] = 1;
         setState(() {}); // 触发rebuild
-        if (widget.snap["noticeType"] == 1) {
+        if (widget.snap["noticeType"] == 0) {
           widget.snap["hasChecked"] = 1;
           Navigator.of(context).push(
             MaterialPageRoute(
@@ -178,19 +178,43 @@ class _ContactUserCardState extends State<ContactUserCard> {
                         ),
                       ),
                     ),
-                    if (widget.snap["noticeType"] == 1) // 判断通知类型是否为私信
+                    if (widget.snap["noticeType"] == 0) // 判断通知类型是否为私信
                       const Text(
                         "私信",
                         style: TextStyle(
-                          color: Colors.purple,
+                          color: Colors.purpleAccent,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                    if (widget.snap["noticeType"] == 0) // 判断通知类型是否为系统通知
+                    if (widget.snap["noticeType"] == 1) // 判断通知类型是否为收到点赞
                       const Text(
-                        "系统通知",
+                        "收到点赞",
                         style: TextStyle(
-                          color: Colors.blue,
+                          color: Colors.blueAccent,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    if (widget.snap["noticeType"] == 2) // 判断通知类型是否为收到回复
+                      const Text(
+                        "收到回复",
+                        style: TextStyle(
+                          color: Colors.greenAccent,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    if (widget.snap["noticeType"] == 3) // 判断通知类型是否为关注的用户发帖
+                      const Text(
+                        "关注的用户发帖",
+                        style: TextStyle(
+                          color: Colors.orangeAccent,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    if (widget.snap["noticeType"] == 4) // 判断通知类型是否为关注的用户发消息
+                      const Text(
+                        "来自关注",
+                        style: TextStyle(
+                          color: Colors.yellowAccent,
                           fontWeight: FontWeight.bold,
                         ),
                       ),

@@ -12,7 +12,7 @@ import '../utils/global_variable.dart';
 class FeedsBloc {
 
   late final newFilter;
-
+  static int _num = 1;
   FeedsBloc(FeedsFilter filter) {
     if (kDebugMode) {
       print("FeedsBloc constructor");
@@ -29,7 +29,16 @@ class FeedsBloc {
   final _userIds = PublishSubject<List<int>>();
 
   //stream
-  Stream<Map<int, Future<Post>>> get items => _itemOutput.stream;
+  Stream<Map<int, Future<Post>>> get items {
+    //输出itemOutput的stream中的所有内容
+    print("FeedsBloc items");
+    //遍历itemOutput的stream中的所有内容
+    _itemOutput.stream.expand((map) => map.entries).forEach((entry) {
+      print('${entry.key} : ${entry.value}');
+    });
+    print("print over");
+    return _itemOutput.stream;
+  }
   Stream<List<int>> get topIds {
     return _topIds.stream;
   }
@@ -39,6 +48,9 @@ class FeedsBloc {
 
   //sink
   Function(int) get fetchItems {
+    print("FeedsBloc fetchItems");
+    _num  = _num + 1;
+    print(_num);
     return _itemsFetcher.sink.add;
   }
 

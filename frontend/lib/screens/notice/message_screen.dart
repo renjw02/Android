@@ -210,6 +210,7 @@ class _ContactsListState extends State<ContactsList> with AutomaticKeepAliveClie
 
     // _queryController.sink.add(querySnapshot);
   }
+
   void submitQuery(String type) async {
     //type的值可能是“全部”、“通知”、“私信”或非法值
     //根据type的值选择不同的查询
@@ -225,7 +226,7 @@ class _ContactsListState extends State<ContactsList> with AutomaticKeepAliveClie
         {
           QuerySnapshot querySnapshot = await db.DataBaseManager().noticeListQuery();
           //筛选出通知
-          querySnapshot.docs = querySnapshot.docs.where((element) => element.data()['noticeType'] == 0).toList();
+          querySnapshot.docs = querySnapshot.docs.where((element) => element.data()['noticeType'] != 0).toList();
           _queryController.sink.add(querySnapshot);
           break;
         }
@@ -237,7 +238,7 @@ class _ContactsListState extends State<ContactsList> with AutomaticKeepAliveClie
           // _queryController.sink.add(querySnapshot);
           QuerySnapshot querySnapshot = await db.DataBaseManager().noticeListQuery();
           // 筛选出私信
-          querySnapshot.docs = querySnapshot.docs.where((element) => element.data()['noticeType'] == 1).toList();
+          querySnapshot.docs = querySnapshot.docs.where((element) => element.data()['noticeType'] == 0).toList();
 
           // 将通知按照noticeCreator分组
           Map<String, List<dynamic>> groupedNotices = {};
@@ -260,22 +261,6 @@ class _ContactsListState extends State<ContactsList> with AutomaticKeepAliveClie
           //querySnapshot.docs里的元素按照时间顺序排列
           //最新的私信在最前面
           querySnapshot.docs.sort((a, b) => b.data()['created'].compareTo(a.data()['created']));
-          _queryController.sink.add(querySnapshot);
-          break;
-        }
-      case "已认证":
-        {
-          QuerySnapshot querySnapshot = await db.DataBaseManager().noticeListQuery();
-          //筛选出已认证
-          querySnapshot.docs = querySnapshot.docs.where((element) => element.data()['noticeType'] == 2).toList();
-          _queryController.sink.add(querySnapshot);
-          break;
-        }
-      case "提及":
-        {
-          QuerySnapshot querySnapshot = await db.DataBaseManager().noticeListQuery();
-          //筛选出提及
-          querySnapshot.docs = querySnapshot.docs.where((element) => element.data()['noticeType'] == 3).toList();
           _queryController.sink.add(querySnapshot);
           break;
         }
@@ -316,25 +301,25 @@ class _ContactsListState extends State<ContactsList> with AutomaticKeepAliveClie
                 );
               }
               return Scaffold(
-                floatingActionButton: FloatingActionButton(
-                  onPressed: () async {
-                    String returnMsg = await createNotice(widget.e, "content");
-                    if(returnMsg == "Success"){
-                      // 向用户显示信息
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('创建成功')),
-                      );
-                    }else{
-                      // 向用户显示信息
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('创建失败')),
-                      );
-                    }
-                    // 处理按钮点击事件
-                  },
-                  backgroundColor:  chatAccentColor,
-                  child: Icon(Icons.add),
-                ),
+                // floatingActionButton: FloatingActionButton(
+                //   onPressed: () async {
+                //     String returnMsg = await createNotice(widget.e, "content");
+                //     if(returnMsg == "Success"){
+                //       // 向用户显示信息
+                //       ScaffoldMessenger.of(context).showSnackBar(
+                //         const SnackBar(content: Text('创建成功')),
+                //       );
+                //     }else{
+                //       // 向用户显示信息
+                //       ScaffoldMessenger.of(context).showSnackBar(
+                //         const SnackBar(content: Text('创建失败')),
+                //       );
+                //     }
+                //     // 处理按钮点击事件
+                //   },
+                //   backgroundColor:  chatAccentColor,
+                //   child: Icon(Icons.add),
+                // ),
                 body:ListView.builder(
                   itemCount: snapshot.data!.docs.length,
                   itemBuilder: (ctx, index) => Container(

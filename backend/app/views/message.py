@@ -36,11 +36,17 @@ def create_message():
                                                content['content'])
         if flag:
             # 创建通知
-            receiver = user_service.get_user(content['receiver_id'])
-            sender = user_service.get_user(content['sender_id'])
-
-            info = "用户" + sender.nickname + "给您发送了一条新的消息"
+            receiver, flag_fake = user_service.get_user(content['receiver_id'])
+            sender, flag_fake = user_service.get_user(content['sender_id'])
+            print("===============")
+            print(receiver)
+            print(sender)
+            print(message)
+            info = "用户" + sender.nickname + "给您发送了一条新的消息"             
+            print(info)
             notice, flag1 = notice_service.create_notice(receiver.id, 0, info, sender.id)
+            print("===============")
+            print(notice)
             if not flag1:
                 return jsonify({'message': "failed to create notice"}), 500
 

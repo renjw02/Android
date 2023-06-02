@@ -57,6 +57,11 @@ class FeedsCacheService implements Source, Cache {
     print("cache clear");
     await _prefs.remove('post_list');
     await _prefs.remove('user_list');
+    //检测是否清除成功
+    print('post_list');
+    var list = _prefs.getStringList('post_list');
+    print(list);
+
   }
 
   @override
@@ -71,6 +76,7 @@ class FeedsCacheService implements Source, Cache {
         print(posts);
         for(var post in posts){
           print(post.id);
+          print(post.comment_num);
         }
         for(var post in posts){
           print(post.toJson());

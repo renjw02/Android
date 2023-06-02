@@ -178,7 +178,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
     db.DataBaseManager dbm = db.DataBaseManager();
     dbm.createMessage(textMsg.senderId, textMsg.receiverId, textMessage.text);
-    dbm.createNotice(1,textMessage.text,textMsg.senderId,textMsg.receiverId);
+    // dbm.createNotice(1,textMessage.text,textMsg.senderId,textMsg.receiverId);
     // dbm.getChatHistory(textMsg.senderId, textMsg.receiverId);
     // refresh(querySnapshot,textMsg.senderId,textMsg.receiverId);
   }
