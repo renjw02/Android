@@ -6,6 +6,7 @@ import 'package:frontend/utils/global_variable.dart';
 import '../Auth/customAuth.dart';
 import '../screens/feeds/add_post_screen.dart';
 import '../screens/feeds/feeds_screen.dart';
+import '../screens/notice/message_screen.dart';
 import '../screens/notice/notification_screen.dart';
 import '../screens/profile_screen.dart';
 import '../screens/search/search_screen.dart';
@@ -98,16 +99,16 @@ class _WebScreenLayoutState extends State<WebScreenLayout> {
       ),
       body: PageView(
         physics: const NeverScrollableScrollPhysics(),
+        controller: pageController,
+        onPageChanged: onPageChanged,
         children:
         [
           FeedsScreen(cateFilters: [],timeFilters: [],sortFilters: [],),
           const SearchScreen(),
           const AddPostScreen(),
-          const NotificationScreen(),
+          const MessageScreen(),
           ProfileScreen(uid: CustomAuth.currentUser.uid,),
         ],
-        controller: pageController,
-        onPageChanged: onPageChanged,
       ),
     );
   }

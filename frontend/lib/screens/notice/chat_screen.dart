@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
 import 'dart:typed_data';
@@ -31,14 +32,32 @@ class _ChatScreenState extends State<ChatScreen> {
   late final _user; //当前用户
   late final _opuser;
   late final Map<String,dynamic> userinfo;
+  late QuerySnapshot _querySnapshot;
+  late Timer timer;
   @override
   void initState() {
+
     setState(() {
       isLoading = true;
     });
     super.initState();
     getData();
+    var senderId = int.parse(widget.opuser);
+    var receiverId =  int.parse(widget.user);
+    Timer.periodic(Duration(seconds: 1), (timer) async {
+      print("timer refresh");
+      print(_querySnapshot.docs);
+      _querySnapshot = await db.DataBaseManager().getChatHistory(senderId, receiverId);
+      refresh(_querySnapshot, senderId, receiverId);
+    });
   }
+
+  @override
+  void dispose() {
+    timer.cancel();
+    super.dispose();
+  }
+
   getData() async {
     try {
       _user= types.User(id:widget.user );
@@ -60,10 +79,10 @@ class _ChatScreenState extends State<ChatScreen> {
 
       var senderId = int.parse(widget.opuser);
       var receiverId =  int.parse(widget.user);
-      QuerySnapshot querySnapshot = await dbm.getChatHistory(senderId, receiverId);
+      _querySnapshot = await dbm.getChatHistory(senderId, receiverId);
       print("querySnapshot");
-      print(querySnapshot.docs);
-      refresh(querySnapshot, senderId, receiverId);
+      print(_querySnapshot.docs);
+      refresh(_querySnapshot, senderId, receiverId);
     } catch (err) {
       print("err");
       print(err);
@@ -74,7 +93,7 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   void refresh(QuerySnapshot querySnapshot,int senderId,int receiverId) async {
-    querySnapshot.docs= querySnapshot.docs.map((message) {
+    List docs= querySnapshot.docs.map((message) {
       var authorId = message.senderId;
       if (authorId == senderId) {
         return types.TextMessage(
@@ -94,8 +113,10 @@ class _ChatScreenState extends State<ChatScreen> {
         throw Exception('Invalid authorId: $authorId');
       }
     }).toList();
+    //清空_messages
+    _messages.clear();
     //遍历querySnapshot.docs，将其add到_messages中
-    querySnapshot.docs.forEach((element) {
+    docs.forEach((element) {
       _messages.add(element);
     });
   }
@@ -178,8 +199,5 @@ class _ChatScreenState extends State<ChatScreen> {
 
     db.DataBaseManager dbm = db.DataBaseManager();
     dbm.createMessage(textMsg.senderId, textMsg.receiverId, textMessage.text);
-    // dbm.createNotice(1,textMessage.text,textMsg.senderId,textMsg.receiverId);
-    // dbm.getChatHistory(textMsg.senderId, textMsg.receiverId);
-    // refresh(querySnapshot,textMsg.senderId,textMsg.receiverId);
   }
 }

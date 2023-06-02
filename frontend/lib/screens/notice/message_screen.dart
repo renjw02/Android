@@ -89,9 +89,9 @@ class _MessageScreenState extends State<MessageScreen>  with SingleTickerProvide
         body:Column(
           children: [
             Container(
-              margin: const EdgeInsets.symmetric(horizontal: 10,vertical: 4),
-              padding: const EdgeInsets.symmetric(horizontal: 10,vertical: 16),
-              height: 75,
+              margin: const EdgeInsets.symmetric(horizontal: 10,vertical: 5),
+              padding: const EdgeInsets.symmetric(horizontal: 10,vertical: 5),
+              height: 50,
               color: chatPrimaryColor,
               child: TabBar(
                 controller: _tabController,
@@ -101,7 +101,7 @@ class _MessageScreenState extends State<MessageScreen>  with SingleTickerProvide
                         borderRadius: BorderRadius.circular(12))
                 ),
                 tabs: tabs.map((e) => Tab(text: e)).toList(),
-                labelStyle: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
+                labelStyle: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
                 onTap: (index) {
                   setState(() {
                     _tabController.animateTo(index);

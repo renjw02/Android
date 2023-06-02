@@ -31,14 +31,15 @@ class FeedsBloc {
   //stream
   Stream<Map<int, Future<Post>>> get items {
     //输出itemOutput的stream中的所有内容
-    print("FeedsBloc items");
-    //遍历itemOutput的stream中的所有内容
-    _itemOutput.stream.expand((map) => map.entries).forEach((entry) {
-      print('${entry.key} : ${entry.value}');
-    });
-    print("print over");
+    // print("FeedsBloc items");
+    // //遍历itemOutput的stream中的所有内容
+    // _itemOutput.stream.expand((map) => map.entries).forEach((entry) {
+    //   print('${entry.key} : ${entry.value}');
+    // });
+    // print("print over");
     return _itemOutput.stream;
   }
+
   Stream<List<int>> get topIds {
     return _topIds.stream;
   }

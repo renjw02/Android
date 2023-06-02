@@ -43,7 +43,7 @@ class _ProfileScreenState extends State<ProfileScreen>
   Uint8List? _photo;
   dynamic photo;
   late TabController _tabController;
-  List tabs = ["我的帖子"];
+  List tabs = ["我的帖子","我的收藏"];
 
   @override
   void initState() {

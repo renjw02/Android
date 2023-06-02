@@ -163,13 +163,21 @@ class _ContactUserCardState extends State<ContactUserCard> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: <Widget>[
                             Text(
-                              userinfo['username'].toString(),
+                        userinfo['username'] == null ?  "来自系统":userinfo['username'].toString(),
                               style: const TextStyle(
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
+                            // Text(
+                            //   widget.snap['created'].toString().substring(0,16),
+                            // ),
+                            widget.snap["noticeType"] == 0 ?
                             Text(
                               widget.snap['created'].toString().substring(0,16),
+                            )
+                                :
+                            Text(
+                              widget.snap['content'].toString(),
                             ),
                             widget.snap['created']==  1 ? Text(
                               widget.snap['content'].toString(),
@@ -186,38 +194,38 @@ class _ContactUserCardState extends State<ContactUserCard> {
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                    if (widget.snap["noticeType"] == 1) // 判断通知类型是否为收到点赞
-                      const Text(
-                        "收到点赞",
-                        style: TextStyle(
-                          color: Colors.blueAccent,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    if (widget.snap["noticeType"] == 2) // 判断通知类型是否为收到回复
-                      const Text(
-                        "收到回复",
-                        style: TextStyle(
-                          color: Colors.greenAccent,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    if (widget.snap["noticeType"] == 3) // 判断通知类型是否为关注的用户发帖
-                      const Text(
-                        "关注的用户发帖",
-                        style: TextStyle(
-                          color: Colors.orangeAccent,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    if (widget.snap["noticeType"] == 4) // 判断通知类型是否为关注的用户发消息
-                      const Text(
-                        "来自关注",
-                        style: TextStyle(
-                          color: Colors.yellowAccent,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
+                    // if (widget.snap["noticeType"] == 1) // 判断通知类型是否为收到点赞
+                    //   const Text(
+                    //     "收到点赞",
+                    //     style: TextStyle(
+                    //       color: Colors.blueAccent,
+                    //       fontWeight: FontWeight.bold,
+                    //     ),
+                    //   ),
+                    // if (widget.snap["noticeType"] == 2) // 判断通知类型是否为收到回复
+                    //   const Text(
+                    //     "收到回复",
+                    //     style: TextStyle(
+                    //       color: Colors.greenAccent,
+                    //       fontWeight: FontWeight.bold,
+                    //     ),
+                    //   ),
+                    // if (widget.snap["noticeType"] == 3) // 判断通知类型是否为关注的用户发帖
+                    //   const Text(
+                    //     "关注的用户发帖",
+                    //     style: TextStyle(
+                    //       color: Colors.orangeAccent,
+                    //       fontWeight: FontWeight.bold,
+                    //     ),
+                    //   ),
+                    // if (widget.snap["noticeType"] == 4) // 判断通知类型是否为关注的用户发消息
+                    //   const Text(
+                    //     "来自关注",
+                    //     style: TextStyle(
+                    //       color: Colors.yellowAccent,
+                    //       fontWeight: FontWeight.bold,
+                    //     ),
+                    //   ),
                     InkWell(
                       onTap: () async {
                         // 删除通知

@@ -6,6 +6,7 @@ import 'package:frontend/utils/global_variable.dart';
 
 import '../screens/feeds/add_post_screen.dart';
 import '../screens/feeds/feeds_screen.dart';
+import '../screens/notice/message_screen.dart';
 import '../screens/notice/notification_screen.dart';
 import '../screens/profile_screen.dart';
 import '../screens/search/search_screen.dart';
@@ -56,7 +57,7 @@ class _MobileScreenLayoutState extends State<MobileScreenLayout> {
           FeedsScreen(cateFilters: [],timeFilters: [],sortFilters: [],),
           const SearchScreen(),
           const AddPostScreen(),
-          const NotificationScreen(),
+          const MessageScreen(),
           ProfileScreen(uid: CustomAuth.currentUser.uid,),
         ],
       ),
@@ -65,7 +66,7 @@ class _MobileScreenLayoutState extends State<MobileScreenLayout> {
         items: <BottomNavigationBarItem>[
           BottomNavigationBarItem(
             icon: Icon(
-              Icons.home,
+              Icons.home_outlined,
               color: (_page == 0) ? themeColor : secondaryColor,
             ),
             label: '',
@@ -73,21 +74,21 @@ class _MobileScreenLayoutState extends State<MobileScreenLayout> {
           ),
           BottomNavigationBarItem(
               icon: Icon(
-                Icons.search,
+                Icons.search_outlined,
                 color: (_page == 1) ? themeColor : secondaryColor,
               ),
               label: '',
               backgroundColor: primaryColor),
           BottomNavigationBarItem(
               icon: Icon(
-                Icons.add_circle,
+                Icons.add_circle_outline,
                 color: (_page == 2) ? themeColor : secondaryColor,
               ),
               label: '',
               backgroundColor: primaryColor),
           BottomNavigationBarItem(
             icon: Icon(
-              Icons.favorite,
+              Icons.chat_bubble_outline,
               color: (_page == 3) ? themeColor : secondaryColor,
             ),
             label: '',
@@ -95,7 +96,7 @@ class _MobileScreenLayoutState extends State<MobileScreenLayout> {
           ),
           BottomNavigationBarItem(
             icon: Icon(
-              Icons.person,
+              Icons.person_outline,
               color: (_page == 4) ? themeColor : secondaryColor,
             ),
             label: '',
