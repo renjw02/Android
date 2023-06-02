@@ -5,7 +5,7 @@
 import os
 
 from flask import Blueprint, jsonify, request, g, make_response
-from app.services import UserService
+from app.services import UserService, NoticeService
 from app.checkers import register_params_check, change_params_check
 from app.utils import generate_jwt, remove_jwt
 from .login_required import login_required
@@ -14,6 +14,7 @@ import sys
 bp = Blueprint('user', __name__, url_prefix='/api/user')
 
 service = UserService()
+notice_service = NoticeService()
 
 @bp.route('/')
 def index():
@@ -266,6 +267,10 @@ def follow_user(userId):
         
         follow, flag = service.follow_user(userId, g.user_id)
         if flag:
+            info = "感谢您的关注！"
+            notice, flag1 = notice_service.create_notice(g.user_id, 4, info, userId)
+            if not flag1:
+                return jsonify({'message': "failed to create notice"}), 500 
             return jsonify({
                 'message': "ok",
                 'followed_id': follow.followed_id                       
