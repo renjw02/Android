@@ -413,7 +413,7 @@ def create_post():
   'content'
   'type'
   'position'
-
+  
   文件字段：
   视频或者图片，字节流
   ```
@@ -792,7 +792,9 @@ def cancel_collection():
 > + id
 > + user_id
 > + content
-> + type        0 系统消息         1 私信
+> + type      0   1  2  3
+> + post_id
+> + creator_id 
 > + created
 > + has_checked
 
@@ -810,6 +812,8 @@ def createnotice():
   	"user_id"
   	"content"
   	"type"
+  	"post_id"	可选
+  	"creator_id"	可选
   }
   ```
 + 返回：json + 状态码
@@ -879,15 +883,16 @@ def get_notice(noticeId):
 + 返回：json + 状态码
 
   ```
-
+  
   	"message"
   	"noticeId"
   	"content"
   	"type"
   	"creator"
+  	"postId"
   	"created"
   }
-
+  
   ```
 
 ### 获取未读私信数量

@@ -167,8 +167,15 @@ class Notice(db.Model):
     
     user_id = db.Column(db.Integer, doc="用户id")
     content = db.Column(db.String(64), doc="通知内容")
+    """
+    type 0 - 收到私信
+    type 1 - post i 被点赞
+    type 2 - post i 被回复
+    type 3 - 关注用户 i 发布新信息
+    """
     type = db.Column(db.Integer, doc="通知类型")
     creator_id = db.Column(db.Integer, doc="通知来源")
+    post_id = db.Column(db.Integer, doc="被操作的帖子id")
 
     created = db.Column(db.DateTime, doc="创建时间")
     has_checked = db.Column(db.Boolean, doc="被查看与否")

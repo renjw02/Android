@@ -18,10 +18,10 @@ def index():
     return jsonify({'message': "notice配置完成!"}), 200
 
 
+# 废除
 # 创建通知
 @bp.route('/createnotice', methods=['POST'])
 def createnotice():
-
     try:
         # print(request)
         # print(request.form)
@@ -123,7 +123,8 @@ def get_notice(noticeId):
                 'content': notice.content,
                 'type': notice.type,
                 'created': notice.created,
-                'creator': notice.creator_id 
+                'creator': notice.creator_id,
+                'postId': notice.post_id 
             }), 200
         else:
             return jsonify({'message': "error"}), 500

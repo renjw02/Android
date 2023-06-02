@@ -10,11 +10,11 @@ from app.models import Notice
 
 class NoticeService():
     
-    def create_notice(self, user_id, type, content, creator_id=0):
+    def create_notice(self, user_id, type, content, creator_id=0, post_id=0):
         try:
             now = datetime.datetime.now()
             n = Notice(user_id=user_id, type=type, content=content, creator_id=creator_id, 
-                       created=now, has_checked=False)
+                       created=now, has_checked=False, post_id=post_id)
             db.session.add(n)
             db.session.commit()
             return n, True

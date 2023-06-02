@@ -20,11 +20,12 @@ class PostService():
                     last_replied_time=now, created=now, updated=now, font_size=font_size,
                     font_color=font_color, font_weight=font_weight)
             db.session.add(p)
+            u = User.query.filter(User.id == user_id).first()
             db.session.commit()
-            return p, True
+            return u, p, True
         except Exception as e:
             print(e)
-            return "error", False
+            return None, "error", False
 
     def update_post(self, title, content, post_id, position, font_size, font_color, font_weight):
         try:
@@ -68,12 +69,13 @@ class PostService():
                 "last_replied_user_id": user_id,
                 "comment_num": Post.comment_num + 1
             })
+            p = Post.query.filter(Post.id == post_id).first()
             db.session.commit()
-            return r, True
+            return p, True
         except Exception as e:
             db.session.rollback()
             print(e)
-            return "error", False
+            return None, False
 
     def update_comment(self, content, user_id, post_id, comment_id):
         try:
@@ -342,19 +344,20 @@ class PostService():
             now = datetime.datetime.now()
             tmp = Support.query.filter(and_(Support.user_id == user_id, Support.post_id == post_id)).first()
             if tmp is not None:
-                return "already exist", False
+                return None, "already exist", False
             s = Support(post_id=post_id, user_id=user_id, created=now)
             db.session.add(s)
             db.session.query(Post).filter(Post.id == post_id).update({
                 "support_num": Post.support_num+1,
                 "updated": now
             })
+            p = Post.query.filter(Post.id == post_id).first()
             db.session.commit()
-            return 'ok', True
+            return p, 'ok', True
         except Exception as e:
             print(e)
             db.session.rollback()
-            return 'errors', False
+            return None, 'errors', False
         
     def cancel_support_post(self, user_id, post_id):
         try:

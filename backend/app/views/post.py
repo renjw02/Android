@@ -6,13 +6,15 @@ import os, base64
 
 from flask import Blueprint, jsonify, request, g
 from .login_required import login_required
-from app.services import PostService
+from app.services import PostService, NoticeService, UserService
 from app.checkers import post_params_check, comment_params_check
 import sys
 
 bp = Blueprint('post', __name__, url_prefix='/api/post')
 
 service = PostService()
+user_service = UserService()
+notice_service = NoticeService()
 
 @bp.route('/')
 def index():
@@ -23,10 +25,6 @@ def index():
 @login_required
 def create_post():
     try:    
-        print(request,file=sys.stderr)
-        print("asd",file=sys.stderr)
-        print(request.form,file=sys.stderr)
-        print("asd",file=sys.stderr)
         title = request.form.get('title')
         content = request.form.get('content')
         typei = int(request.form.get('type'))
@@ -39,26 +37,22 @@ def create_post():
         if not passed:
             return jsonify({'message': "invalid arguments: " + key}), 400
         
-        print(request.files,file=sys.stderr)
         files = request.files.getlist('file')
-        print(files)
         
-        post, result = service.create_post(title, content, g.user_id, typei, position, font_size,
+        user, post, result = service.create_post(title, content, g.user_id, typei, position, font_size,
                                            font_color, font_weight)
         if files is not None:
             for file in files:
                 filename = file.filename
                 content_type = file.content_type
 
-                print(content_type,file=sys.stderr)
                 if content_type.startswith('image'):
                     # save_path = './static/images/'
                     save_path = os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.pardir, "static", "images"))
-                    print(content_type,file=sys.stderr)
                     path = os.path.join(save_path, str(post.id) + "_" + filename)
-                    print(content_type,file=sys.stderr)
+
                     pic, flag = service.upload_picture(post.id, path)
-                    print(content_type,file=sys.stderr)
+
                     if not flag:
                         return jsonify({'message': "upload images falied"}), 400
 
@@ -71,9 +65,19 @@ def create_post():
                         return jsonify({'message': "upload videos falied"}), 400
                 
                 file.save(path)
-        print(123,file=sys.stderr)
-        print(post.id)
+
         if result:
+            follower_list, flag = user_service.get_my_follower_list(g.user_id)
+            if flag:
+                for follower in follower_list:
+                    target_user_id = int(follower['followerId'])
+                    info = "您关注的用户" + user.nickname + "发布了一条新的帖子"
+                    notice, flag1 = notice_service.create_notice(target_user_id, 3, info, post_id=post.id)
+                    if not flag1:
+                        return jsonify({'message': "failed to create notice"}), 500
+            else:
+                return jsonify({'message': "failed to send notices to followers"}), 500
+
             return jsonify({
                 'postId': post.id,
                 'userId': post.user_id,
@@ -304,10 +308,15 @@ def comment_post(postId):
         if not check:
             return jsonify({'message': "not found"}), 404
 
-        result = service.create_comment(content['content'], g.user_id, postId, comment_id)
+        post, result = service.create_comment(content['content'], g.user_id, postId, comment_id)
 
         if result:
-            return jsonify({'message': "ok"}), 200
+            info = "您的帖子\"" + post.title + "\"收到了一条回复"
+            notice, flag = notice_service.create_notice(post.user_id, 2, info, post_id=postId)
+            if flag:
+                return jsonify({'message': "ok"}), 200
+            else:
+                return jsonify({'message': "failed to create notice"}), 500
         else:
             return jsonify({'message': "error"}), 500
     except:
@@ -462,7 +471,7 @@ def support_post(postId):
 
         if 'type' in content:
             if content['type'] == 1:
-                msg, result = service.support_post(g.user_id, postId)
+                post, msg, result = service.support_post(g.user_id, postId)
             elif content['type'] == -1:
                 msg, result = service.cancel_support_post(g.user_id, postId)
             else:
@@ -471,7 +480,13 @@ def support_post(postId):
             return jsonify({'message': "no type"}), 400
 
         if result:
-            return jsonify({'message': msg}), 200
+            # 需要创建通知
+            info = "您的帖子\"" + post.title + "\"收到了一个赞"
+            notice, flag = notice_service.create_notice(post.user_id, 1, info, post_id=postId)
+            if flag:
+                return jsonify({'message': msg}), 200
+            else:
+                return jsonify({'message': "failed to create notice"}), 500
         else:
             return jsonify({'message': msg}), 500
     except:

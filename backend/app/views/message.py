@@ -5,13 +5,15 @@
 import os
 
 from flask import Blueprint, jsonify, request, g
-from app.services import MessageService
+from app.services import MessageService, NoticeService, UserService
 from .login_required import login_required
 from app.checkers import message_params_check
 
 bp = Blueprint('message', __name__, url_prefix='/api/message')
 
 service = MessageService()
+notice_service = NoticeService()
+user_service = UserService()
 
 @bp.route('/')
 def index():
@@ -33,6 +35,15 @@ def create_message():
         message, flag = service.create_message(content['sender_id'], content['receiver_id'], 
                                                content['content'])
         if flag:
+            # 创建通知
+            receiver = user_service.get_user(content['receiver_id'])
+            sender = user_service.get_user(content['sender_id'])
+
+            info = "用户" + sender.nickname + "给您发送了一条新的消息"
+            notice, flag1 = notice_service.create_notice(receiver.id, 0, info, sender.id)
+            if not flag1:
+                return jsonify({'message': "failed to create notice"}), 500
+
             return jsonify({
                 'message': "ok",
                 'messageId': message.id,
