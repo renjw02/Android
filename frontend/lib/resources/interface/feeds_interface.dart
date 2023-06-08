@@ -7,12 +7,12 @@ import '../../models/post.dart';
 
 abstract class Source{
   Future<List<List<int>>> fetchIdsByRules([int page=1,int size=10,int userId=0, String? orderByWhat = null,int type = 0, bool? onlyFollowing = null,
-    bool? hot=null]);
+    bool? hot=null,bool? star= null]);
   Future<List<List<int>>> fetchIdsByKeyWords(String keywords);
   Future<dynamic> fetchItem(int id);
   Future<User?> fetchUser(int id);
   Future<String> supportPost(int postId, String uid, List supports);
-  Future<String> starPost(int postId, String uid, String title,List stars);
+  Future<String> starPost(int postId, String uid,List stars,String title);
 }
 
 abstract class Cache{

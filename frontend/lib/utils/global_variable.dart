@@ -7,7 +7,7 @@ import 'package:frontend/screens/search/search_screen.dart';
 
 const webScreenSize = 600;
 
-const String serverIp = "http://183.172.230.62";
+const String serverIp = "http://183.172.225.153";
 const String serverPort = "5000";
 const ip = "$serverIp:$serverPort";
 var userLogin = Uri.parse( "$serverIp:$serverPort/api/user/login");

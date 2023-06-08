@@ -18,7 +18,7 @@ class FeedsApiService extends ApiService implements Source {
   //获取头条新闻id
   @override
   Future<List<List<int>>> fetchIdsByRules([int page=1,int size=10,int userId=0, String? orderByWhat=null,int type=0, bool? onlyFollowing=null,
-    bool? hot=null]) async{
+    bool? hot=null,bool? star= null]) async{
     // final response = await client.get("$url/top-stories.json" as Uri);
     if (kDebugMode) {
       print("NewsApiProvider fetchTopIds");
@@ -26,7 +26,7 @@ class FeedsApiService extends ApiService implements Source {
 
     List<List<int>> list;
 
-    list = await db.DataBaseManager().getNewPostList(page, size, userId, orderByWhat, type, onlyFollowing, hot);
+    list = await db.DataBaseManager().getNewPostList(page, size, userId, orderByWhat, type, onlyFollowing, hot,star);
     print("list<int>");
     print(list);
     print("list<int>");
@@ -65,29 +65,39 @@ class FeedsApiService extends ApiService implements Source {
   }
 
   @override
-  Future<String> starPost(int postId, String uid, String title, List stars) async {
+  Future<String> starPost(int postId, String uid,List stars,String title) async {
     // TODO: implement starPost
+    print("starpost");
     print("starpost");
     print(uid);
     print(stars);
     String res = "Fail";
-    if(stars.contains(uid)==false){
+    List<String> temp = stars.map((dynamic) => dynamic.toString()).toList();
+    if(temp.contains(uid)==false){
+      print("not contain");
       res = await db.DataBaseManager().starPost(postId, uid,title);
+      print(res);
       if(res == "Success"){
-        stars.add(uid);
+        stars.add(int.parse(uid));
+        print(stars);
         return "Success";
       }
       else{
+        print(stars);
         return "Error";
       }
     }
     else{
+      print("contain");
       res = await db.DataBaseManager().cancelStar(postId, uid);
+      print(res);
       if(res == "Success"){
-        stars.remove(uid);
+        stars.remove(int.parse(uid));
+        print(stars);
         return "Success";
       }
       else{
+        print(stars);
         return "Error";
       }
     }
@@ -99,11 +109,14 @@ class FeedsApiService extends ApiService implements Source {
     print(uid);
     print(supports);
     String res = "Fail";
-    if(supports.contains(uid)==false){
+    print(supports.runtimeType);
+    //print(supports[0].runtimeType);
+    List<String> temp = supports.map((dynamic) => dynamic.toString()).toList();
+    if(temp.contains(uid)==false){
       res = await db.DataBaseManager().supportPost(postId, 1);
 
       if(res == "Success"){
-        supports.add(uid);
+        supports.add(int.parse(uid));
         return "Success";
       }
       else{
@@ -113,7 +126,7 @@ class FeedsApiService extends ApiService implements Source {
     else{
       res = await db.DataBaseManager().supportPost(postId, -1);
       if(res == "Success"){
-        supports.remove(uid);
+        supports.remove(int.parse(uid));
         return "Fail";
       }
       else{

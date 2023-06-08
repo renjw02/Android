@@ -30,43 +30,30 @@ class _ContactUserCardState extends State<ContactUserCard> {
   bool isLoading = false;
   late final Uint8List _file;
   late final Map<String,dynamic> userinfo;
-
+  late String content;
   @override
   void initState() {
+    super.initState();
     setState(() {
       isLoading = true;
     });
-    super.initState();
     getData();
   }
   getData() async {
     try {
       var snap = widget.snap;
-      //输出snap
-      print("snap");
-      print(snap);
-      print(snap['creatorId']);
       db.DataBaseManager dbm = db.DataBaseManager();
       String noticeCreator = snap['noticeCreator'].toString();
       var url = Uri.parse("${gv.ip}/api/user/user/$noticeCreator");
-      //获取帖子内容
-
       userinfo = await dbm.getSomeMap(url);
-      print("userinfo");
-      // print(userinfo);
       _file = await dbm.getPhoto(noticeCreator);
-      print("file");
-      // print(_file);
       //获取帖子内容
-      String content = await dbm.noticeContentQuery(snap['noticeId']);
+      content = await dbm.noticeContentQuery(snap['noticeId']);
       snap["content"] = content;
       print("content");
       print(content);
     } catch (err) {
-      // showSnackBar(
-      //   context,
-      //   err.toString(),
-      // );
+      print("error:");
       print(err);
     }
     setState(() {
@@ -173,14 +160,10 @@ class _ContactUserCardState extends State<ContactUserCard> {
                             // ),
                             widget.snap["noticeType"] == 0 ?
                             Text(
-                              widget.snap['created'].toString().substring(0,16),
+                              widget.snap["created"].toString().substring(0,16),
                             )
-                                :
-                            Text(
-                              widget.snap['content'].toString(),
-                            ),
-                            widget.snap['created']==  1 ? Text(
-                              widget.snap['content'].toString(),
+                                :content != null ? Text(
+                              content,
                             ) : Container(),
                           ],
                         ),

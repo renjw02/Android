@@ -36,15 +36,16 @@ class _ChatScreenState extends State<ChatScreen> {
   late Timer timer;
   @override
   void initState() {
-
+    super.initState();
     setState(() {
       isLoading = true;
     });
-    super.initState();
+    //初始化timer
+
     getData();
     var senderId = int.parse(widget.opuser);
     var receiverId =  int.parse(widget.user);
-    Timer.periodic(Duration(seconds: 1), (timer) async {
+    timer = Timer.periodic(const Duration(seconds: 3), (timer) async {
       print("timer refresh");
       print(_querySnapshot.docs);
       _querySnapshot = await db.DataBaseManager().getChatHistory(senderId, receiverId);

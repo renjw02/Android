@@ -32,8 +32,8 @@ class FeedsRepository{
 
   //fetchIds By Rules
   Future<List<List<int>>> fetchIdsbyRules([int page=1,int size=10,int userId=0, String? orderByWhat = null,int type = 0, bool? onlyFollowing = null,
-    bool? hot=null]) {
-    return _sourceList[1].fetchIdsByRules(page, size, userId, orderByWhat, type, onlyFollowing, hot);
+    bool? hot=null,bool? star= null]) {
+    return _sourceList[1].fetchIdsByRules(page, size, userId, orderByWhat, type, onlyFollowing, hot, star);
   }
 
   Future<List<List<int>>> fetchIdsByKeyWords(String keywords) {
@@ -87,20 +87,26 @@ class FeedsRepository{
     String res = "Fail";
     try{
       List supportCopy = supports;
-      res = await _sourceList[0].supportPost(postId, uid, supportCopy);
+      //res = await _sourceList[0].supportPost(postId, uid, supportCopy);
       await _sourceList[1].supportPost(postId, uid, supports);
     }catch(e){
       print(e);
     }
+    print("resposi"+supports.toString());
     return res;
   }
 
-  Future<String> starPost(int postId, String uid, String title,List stars) async {
+  Future<String> starPost(int postId, String uid,List stars,String title) async {
     //todo
     String res = "Fail";
+    try{
+      await _sourceList[1].starPost(postId, uid,stars,title);
+      print("resposi"+stars.toString());
+    }catch(e){
+      print(e);
+    }
+    //res = await _sourceList[0].starPost(postId, title, title, stars);
 
-    res = await _sourceList[0].starPost(postId, title, title, stars);
-    _sourceList[1].starPost(postId, uid, title,stars);
     return res;
   }
 

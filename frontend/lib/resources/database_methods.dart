@@ -477,7 +477,7 @@ class DataBaseManager{
   }
 
   Future<List<List<int>>> getNewPostList([int page=1,int size=10,int userId=0, String? orderByWhat=null,int type=0, bool? onlyFollowing=null,
-    bool? hot=null]) async{
+    bool? hot=null,bool? star= null]) async{
     List<int> newFeedIdList =[];
     List<int> feedCreatorIdList =[];
     try{
@@ -497,6 +497,9 @@ class DataBaseManager{
       }
       if(hot != null){
         paras["hot"] = hot;
+      }
+      if(star != null){
+        paras["star"] = star;
       }
       var response = await dio.get(gv.ip+"/api/post/getpostlist",queryParameters: paras);
       var m = Map.from(response.data);
@@ -989,8 +992,10 @@ class DataBaseManager{
   Future<String> starPost(int postid,String uid,String title) async {
     String res = "Fail";
     try{
+      print("asd");
       var dio = new Dio();
       dio.options.headers[HttpHeaders.authorizationHeader]=CustomAuth.currentUser.jwt;
+      print("asd");
       var response = await dio.post(gv.ip+"/api/star/collectpost",data: {
         "post_id":postid,
         "user_id":int.parse(uid),

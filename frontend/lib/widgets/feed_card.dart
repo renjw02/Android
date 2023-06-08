@@ -8,6 +8,7 @@ import 'package:frontend/screens/feeds/feeds_detail_screen.dart';
 import 'package:frontend/widgets/Avatar.dart';
 import 'package:frontend/widgets/video_component.dart';
 import 'package:provider/provider.dart';
+import 'package:share/share.dart';
 import '../Auth/customAuth.dart';
 import '../Bloc/comments_bloc_provider.dart';
 import '../Bloc/feeds_bloc_provider.dart';
@@ -21,6 +22,7 @@ import '../utils/global_variable.dart';
 import '../utils/utils.dart';
 import 'like_animation.dart';
 // import '../screens/feeds_detail_screen.dart';
+
 
 class FeedCard extends StatefulWidget {
   final int id;
@@ -48,7 +50,22 @@ class _FeedCardState extends State<FeedCard>
     "较粗": FontWeight.w700
   };
   bool isLikeAnimating = false;
-
+  late int feedId;
+  late String feedTitle;
+  late String feedContent;
+  late String feedCreatorId;
+  late String feedCreatorNickName;
+  late String feedCreatedAt;
+  late int feedType;
+  late int feedFontSize;
+  late String feedFontColor;
+  late String feedFontWeight;
+  late int feedSupportNum;
+  late List<dynamic> feedSupportList;
+  late int feedCommentNum;
+  late List<dynamic> feedCommentList;
+  late int feedStarNum;
+  late List<dynamic> feedStarList;
   @override
   void initState() {
     super.initState();
@@ -97,6 +114,22 @@ class _FeedCardState extends State<FeedCard>
 
   Widget _buildItemTile(BuildContext context, AsyncSnapshot<Post> snap,
       model.User currentUser, double width,  FeedsBloc bloc) {
+    feedId = snap.data!.id;
+    feedTitle = snap.data!.title;
+    feedContent = snap.data!.content;
+    feedCreatorId = snap.data!.userId.toString();
+    feedCreatorNickName = snap.data!.nickname.toString();
+    feedCreatedAt = snap.data!.created.toString();
+    feedType = snap.data!.type;
+    feedFontSize = snap.data!.font_size;
+    feedFontColor = snap.data!.font_color;
+    feedFontWeight = snap.data!.font_weight;
+    feedSupportNum = snap.data!.support_num;
+    feedSupportList = snap.data!.supportList;
+    feedCommentNum = snap.data!.comment_num;
+    feedCommentList = snap.data!.comments;
+    feedStarNum = snap.data!.star_num;
+    feedStarList = snap.data!.starList;
 
     return Container(
       // boundary needed for web
@@ -125,7 +158,7 @@ class _FeedCardState extends State<FeedCard>
             ),
             child: RichText(
                 text: TextSpan(
-                  text: snap.data!.title,
+                  text: feedTitle,
                   style: const TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.bold,
@@ -143,7 +176,7 @@ class _FeedCardState extends State<FeedCard>
             child: Row(
               children: [
                 UserAvatar(
-                  userId: snap.data!.userId, width: 32,height: 32,
+                  userId: feedCreatorId, width: 32,height: 32,
                 ),
                 Expanded(
                   child: Padding(
@@ -155,13 +188,13 @@ class _FeedCardState extends State<FeedCard>
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          snap.data!.nickname.toString(),
+                          feedCreatorNickName,
                           style: const TextStyle(
                             fontWeight: FontWeight.bold,
                           ),
                         ),
                         Text(
-                          snap.data!.created.toString().substring(0,16),
+                          feedCreatedAt.substring(0,16),
                           style: const TextStyle(
                             color: secondaryColor,
                           ),
@@ -171,14 +204,14 @@ class _FeedCardState extends State<FeedCard>
                   ),
                 ),
                 Text(
-                  types[snap.data!.type].toString(),
+                  types[feedType].toString(),
                   style: const TextStyle(
                     color: secondaryColor,
                   ),
                 ),
-                snap.data!.userId.toString() == currentUser.uid
+                feedCreatorId == currentUser.uid
                     ? SizedBox(width: 0) : SizedBox(width: 30),
-                snap.data!.userId.toString() == currentUser.uid
+                feedCreatorId == currentUser.uid
                     ? IconButton(
                         onPressed: () {
                           showDialog(
@@ -245,11 +278,11 @@ class _FeedCardState extends State<FeedCard>
               ),
               child: RichText(
                 text: TextSpan(
-                  text: snap.data!.content,
+                  text: feedContent,
                   style: TextStyle(
-                      fontSize: snap.data!.font_size.toDouble(),
-                      color: colors[snap.data!.font_color],
-                      fontWeight: weights[snap.data!.font_weight]),
+                      fontSize: feedFontSize.toDouble(),
+                      color: colors[feedFontColor],
+                      fontWeight: weights[feedFontWeight]),
                 ),
               ),
             )
@@ -265,20 +298,20 @@ class _FeedCardState extends State<FeedCard>
               // );
               String res = await bloc.supportPost(
                 //TODO
-                snap.data!.id,
+                feedId,
                 currentUser.uid,
-                snap.data!.supportList,
+                feedSupportList,
               );
               setState(() {
                 if (res == "Success") {
-                  snap.data!.support_num++;
+                  feedSupportNum++;
                   if (kDebugMode) {
                     print("support success");
-                    print(snap.data!.supportList);
+                    print(feedSupportList);
                   }
                 } else{
                   //TODO
-                  snap.data!.support_num--;
+                  feedSupportNum--;
                 }
                 isLikeAnimating = true;
               });
@@ -323,10 +356,10 @@ class _FeedCardState extends State<FeedCard>
             child: Row(
               children: <Widget>[
                 LikeAnimation(
-                  isAnimating: snap.data!.supportList.map((dynamic) => dynamic.toString()).toList().contains(currentUser.uid),
+                  isAnimating: feedSupportList.map((dynamic) => dynamic.toString()).toList().contains(currentUser.uid),
                   smallLike: true,
                   child: IconButton(
-                    icon: snap.data!.supportList.map((dynamic) => dynamic.toString()).toList()
+                    icon: feedSupportList.map((dynamic) => dynamic.toString()).toList()
                             .contains(currentUser.uid) //判断是否点赞
                         ? const Icon(
                             Icons.favorite,
@@ -336,24 +369,19 @@ class _FeedCardState extends State<FeedCard>
                             Icons.favorite_border,
                           ),
                     onPressed: () async {
-                      // String res = await postMethods().supportPost(
-                      //   snap.data!.id,
-                      //   currentUser.uid,
-                      //   snap.data!.supportList,
-                      // );
                       String res = await bloc.supportPost(
-                        snap.data!.id,
+                        feedId,
                         currentUser.uid,
-                        snap.data!.supportList,
+                        feedSupportList,
                       );
                       if (kDebugMode) {
-                        print(snap.data!.supportList);
+                        print(feedSupportList);
                       }
                       if (res == "Success") {
-                        snap.data!.support_num++;
+                        feedSupportNum++;
                       } else{
                         //TODO
-                        snap.data!.support_num--;
+                        feedSupportNum--;
                       }
                       setState(() {});
                     },
@@ -365,7 +393,7 @@ class _FeedCardState extends State<FeedCard>
                         .titleSmall!
                         .copyWith(fontWeight: FontWeight.w800),
                     child: Text(
-                      '${snap.data!.supportList.length} ',
+                      '${feedSupportList.length}',
                       style: Theme.of(context).textTheme.bodyMedium,
                     )),
                 IconButton(
@@ -393,7 +421,7 @@ class _FeedCardState extends State<FeedCard>
                         .titleSmall!
                         .copyWith(fontWeight: FontWeight.w800),
                     child: Text(
-                      '${snap.data!.comment_num}',
+                      '$feedCommentNum',
                       style: Theme.of(context).textTheme.bodyMedium,
                     )),
                 IconButton(
@@ -401,18 +429,39 @@ class _FeedCardState extends State<FeedCard>
                     icon: const Icon(
                       Icons.send,
                     ),
-                    onPressed: () {}),
+                    onPressed: () async {
+                      await Share.share(
+                      "${feedTitle}\n信息来自flutter应用",);
+                      }
+                      // subject: "分享测试",
+                      // sharePositionOrigin: box!.localToGlobal(Offset.zero) & box.size);
+                      ),
                 Expanded(
                     child: Align(
                   alignment: Alignment.bottomRight,
                   child: IconButton(
-                    icon: snap.data!.starList.contains(currentUser.uid)
+                    icon: //feedStarList.contains(currentUser.uid)
+                      feedStarList.map((dynamic) => dynamic.toString()).toList()
+                        .contains(currentUser.uid)
                         ? const Icon(
                             Icons.star,
                             color: Colors.red,
                           )
                         : const Icon(Icons.star_border),
-                    onPressed: () {},
+                    onPressed: () async {
+                      await bloc.starPost(
+                        feedId,
+                        currentUser.uid,
+                        feedStarList,
+                        feedTitle,
+                      );
+                      setState(() {});
+                      print(feedStarList);
+                      if (kDebugMode) {
+                        print(feedStarList);
+                      }
+                      setState(() {});
+                    },
                   ),
                 ))
               ],

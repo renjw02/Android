@@ -50,6 +50,8 @@ class _CommentPanelState extends State<CommentPanel> {
         print(e);
         res = 'Failed';
       }
+    }else{
+      res = '评论不能为空';
     }
     // widget.onRefreshBloc.clearCache();
     // widget.onRefreshBloc.fetchTopIds();

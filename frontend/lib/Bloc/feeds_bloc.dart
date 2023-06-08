@@ -64,11 +64,25 @@ class FeedsBloc {
     print(res);
     res = await _repository.supportPost(postId, uid, supports);
     print(res);
+    print("bloc"+supports.toString());
     //稍等50ms
     // await Future.delayed(Duration(milliseconds: 50));
     _itemsFetcher.sink.add(postId);
     print(res);
     return res;
+  }
+
+  Future<void> starPost(int postId, String uid, List stars,String title) async {
+    String res = "Fail";
+    print("FeedsBloc starPost");
+    print(res);
+    res = await _repository.starPost(postId, uid, stars,title);
+    print(res);
+    print("bloc"+stars.toString());
+    //稍等50ms
+    // await Future.delayed(Duration(milliseconds: 50));
+    _itemsFetcher.sink.add(postId);
+    print(res);
   }
 
   fetchTopIds() async {
@@ -87,8 +101,8 @@ class FeedsBloc {
   }
 
   fetchIdsByRules([int page=1,int size=10,int userId=0, String? orderByWhat = null,int type = 0, bool? onlyFollowing = null,
-  bool? hot=null]) async {
-    final feedAndUserIds = await _repository.fetchIdsbyRules(page, size, userId, orderByWhat, type, onlyFollowing, hot);
+  bool? hot=null,bool? star= null]) async {
+    final feedAndUserIds = await _repository.fetchIdsbyRules(page, size, userId, orderByWhat, type, onlyFollowing, hot,star);
 
     _topIds.sink.add(feedAndUserIds[0]);
     _userIds.sink.add(feedAndUserIds[1]);

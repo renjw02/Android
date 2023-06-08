@@ -64,7 +64,7 @@ class _FeedsScreenState extends State<FeedsScreen>
     return Scaffold(
       appBar: AppBar(
         title: const Text('校园论坛'),
-        backgroundColor: chatPrimaryColor,
+        backgroundColor: mobileBackgroundColor,
         centerTitle: true,
       ),
       body: Column(

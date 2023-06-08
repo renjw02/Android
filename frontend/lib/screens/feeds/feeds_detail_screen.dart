@@ -250,7 +250,7 @@ class _FeedsDetailScreenState extends State<FeedsDetailScreen>
             ),
         ),
       ))
-      ..add (SizedBox(
+      ..add (item.images.length + item.videos.length == 0 ? const SizedBox() :SizedBox(
         width: MediaQuery.of(context).size.width,
         height: MediaQuery.of(context).size.width * 0.9,
         child:

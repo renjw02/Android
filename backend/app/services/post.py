@@ -112,7 +112,7 @@ class PostService():
 
     # 默认按帖子更新时间排序
     def get_post_list(self, user_id=0, page=1, size=10, order_by_what=None, typei=0, 
-                      only_following=False, hot=False):
+                      only_following=False, hot=False, star=False, current_user_id=0):
         try:  
             # print(order_by_what, typei, only_following, hot)
             # order_by_what := ["post.support_num", "post.comment_num"]
@@ -121,23 +121,52 @@ class PostService():
             else:
                 order_col = order_by_what
 
+            flag = False
             where_clause = ""
             if int(user_id) != 0:
+                flag = True
                 where_clause = "where post.user_id = " + str(user_id)
             
             if typei != 0:
+                flag = True
                 where_clause = "where post.type = " + str(typei)
 
             if only_following:
+                flag = True
                 where_clause = '''
                     where post.user_id in (
                         select followed_id
                         from follow
-                        where follow.user_id = post.user_id
+                        where follow.user_id = {current_user_id}
                         )
-                        '''
+                        '''.format(current_user_id=current_user_id)
             if hot:
+                flag = True
                 where_clause = "where post.support_num > 10 or post.comment_num > 5"
+            if star:
+                flag = True
+                where_clause = '''
+                    where post.id in (
+                        select post_id
+                        from star
+                        where star.user_id = {current_user_id}
+                        )
+                        '''.format(current_user_id=current_user_id)
+
+            if flag:  
+                where_clause += '''
+                                 and post.user_id not in (
+                                    select blacklist.blocked_id
+                                    from blacklist
+                                    where blacklist.user_id = {current_user_id})
+                            '''.format(current_user_id=current_user_id)
+            else: 
+                where_clause += '''
+                                where post.user_id not in (
+                                    select blacklist.blocked_id
+                                    from blacklist
+                                    where blacklist.user_id = {current_user_id})
+                            '''.format(current_user_id=current_user_id)
 
             content_base = '''
                 select
@@ -343,16 +372,23 @@ class PostService():
         try:
             now = datetime.datetime.now()
             tmp = Support.query.filter(and_(Support.user_id == user_id, Support.post_id == post_id)).first()
+            print("asd")
+            print(tmp)
             if tmp is not None:
                 return None, "already exist", False
+            print("asd")
             s = Support(post_id=post_id, user_id=user_id, created=now)
+            print("asd")
             db.session.add(s)
+            print("asd")
             db.session.query(Post).filter(Post.id == post_id).update({
                 "support_num": Post.support_num+1,
                 "updated": now
             })
+            print("asd")
             p = Post.query.filter(Post.id == post_id).first()
             db.session.commit()
+            print("asd")
             return p, 'ok', True
         except Exception as e:
             print(e)
@@ -361,10 +397,13 @@ class PostService():
         
     def cancel_support_post(self, user_id, post_id):
         try:
+            print("asd")
             db.session.query(Support).filter(and_(Support.user_id == user_id, Support.post_id == post_id)).delete()
+            print("asd")
             db.session.query(Post).filter(Post.id == post_id).update({
                 "support_num": Post.support_num-1
             })
+            print("asd")
             db.session.commit()
             return 'ok', True
         except Exception as e:

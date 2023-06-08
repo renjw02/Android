@@ -39,7 +39,7 @@ class _MessageScreenState extends State<MessageScreen>  with SingleTickerProvide
     // bloc.submitQuery();
     return Scaffold(
         backgroundColor:
-        width > webScreenSize ? webBackgroundColor : chatPrimaryColor,
+        width > webScreenSize ? webBackgroundColor : mobileBackgroundColor,
         appBar: width > webScreenSize
             ? null
             : AppBar(
@@ -49,7 +49,7 @@ class _MessageScreenState extends State<MessageScreen>  with SingleTickerProvide
                   icon: const Icon(Icons.menu),
                 ),
               ],
-              backgroundColor: chatPrimaryColor,
+              backgroundColor: mobileBackgroundColor,
               centerTitle: false,
               title: Container(
                 margin: EdgeInsets.all(10.0),
@@ -92,7 +92,7 @@ class _MessageScreenState extends State<MessageScreen>  with SingleTickerProvide
               margin: const EdgeInsets.symmetric(horizontal: 10,vertical: 5),
               padding: const EdgeInsets.symmetric(horizontal: 10,vertical: 5),
               height: 50,
-              color: chatPrimaryColor,
+              color: mobileBackgroundColor,
               child: TabBar(
                 controller: _tabController,
                 indicator: ShapeDecoration(

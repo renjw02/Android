@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/Auth/customAuth.dart';
-import 'package:frontend/Bloc/comments_bloc_provider.dart';
+// import 'package:frontend/Bloc/comments_bloc_provider.dart';
 import '../../Bloc/feeds_bloc_provider.dart';
 import '../../widgets/feed_card.dart';
-// import '../widgets/item_tile.dart';
+
 
 class SearchListScreen extends StatefulWidget {
   const SearchListScreen({super.key, required this.e, required this.keywords});
@@ -80,13 +80,14 @@ class _SearchListScreenState extends State<SearchListScreen> {
               return ListView.builder(
                   itemCount: snapshot.data!.length,
                   itemBuilder: (context, index) {
-                    return CommentsBlocProvider(
-                        key: ValueKey(snapshot.data![index]),
-                        child: FeedCard(
-                          snapshot.data![index],
-                          creatorId: creatorSnapshot.data![index],
-                          onRefreshBloc: _bloc,
-                        ));
+                    return FeedCard(
+                      snapshot.data![index],
+                      creatorId: creatorSnapshot.data![index],
+                      onRefreshBloc: _bloc,
+                    );
+                      // CommentsBlocProvider(
+                      //   key: ValueKey(snapshot.data![index]),
+                      //   child: );
                     // return const Text(
                     //   'Hello, world!',
                     //   textDirection: TextDirection.ltr,

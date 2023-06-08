@@ -347,7 +347,7 @@ def block_user(userId):
         if flag:
             return jsonify({
                 'message': "ok",
-                'blocked': block                      
+                'blocked': block.blocked_id                      
                 }), 200
         else:
             return jsonify({'message': block}), 500
@@ -356,15 +356,15 @@ def block_user(userId):
     
 
 # 取消拉黑
-@bp.route('/cancelblock/<int:blockId>',methods=['POST'])
+@bp.route('/cancelblock/<int:blockedId>',methods=['POST'])
 @login_required
-def cancel_block(blockId):
+def cancel_block(blockedId):
     try:
-        result = service.check_block(blockId)
+        result = service.check_block(g.user_id, blockedId)
         if not result:
             return jsonify({'message': "not found item " + str(blockId)}), 400
         
-        flag = service.cancel_block(blockId)
+        flag = service.cancel_block(g.user_id, blockedId)
         if flag:
             return jsonify({'message': "ok"}), 200
         else:

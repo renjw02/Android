@@ -28,11 +28,17 @@ class _FeedsListScreenState extends State<FeedsListScreen> {
 
   late FeedsBloc _bloc;
   onRefresh() {
+    _bloc.clearCache();
     setState(() {
       print("onRefresh setState");
     });
   }
-
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    _bloc.clearCache();
+    super.dispose();
+  }
   //keepalive
   // fetchTopIds() {
   //   _bloc.fetchTopIds();
@@ -50,7 +56,8 @@ class _FeedsListScreenState extends State<FeedsListScreen> {
         widget.sortFilters.length ==1?  orderByWhat[widget.sortFilters[0]] : null,
         widget.cateFilters.length == 1 ?type[widget.cateFilters[0]]!: 0  ,
         widget.e == "关注" ? true : null,
-        widget.e == "热度"? true : null);
+        widget.e == "热度"? true : null,
+        widget.e == "我的收藏"? true : null);
     return Center(child: refreshWidget(_buildList(_bloc), _bloc,onRefresh));
   }
 
@@ -88,17 +95,18 @@ class _FeedsListScreenState extends State<FeedsListScreen> {
               return ListView.builder(
                   itemCount: snapshot.data!.length,
                   itemBuilder: (context, index) {
-                    return CommentsBlocProvider(
-                        key: ValueKey(snapshot.data![index]),
-                        child: FeedCard(
-                          snapshot.data![index],
-                          creatorId: creatorSnapshot.data![index],
-                          onRefreshBloc: _bloc,
-                        ));
-                    // return const Text(
-                    //   'Hello, world!',
-                    //   textDirection: TextDirection.ltr,
-                    // );
+                    return FeedCard(
+                      snapshot.data![index],
+                      creatorId: creatorSnapshot.data![index],
+                      onRefreshBloc: _bloc,
+                    );
+                  //     CommentsBlocProvider(
+                  //       key: ValueKey(snapshot.data![index]),
+                  //       child:
+                  //   // return const Text(
+                  //   //   'Hello, world!',
+                  //   //   textDirection: TextDirection.ltr,
+                  //   // );
                   });
             },
           );
@@ -111,14 +119,14 @@ class _FeedsListScreenState extends State<FeedsListScreen> {
         onRefresh: () async {
           print("onRefresh");
           await _bloc.clearCache();
-          // await _bloc.fetchIdsByRules(
-          //     1 ,
-          //     10,
-          //     widget.e == "我的帖子" ? int.parse(widget.uid) : 0 ,
-          //     widget.sortFilters.length ==1?  orderByWhat[widget.sortFilters[0]] : null,
-          //     widget.cateFilters.length == 1 ?type[widget.cateFilters[0]]!: 0  ,
-          //     widget.e == "关注" ? true : null,
-          //     widget.e == "热度"? true : null);
+          await _bloc.fetchIdsByRules(
+              1 ,
+              10,
+              widget.e == "我的帖子" ? int.parse(widget.uid) : 0 ,
+              widget.sortFilters.length ==1?  orderByWhat[widget.sortFilters[0]] : null,
+              widget.cateFilters.length == 1 ?type[widget.cateFilters[0]]!: 0  ,
+              widget.e == "关注" ? true : null,
+              widget.e == "热度"? true : null);
           setTheState();
         });
   }

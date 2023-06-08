@@ -12,9 +12,9 @@ class NoticeService():
     
     def create_notice(self, user_id, type, content, creator_id=0, post_id=0):
         try:
-            notice = Notice.query.filter(and_(Notice.user_id==user_id, Notice.type==0, 
-                                              Notice.creator_id==creator_id, 
-                                              Notice.has_checked==False)).first()
+            notice = Notice.query.filter(and_(Notice.user_id==user_id, 
+                                              Notice.creator_id==creator_id)).first()
+
             now = datetime.datetime.now()
             if notice is None:
                 n = Notice(user_id=user_id, type=type, content=content, creator_id=creator_id, 

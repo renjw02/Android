@@ -6,7 +6,7 @@ import os, base64
 
 from flask import Blueprint, jsonify, request, g
 from .login_required import login_required
-from app.services import PostService, NoticeService, UserService
+from app.services import PostService, NoticeService, UserService, StarService
 from app.checkers import post_params_check, comment_params_check
 import sys
 
@@ -15,6 +15,7 @@ bp = Blueprint('post', __name__, url_prefix='/api/post')
 service = PostService()
 user_service = UserService()
 notice_service = NoticeService()
+star_service = StarService()
 
 @bp.route('/')
 def index():
@@ -105,6 +106,13 @@ def get_post_detail(postId):
         if not flag2:
             return jsonify({'message': "get support list failed"}), 500
         detail['supportList'] = support_list
+        fake_star_list, flag3 = service.get_star_list(postId)
+        star_list = []
+        for star in fake_star_list:
+            star_list.append(star['user_id'])
+        if not flag3:
+            return jsonify({'message': "get star list failed"}), 500
+        detail['starList'] = star_list
         print("asd")
         print(images, has_picture)
         print(videos, has_video)
@@ -185,9 +193,10 @@ def get_post_list():
         typei = 0 if request.args.get('type') is None else int(request.args.get('type'))
         only_following = False if request.args.get('onlyFollowing') is None else True
         hot = False if request.args.get('hot') is None else True
+        star = False if request.args.get('star') is None else True
 
         post_list, count, result = service.get_post_list(user_id, page, size, order_by_what, typei, 
-                                                        only_following, hot)
+                                                        only_following, hot, star, g.user_id)
 
         print(count)
         print("post_list:")
@@ -466,27 +475,37 @@ def modify_comment(postId, commentId):
 def support_post(postId):
     try:
         content = request.get_json()
+        print("asd");
         if content is None:
             return jsonify({'message': "no content"}), 400
-
+        print("asd");
         if 'type' in content:
             if content['type'] == 1:
+                print("asd1");
                 post, msg, result = service.support_post(g.user_id, postId)
             elif content['type'] == -1:
+                print("asd-1");
                 msg, result = service.cancel_support_post(g.user_id, postId)
+                print(msg,result)
             else:
                 return jsonify({'message': "error type input"}), 400
         else:
             return jsonify({'message': "no type"}), 400
 
         if result:
+            # return jsonify({'message': msg}), 200
+            print("asd")
             # 需要创建通知
-            info = "您的帖子\"" + post.title + "\"收到了一个赞"
-            notice, flag = notice_service.create_notice(post.user_id, 1, info, post_id=postId)
-            if flag:
-                return jsonify({'message': msg}), 200
+            if content['type'] == 1:
+                info = "您的帖子\"" + post.title + "\"收到了一个赞"
+                notice, flag = notice_service.create_notice(post.user_id, 1, info, post_id=postId)
+                print(notice)
+                if flag:
+                    return jsonify({'message': msg}), 200
+                else:
+                    return jsonify({'message': "failed to create notice"}), 500
             else:
-                return jsonify({'message': "failed to create notice"}), 500
+                return jsonify({'message': msg}), 200
         else:
             return jsonify({'message': msg}), 500
     except:

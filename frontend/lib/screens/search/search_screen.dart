@@ -200,7 +200,7 @@ class _SearchScreenState extends State<SearchScreen> {
         ),
       body: isShowUsers
           ? FeedsBlocProvider(
-        key: ValueKey('search'),
+        key: const ValueKey('search'),
         filter: stringToNewsFilter('search'),
         child: Center(
             child: SearchListScreen(
@@ -210,7 +210,7 @@ class _SearchScreenState extends State<SearchScreen> {
       )
           :
       Container(
-        margin: EdgeInsets.all(20.0),
+        margin: const EdgeInsets.all(20.0),
         child: Column(
           children: [
             const Text(

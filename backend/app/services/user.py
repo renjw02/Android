@@ -151,9 +151,9 @@ class UserService():
             print(e)
             return False
         
-    def check_block(self, block_id):
+    def check_block(self, user_id, blocked_id):
         try:
-            b = Blacklist.query.filter(Blacklist.id == block_id).first()
+            b = Blacklist.query.filter(and_(Blacklist.blocked_id == blocked_id, Blacklist.user_id == user_id)).first()
             if b is None:
                 return False
             else:
@@ -192,9 +192,9 @@ class UserService():
             db.session.rollback()
             return False
     
-    def cancel_block(self, block_id):
+    def cancel_block(self, user_id, blocked_id):
         try:
-            db.session.query(Blacklist).filter(Blacklist.id == block_id).delete()
+            db.session.query(Blacklist).filter(and_(Blacklist.blocked_id == blocked_id, Blacklist.user_id == user_id)).delete()
             db.session.commit()
             return True
         except Exception as e:

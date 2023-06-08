@@ -15,7 +15,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final CustomAuth _auth = CustomAuth();
   FeedsCacheService.init();
-  dbProvider = DatabaseProvider();
+  // dbProvider = DatabaseProvider();
   runApp(MyApp(auth: _auth,));
 }
 

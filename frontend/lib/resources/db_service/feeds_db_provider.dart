@@ -164,7 +164,7 @@ class FeedsDbProvider implements Source, Cache {
 
   @override
   Future<List<List<int>>> fetchIdsByRules([int page=1,int size=10,int userId=0, String? orderByWhat=null,int type=0, bool? onlyFollowing=null,
-    bool? hot=null]) {
+    bool? hot=null,bool? star= null]) {
     if (kDebugMode) {
       print("FeedsDbProvider fetchTopIds");
     }
@@ -172,7 +172,7 @@ class FeedsDbProvider implements Source, Cache {
   }
 
   @override
-  Future<String> starPost(int postId, String uid, String title, List stars) {
+  Future<String> starPost(int postId, String uid,List stars,String title) {
     // TODO: implement starPost
     throw UnimplementedError();
   }
