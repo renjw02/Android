@@ -43,55 +43,66 @@ class _MessageScreenState extends State<MessageScreen>  with SingleTickerProvide
         appBar: width > webScreenSize
             ? null
             : AppBar(
-              actions: [
-                IconButton(
-                  onPressed: () {},
-                  icon: const Icon(Icons.menu),
-                ),
-              ],
-              backgroundColor: mobileBackgroundColor,
-              centerTitle: false,
-              title: Container(
-                margin: EdgeInsets.all(10.0),
-                height: 35.0,
-                child: Form(
-                  child: TextFormField(
-                    controller: searchController,
-                    decoration: InputDecoration(
-                      labelText: '搜索私信',
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(20.0),
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(20.0),
-                        borderSide: BorderSide(color: Colors.grey),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(20.0),
-                        borderSide: BorderSide(color: Colors.blue),
-                      ),
-                      contentPadding: EdgeInsets.symmetric(vertical: 4.0),
-                    ),
-                    onFieldSubmitted: (String _) {
-                      setState(() {
-                        // isShowUsers = true;
-                      });
-                      print(_);
-                    },
-                  ),
-                ),
+          title: Center(
+            child: const Text(
+              '私信与通知',
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
               ),
-              // bottom: TabBar(
-              //   controller: _tabController,
-              //   tabs: tabs.map((e) => Tab(text: e)).toList(),
-              // ),
             ),
+          ),
+        ),
+        // AppBar(
+        //       actions: [
+        //         IconButton(
+        //           onPressed: () {},
+        //           icon: const Icon(Icons.menu),
+        //         ),
+        //       ],
+        //       backgroundColor: mobileBackgroundColor,
+        //       centerTitle: false,
+        //       title: Container(
+        //         margin: EdgeInsets.all(10.0),
+        //         height: 35.0,
+        //         child: Form(
+        //           child: TextFormField(
+        //             controller: searchController,
+        //             decoration: InputDecoration(
+        //               labelText: '搜索私信',
+        //               border: OutlineInputBorder(
+        //                 borderRadius: BorderRadius.circular(20.0),
+        //               ),
+        //               enabledBorder: OutlineInputBorder(
+        //                 borderRadius: BorderRadius.circular(20.0),
+        //                 borderSide: BorderSide(color: Colors.grey),
+        //               ),
+        //               focusedBorder: OutlineInputBorder(
+        //                 borderRadius: BorderRadius.circular(20.0),
+        //                 borderSide: BorderSide(color: Colors.blue),
+        //               ),
+        //               contentPadding: EdgeInsets.symmetric(vertical: 4.0),
+        //             ),
+        //             onFieldSubmitted: (String _) {
+        //               setState(() {
+        //                 // isShowUsers = true;
+        //               });
+        //               print(_);
+        //             },
+        //           ),
+        //         ),
+        //       ),
+        //       // bottom: TabBar(
+        //       //   controller: _tabController,
+        //       //   tabs: tabs.map((e) => Tab(text: e)).toList(),
+        //       // ),
+        //     ),
         body:Column(
           children: [
             Container(
-              margin: const EdgeInsets.symmetric(horizontal: 10,vertical: 5),
+              margin: const EdgeInsets.symmetric(horizontal: 10,vertical: 15),
               padding: const EdgeInsets.symmetric(horizontal: 10,vertical: 5),
-              height: 50,
+              height: 55,
               color: mobileBackgroundColor,
               child: TabBar(
                 controller: _tabController,
