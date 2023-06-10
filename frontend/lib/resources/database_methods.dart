@@ -289,6 +289,7 @@ class DataBaseManager{
       print(jsonDecode(response.body));
       if(CustomAuth.currentUser.following.indexOf(uid) == -1){
         CustomAuth.currentUser.following.add(uid);
+        print("CustomAuth.currentUser.following");
         print(CustomAuth.currentUser.following);
       }
       print(jsonDecode(response.body)['message']);
@@ -307,6 +308,7 @@ class DataBaseManager{
       print(jsonDecode(response.body));
       if(CustomAuth.currentUser.following.indexOf(uid) != -1){
         CustomAuth.currentUser.following.remove(uid);
+        print("CustomAuth.currentUser.following");
         print(CustomAuth.currentUser.following);
       }
       print(jsonDecode(response.body)['message']);

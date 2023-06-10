@@ -77,7 +77,8 @@ class _FeedCardState extends State<FeedCard>
   @override
   Widget build(BuildContext context) {
     final bloc = FeedsBlocProvider.of(context);
-    final model.User currentUser = Provider.of<UserProvider>(context).getUser;
+    //final model.User currentUser = Provider.of<UserProvider>(context).getUser;
+    final model.User currentUser = CustomAuth.currentUser;
     final width = MediaQuery.of(context).size.width;
     // final commentsBloc = CommentsBlocProvider.withKeyOf(context, ValueKey(widget.id));
     // print(bloc.newFilter);
@@ -114,6 +115,9 @@ class _FeedCardState extends State<FeedCard>
 
   Widget _buildItemTile(BuildContext context, AsyncSnapshot<Post> snap,
       model.User currentUser, double width,  FeedsBloc bloc) {
+    print("currentUser.following");
+    print(currentUser.following);
+    print(currentUser.following.runtimeType);
     feedId = snap.data!.id;
     feedTitle = snap.data!.title;
     feedContent = snap.data!.content;
@@ -130,6 +134,7 @@ class _FeedCardState extends State<FeedCard>
     feedCommentList = snap.data!.comments;
     feedStarNum = snap.data!.star_num;
     feedStarList = snap.data!.starList;
+    print(feedCreatorId);
 
     return Container(
       // boundary needed for web
@@ -140,7 +145,9 @@ class _FeedCardState extends State<FeedCard>
         color: mobileBackgroundColor,
         borderRadius: BorderRadius.circular(10.0), // 设置圆角半径
       ),
-      child: Column(
+      child:
+      GestureDetector(
+      child:Column(
         children: [
           //分割线
           const Divider(
@@ -203,54 +210,68 @@ class _FeedCardState extends State<FeedCard>
                     ),
                   ),
                 ),
+                currentUser.following.contains(feedCreatorId)?
                 Text(
-                  types[feedType].toString(),
+                  "已关注",
                   style: const TextStyle(
-                    color: secondaryColor,
+                    color: primaryColor,
+                  ),
+                ):Container(),
+                Padding(
+                  padding: const EdgeInsets.only(
+                    left: 18,
+                    right: 18,
+                  ),
+                  child:
+                  Text(
+                    types[feedType].toString(),
+                    style: const TextStyle(
+                      color: secondaryColor,
+                    ),
                   ),
                 ),
-                feedCreatorId == currentUser.uid
-                    ? SizedBox(width: 0) : SizedBox(width: 30),
-                feedCreatorId == currentUser.uid
-                    ? IconButton(
-                        onPressed: () {
-                          showDialog(
-                            useRootNavigator: false,
-                            context: context,
-                            builder: (context) {
-                              return Dialog(
-                                child: ListView(
-                                    padding: const EdgeInsets.only(
-                                        top: 16),
-                                    shrinkWrap: true,
-                                    children: [
-                                      'Delete',
-                                    ]
-                                        .map(
-                                          (e) => InkWell(
-                                              child: Container(
-                                                padding:
-                                                    const EdgeInsets.symmetric(
-                                                        vertical: 12,
-                                                        horizontal: 16),
-                                                child: Text(e),
-                                              ),
-                                              onTap: () {
-                                                // deletePost(
-                                                //   snap.data!.id.toString(),
-                                                // );
-                                                // remove the dialog box
-                                                Navigator.of(context).pop();
-                                              }),
-                                        )
-                                        .toList()),
-                              );
-                            },
-                          );
-                        },
-                        icon: const Icon(Icons.more_vert),
-                      )
-                    : Container(),
+                // feedCreatorId == currentUser.uid
+                //     ? SizedBox(width: 0) : SizedBox(width: 30),
+                // feedCreatorId == currentUser.uid
+                //     ? IconButton(
+                //         onPressed: () {
+                //           showDialog(
+                //             useRootNavigator: false,
+                //             context: context,
+                //             builder: (context) {
+                //               return Dialog(
+                //                 child: ListView(
+                //                     padding: const EdgeInsets.only(
+                //                         top: 16),
+                //                     shrinkWrap: true,
+                //                     children: [
+                //                       'Delete',
+                //                     ]
+                //                         .map(
+                //                           (e) => InkWell(
+                //                               child: Container(
+                //                                 padding:
+                //                                     const EdgeInsets.symmetric(
+                //                                         vertical: 12,
+                //                                         horizontal: 16),
+                //                                 child: Text(e),
+                //                               ),
+                //                               onTap: () {
+                //                                 // deletePost(
+                //                                 //   snap.data!.id.toString(),
+                //                                 // );
+                //                                 // remove the dialog box
+                //                                 Navigator.of(context).pop();
+                //                               }),
+                //                         )
+                //                         .toList()),
+                //               );
+                //             },
+                //           );
+                //         },
+                //         icon: const Icon(Icons.more_vert),
+                //       )
+                //     : Container(),
               ],
             ),
           ),
@@ -400,20 +421,21 @@ class _FeedCardState extends State<FeedCard>
                   icon: const Icon(
                     Icons.comment_outlined,
                   ),
-                  onPressed: () async {
-                    // CommentsBlocProvider.of(context).fetchItemWithComments(widget.id);
-                    // commentsBloc.fetchItemWithComments(widget.id);
-
-                    final result = await Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) => FeedsDetailScreen(id:  widget.id, post: snap.data!, onRefreshBloc: widget.onRefreshBloc),
-                    ),
-                    );
-                    if (result != null) {
-
-                      setState(() {});
-                    }
-                  },
+                  onPressed: () {}
+                //   async {
+                // // CommentsBlocProvider.of(context).fetchItemWithComments(widget.id);
+                // // commentsBloc.fetchItemWithComments(widget.id);
+                //
+                // final result = await Navigator.of(context).push(
+                // MaterialPageRoute(
+                // builder: (context) => FeedsDetailScreen(id:  widget.id, post: snap.data!, onRefreshBloc: widget.onRefreshBloc),
+                // ),
+                // );
+                // if (result != null) {
+                //
+                // setState(() {});
+                // }
+                // },
                 ),
                 DefaultTextStyle(
                     style: Theme.of(context)
@@ -426,16 +448,14 @@ class _FeedCardState extends State<FeedCard>
                     )),
                 IconButton(
                     //转发按钮
-                    icon: const Icon(
-                      Icons.send,
-                    ),
-                    onPressed: () async {
-                      await Share.share(
-                      "${feedTitle}\n信息来自flutter应用",);
-                      }
-                      // subject: "分享测试",
-                      // sharePositionOrigin: box!.localToGlobal(Offset.zero) & box.size);
-                      ),
+                  icon: const Icon(
+                    Icons.share,
+                  ),
+                  onPressed: () async {
+                    await Share.share(
+                    "${feedTitle}\n信息来自flutter应用",);
+                  }
+                ),
                 Expanded(
                     child: Align(
                   alignment: Alignment.bottomRight,
@@ -467,59 +487,23 @@ class _FeedCardState extends State<FeedCard>
               ],
             ),
           ),
-          //DESCRIPTION AND NUMBER OF COMMENTS
-          // Container(
-          //   width: double.infinity,
-          //   padding: const EdgeInsets.symmetric(horizontal: 16),
-          //   child: Column(
-          //     mainAxisSize: MainAxisSize.min,
-          //     crossAxisAlignment: CrossAxisAlignment.start,
-          //     children: <Widget>[
-          //       // DefaultTextStyle(
-          //       //   style: Theme.of(context)
-          //       //       .textTheme
-          //       //       .subtitle2!
-          //       //       .copyWith(fontWeight: FontWeight.w800),
-          //       //   child: Text(
-          //       //     '${widget.snap['support_num']} 点赞',
-          //       //     style: Theme.of(context).textTheme.bodyText2,
-          //       //   )
-          //       // ),
-          //
-          //       InkWell(
-          //         child: Container(
-          //           padding: const EdgeInsets.symmetric(vertical: 4),
-          //           child: Text(
-          //             '查看所有 ${snap.data!.comment_num} 条评论',
-          //             style: const TextStyle(
-          //               color: blueColor,
-          //             ),
-          //           ),
-          //         ),
-          //         onTap: () => Navigator.of(context).push(
-          //           MaterialPageRoute(
-          //             builder: (context) => CommentsScreen(
-          //               postId: snap.data!.id.toString(),
-          //             ),
-          //           ),
-          //         ),
-          //       ),
-          //       Container(
-          //         padding: const EdgeInsets.symmetric(vertical: 4),
-          //         child: Text(
-          //           // DateFormat.yMMMd()
-          //           //     .format(widget.snap['datePublished'].toDate()),
-          //           snap.data!.created.toString(),
-          //           style: const TextStyle(
-          //             color: secondaryColor,
-          //           ),
-          //         ),
-          //       ),
-          //     ],
-          //   ),
-          // )
         ],
       ),
+      onTap: ()async{
+          // CommentsBlocProvider.of(context).fetchItemWithComments(widget.id);
+          // commentsBloc.fetchItemWithComments(widget.id);
+
+          final result = await Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) => FeedsDetailScreen(id:  widget.id, post: snap.data!, onRefreshBloc: widget.onRefreshBloc),
+            ),
+          );
+        if (result != null) {
+
+          setState(() {});
+        }
+      },
+      )
     );
   }
 
@@ -580,45 +564,46 @@ class ImageList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.only(
-        top: 8.0,
-        bottom: 8.0,
-        left: 20.0,
-        right: 20.0,
-      ),
-      child: GridView.builder(
-        shrinkWrap: true,
-        physics: const NeverScrollableScrollPhysics(),
-        itemCount: imageUrls.length,
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 3,
-          crossAxisSpacing: 4.0,
-          mainAxisSpacing: 4.0,
+    return Card(
+      child: Container(
+        margin: const EdgeInsets.only(
+          top: 8.0,
+          bottom: 8.0,
+          left: 20.0,
+          right: 20.0,
         ),
-        itemBuilder: (BuildContext context, int index) {
-          final imageUrl = imageUrls[index];
-          if (imageUrl.isNotEmpty) {
-            return ClipRRect(
-              borderRadius: BorderRadius.circular(16.0),
-              child: CachedNetworkImage(
-                imageUrl: imageUrl,
-                httpHeaders: {
-                  'Authorization': CustomAuth.currentUser.jwt,
-                },
-                placeholder: (context, url) => const SizedBox(
-                    width: 10, height: 10, child: CircularProgressIndicator()),
-                errorWidget: (context, url, error) => const Icon(Icons.error),
-                fit: BoxFit.cover,
-              ),
-            );
-          } else {
-            return const SizedBox(
-              width: 120,
-              height: 60,
-            );
-          }
-        },
+        child: GridView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: imageUrls.length,
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 3,
+            crossAxisSpacing: 4.0,
+            mainAxisSpacing: 4.0,
+          ),
+          itemBuilder: (BuildContext context, int index) {
+            final imageUrl = imageUrls[index];
+            if (imageUrl.isNotEmpty) {
+              return ClipRRect(
+                borderRadius: BorderRadius.circular(16.0),
+                child: CachedNetworkImage(
+                  imageUrl: imageUrl,
+                  httpHeaders: {
+                    'Authorization': CustomAuth.currentUser.jwt,
+                  },
+                  placeholder: (context, url) => const Center(child: CircularProgressIndicator()),
+                  errorWidget: (context, url, error) => const Icon(Icons.error),
+                  fit: BoxFit.cover,
+                ),
+              );
+            } else {
+              return const SizedBox(
+                width: 120,
+                height: 60,
+              );
+            }
+          },
+        ),
       ),
     );
   }
@@ -664,8 +649,7 @@ class MediaList extends StatelessWidget {
                   httpHeaders: {
                     'Authorization': CustomAuth.currentUser.jwt,
                   },
-                  placeholder: (context, url) => const SizedBox(
-                      width: 10, height: 10, child: CircularProgressIndicator()),
+                  placeholder: (context, url) => const Center( child: CircularProgressIndicator()),
                   errorWidget: (context, url, error) => const Icon(Icons.error),
                   fit: BoxFit.cover,
                 ),

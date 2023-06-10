@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart' show timeDilation;
 import 'package:frontend/utils/colors.dart';
+import 'package:share/share.dart';
 import 'package:video_player/video_player.dart';
 import '../../resources/database_methods.dart' as db;
 import '../../Auth/customAuth.dart';
@@ -128,7 +129,7 @@ class _FeedsDetailScreenState extends State<FeedsDetailScreen>
                       width: 105,
                       height: 32,
                       decoration: BoxDecoration(
-                          color: isLike ? Colors.lightBlue : Colors.white,
+                          color: isLike ? Colors.red : Colors.white,
                           borderRadius: BorderRadius.circular(16)),
                     ),
                     Positioned(
@@ -138,12 +139,12 @@ class _FeedsDetailScreenState extends State<FeedsDetailScreen>
                           Text(widget.post.supportList.length.toString(),
                               style: TextStyle(
                                 color:
-                                    isLike ? Colors.white : Colors.blue,
+                                    isLike ? Colors.white : Colors.red,
                                 fontSize: 15,
                               )),
                           Icon(
-                            Icons.arrow_upward,
-                            color: isLike ? Colors.white : Colors.blue,
+                            Icons.favorite_border,
+                            color: isLike ? Colors.white : Colors.red,
                             size: 25,
                           )
                         ]))
@@ -176,10 +177,10 @@ class _FeedsDetailScreenState extends State<FeedsDetailScreen>
               const Spacer(),
               const Spacer(),
               const Spacer(),
-              IconButton(
-                  iconSize: 35,
-                  onPressed: () {},
-                  icon: const Icon(Icons.favorite_border)),
+              // IconButton(
+              //     iconSize: 35,
+              //     onPressed: () {},
+              //     icon: const Icon(Icons.favorite_border)),
               const Spacer(),
               IconButton(
                   iconSize: 35,
@@ -193,7 +194,10 @@ class _FeedsDetailScreenState extends State<FeedsDetailScreen>
               const Spacer(),
               IconButton(
                   iconSize: 35,
-                  onPressed: () {},
+                  onPressed: () async {
+                    await Share.share(
+                      "${widget.post.title}\n信息来自flutter应用",);
+                  },
                   icon: const Icon(Icons.share)),
               const Spacer(),
               const Spacer(),
@@ -223,6 +227,17 @@ class _FeedsDetailScreenState extends State<FeedsDetailScreen>
     children
       ..add(UserProfileWidget(
         nickname: item.nickname, creatorId: item.userId,created: item.created,postType: item.type ==1 ? "校园资讯" : item.type == 2 ? "二手交易":"未知",),)
+      ..add(Container(
+        padding: const EdgeInsets.only(left: 20, top: 0, bottom: 10),
+        child: Text(
+          // 加入蓝色小字体 item.likes.toString()人赞同了该回答
+            '${item.position}',
+            style:const TextStyle(
+              color: Colors.grey,
+              fontSize: 12,
+            )
+        ),
+      ))
       ..add(Container(
         padding: const EdgeInsets.only(left: 20, top: 0, bottom: 10),
         child: Text(
@@ -296,6 +311,7 @@ class _FeedsDetailScreenState extends State<FeedsDetailScreen>
               );
             }
           },
+          //shrinkWrap: false,
           pageSnapping: true,
         ),
       ))

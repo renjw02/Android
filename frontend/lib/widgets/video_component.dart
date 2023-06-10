@@ -134,7 +134,9 @@ class _VideoComponentState extends State<VideoComponent> {
         setState(() {});
       },
       child: _thumbnailFile == null
-          ? CircularProgressIndicator()
+          ? const Center(
+            child:CircularProgressIndicator()
+          )
           : Stack(
         children: [
           // Image.file(File(_thumbnailFile!)),
@@ -145,7 +147,9 @@ class _VideoComponentState extends State<VideoComponent> {
                 child: VideoPlayer(_controller!),
           ),
               )
-              : CircularProgressIndicator(),
+              : const Center(
+              child:CircularProgressIndicator()
+          ),
           const Center(
             child: Icon(
               Icons.play_circle_filled,

@@ -271,7 +271,7 @@ class PostService():
                     post.star_num as starNum, post.comment_num as commentNum,
                     post.created as created, post.updated as updated, post.type as type,
                     post.last_replied_time as lastRepliedTime, post.font_size as fontSize,
-                    post.font_color as fontColor, post.font_weight as fontWeight
+                    post.font_color as fontColor, post.font_weight as fontWeight,post.position as position
                 from
                     post
                 inner join user on post.user_id = user.id
