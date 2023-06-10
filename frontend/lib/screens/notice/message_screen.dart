@@ -43,55 +43,66 @@ class _MessageScreenState extends State<MessageScreen>  with SingleTickerProvide
         appBar: width > webScreenSize
             ? null
             : AppBar(
-              actions: [
-                IconButton(
-                  onPressed: () {},
-                  icon: const Icon(Icons.menu),
-                ),
-              ],
-              backgroundColor: mobileBackgroundColor,
-              centerTitle: false,
-              title: Container(
-                margin: EdgeInsets.all(10.0),
-                height: 35.0,
-                child: Form(
-                  child: TextFormField(
-                    controller: searchController,
-                    decoration: InputDecoration(
-                      labelText: '搜索私信',
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(20.0),
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(20.0),
-                        borderSide: BorderSide(color: Colors.grey),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(20.0),
-                        borderSide: BorderSide(color: Colors.blue),
-                      ),
-                      contentPadding: EdgeInsets.symmetric(vertical: 4.0),
-                    ),
-                    onFieldSubmitted: (String _) {
-                      setState(() {
-                        // isShowUsers = true;
-                      });
-                      print(_);
-                    },
-                  ),
-                ),
+          title: Center(
+            child: const Text(
+              '私信与通知',
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
               ),
-              // bottom: TabBar(
-              //   controller: _tabController,
-              //   tabs: tabs.map((e) => Tab(text: e)).toList(),
-              // ),
             ),
+          ),
+        ),
+        // AppBar(
+        //       actions: [
+        //         IconButton(
+        //           onPressed: () {},
+        //           icon: const Icon(Icons.menu),
+        //         ),
+        //       ],
+        //       backgroundColor: mobileBackgroundColor,
+        //       centerTitle: false,
+        //       title: Container(
+        //         margin: EdgeInsets.all(10.0),
+        //         height: 35.0,
+        //         child: Form(
+        //           child: TextFormField(
+        //             controller: searchController,
+        //             decoration: InputDecoration(
+        //               labelText: '搜索私信',
+        //               border: OutlineInputBorder(
+        //                 borderRadius: BorderRadius.circular(20.0),
+        //               ),
+        //               enabledBorder: OutlineInputBorder(
+        //                 borderRadius: BorderRadius.circular(20.0),
+        //                 borderSide: BorderSide(color: Colors.grey),
+        //               ),
+        //               focusedBorder: OutlineInputBorder(
+        //                 borderRadius: BorderRadius.circular(20.0),
+        //                 borderSide: BorderSide(color: Colors.blue),
+        //               ),
+        //               contentPadding: EdgeInsets.symmetric(vertical: 4.0),
+        //             ),
+        //             onFieldSubmitted: (String _) {
+        //               setState(() {
+        //                 // isShowUsers = true;
+        //               });
+        //               print(_);
+        //             },
+        //           ),
+        //         ),
+        //       ),
+        //       // bottom: TabBar(
+        //       //   controller: _tabController,
+        //       //   tabs: tabs.map((e) => Tab(text: e)).toList(),
+        //       // ),
+        //     ),
         body:Column(
           children: [
             Container(
-              margin: const EdgeInsets.symmetric(horizontal: 10,vertical: 5),
+              margin: const EdgeInsets.symmetric(horizontal: 10,vertical: 15),
               padding: const EdgeInsets.symmetric(horizontal: 10,vertical: 5),
-              height: 50,
+              height: 55,
               color: mobileBackgroundColor,
               child: TabBar(
                 controller: _tabController,
@@ -185,31 +196,31 @@ class _ContactsListState extends State<ContactsList> with AutomaticKeepAliveClie
     return result;
   }
 
-  Future<String> createNotice(String str_type, String content) async  {
-    int type = 0;
-    if (str_type == "通知" || str_type == "全部") {
-      type = 0;
-    } else if (str_type == "私信") {
-      type = 1;
-    } else if (str_type == "已认证") {
-      type = 2;
-    } else if (str_type == "提及") {
-      type = 3;
-    } else {
-      type = 4;
-    }
-    String returnMsg = await db.DataBaseManager().createNotice(type, content);
-    if(returnMsg == "Success"){
-      submitQuery(_type);
-      print("创建成功");
-    }else{
-      print("创建失败");
-    }
-
-    return returnMsg;
-
-    // _queryController.sink.add(querySnapshot);
-  }
+  // Future<String> createNotice(String str_type, String content) async  {
+  //   int type = 0;
+  //   if (str_type == "通知" || str_type == "全部") {
+  //     type = 0;
+  //   } else if (str_type == "私信") {
+  //     type = 1;
+  //   } else if (str_type == "已认证") {
+  //     type = 2;
+  //   } else if (str_type == "提及") {
+  //     type = 3;
+  //   } else {
+  //     type = 4;
+  //   }
+  //   String returnMsg = await db.DataBaseManager().createNotice(type, content);
+  //   if(returnMsg == "Success"){
+  //     submitQuery(_type);
+  //     print("创建成功");
+  //   }else{
+  //     print("创建失败");
+  //   }
+  //
+  //   return returnMsg;
+  //
+  //   // _queryController.sink.add(querySnapshot);
+  // }
 
   void submitQuery(String type) async {
     //type的值可能是“全部”、“通知”、“私信”或非法值
@@ -288,6 +299,7 @@ class _ContactsListState extends State<ContactsList> with AutomaticKeepAliveClie
     return RefreshIndicator(
       onRefresh: () async {
         submitQuery(widget.e);
+        setState(() {});
         },
       child: Container(
         padding: const EdgeInsets.symmetric(vertical:10,horizontal: 20),
@@ -333,13 +345,13 @@ class _ContactsListState extends State<ContactsList> with AutomaticKeepAliveClie
                         removeNotice(snapshot.data?.docs[index].data()["noticeId"]); // 调用 bloc 的 removeNotice 函数
                         //弹窗告诉用户删除成功
                           //如果是私信，就显示私信已删除
-                        if(snapshot.data?.docs[index].data()["noticeType"] == 1){
+                        if(snapshot.data?.docs[index].data()["noticeType"] == 0){
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(content: Text('私信已删除')),
                           );
                         }
                           //如果是通知，就显示通知删除成功
-                        if(snapshot.data?.docs[index].data()["noticeType"] == 0){
+                        if(snapshot.data?.docs[index].data()["noticeType"] == 1){
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(content: Text('通知删除成功')),
                           );

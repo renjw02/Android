@@ -117,22 +117,19 @@ class _ModifyScreenState extends State<ModifyScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final UserProvider userProvider = Provider.of<UserProvider>(context);
+    final UserProvider userProvider =
+    Provider.of<UserProvider>(context);
 
     return Scaffold(
+      // resizeToAvoidBottomInset: false,
       appBar: AppBar(
         backgroundColor: mobileBackgroundColor,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: (){
+          onPressed: () {
             Navigator.of(context).pop();
-            setState(() {
-            });
+            setState(() {});
           },
-          // onPressed: (){Navigator.of(context).pushReplacement(MaterialPageRoute(
-          //               builder: (context) =>
-          //               ProfileScreen(uid: CustomAuth.currentUser.uid),
-          //               ));},
         ),
         title: const Text(
           '修改信息',
@@ -140,30 +137,24 @@ class _ModifyScreenState extends State<ModifyScreen> {
         centerTitle: false,
         actions: <Widget>[
           TextButton(
-            onPressed: ()async {
+            onPressed: () async {
               String res = await modifyInfo(
                 usernamec.text,
                 profilec.text,
                 passwordc.text,
               );
               print(res);
-              if(res == "Success"){
-                Map<String,dynamic> result = {};
+              if (res == "Success") {
+                Map<String, dynamic> result = {};
                 result["username"] = usernamec.text;
                 result["profile"] = profilec.text;
-                if(_file != null){
+                if (_file != null) {
                   result["photo"] = _file;
-                }
-                else{
+                } else {
                   result["photo"] = _photo;
                 }
                 Navigator.of(context).pop(result);
               }
-
-              // Navigator.of(context).pushReplacement(MaterialPageRoute(
-              //   builder: (context) =>
-              //   ProfileScreen(uid: CustomAuth.currentUser.uid),
-              // ),);
             },
             child: const Text(
               "完成",
@@ -175,197 +166,334 @@ class _ModifyScreenState extends State<ModifyScreen> {
           )
         ],
       ),
-      body: Column(
-        children: [
-          TextField(
-            controller: usernamec,
-            decoration: const InputDecoration(
-              labelText: "用户名",
-              prefixIcon: Icon(Icons.person),
-            )
-          ),
-          TextField(
-              controller: profilec,
-              decoration: const InputDecoration(
-                labelText: "简介",
-                prefixIcon: Icon(Icons.description),
-              ),
-              maxLines: null,
-              minLines: 1,
-          ),
-          TextField(
-              controller: passwordc,
-              decoration: const InputDecoration(
-                labelText: "密码",
-                prefixIcon: Icon(Icons.lock),
-              )
-          ),
-          _file == null
-          ? Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(30.0),
+          child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              const Padding(padding: EdgeInsets.only(top: 0.0)),
-              const Divider(),
-              SizedBox(
-                height: 45.0,
-                width: 45.0,
-                child: AspectRatio(
-                  aspectRatio: 487 / 451,
-                  child: Container(
-                    decoration: BoxDecoration(
-                        image: DecorationImage(
-                          fit: BoxFit.fill,
-                          alignment: FractionalOffset.topCenter,
-                          image: MemoryImage(CustomAuth.currentUser.photo),
-                        )),
-                  ),
+            children: [
+              const SizedBox(height: 16.0),
+              Text(
+                '用户名',
+                style: TextStyle(
+                  fontSize: 16.0,
+                  fontWeight: FontWeight.bold,
                 ),
               ),
-              Center(
-                child: IconButton(
-                  icon: const Icon(
-                    Icons.upload,
-                  ),
-                  onPressed: () => _selectImage(context),
+              TextField(
+                controller: usernamec,
+                decoration: const InputDecoration(
+                  hintText: '请输入用户名',
                 ),
               ),
-              const Divider(),
-            ],): Column(
-              children: <Widget>[
-                isLoading
-                    ? const LinearProgressIndicator()
-                    : const Padding(padding: EdgeInsets.only(top: 0.0)),
-                const Divider(),
+              const SizedBox(height: 16.0),
+              Text(
+                '简介',
+                style: TextStyle(
+                  fontSize: 16.0,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              TextField(
+                controller: profilec,
+                decoration: const InputDecoration(
+                  hintText: '请输入简介',
+                ),
+                maxLines: null,
+                minLines: 1,
+              ),
+              const SizedBox(height: 16.0),
+              Text(
+                '密码',
+                style: TextStyle(
+                  fontSize: 16.0,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              TextField(
+                controller: passwordc,
+                decoration: const InputDecoration(
+                  hintText: '请输入密码',
+                ),
+              ),
+              const SizedBox(height: 16.0),
+              Text(
+                '头像',
+                style: TextStyle(
+                  fontSize: 16.0,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 16.0),
+              if (_file == null)
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: <Widget>[
                     SizedBox(
-                      height: 45.0,
-                      width: 45.0,
+                      width: 50,
+                      height: 75,
+                    ),
+                    SizedBox(
+                      height: 75.0,
+                      width: 75.0,
                       child: AspectRatio(
-                        aspectRatio: 487 / 451,
+                        aspectRatio: 1,
                         child: Container(
                           decoration: BoxDecoration(
-                              image: DecorationImage(
-                                fit: BoxFit.fill,
-                                alignment: FractionalOffset.topCenter,
-                                image: MemoryImage(_photo),
-                                // image : NetworkImage(
-                                //   // userProvider.getUser.photoUrl,
-                                //     "https://p0.itc.cn/q_70/images03/20230213/ca107acd0ee943a0ac9e8264a23b6ca4.jpeg"
-                                // ),
-                              )),
+                            shape: BoxShape.circle,
+                            image: DecorationImage(
+                              fit: BoxFit.cover,
+                              image: MemoryImage(
+                                CustomAuth.currentUser.photo,
+                              ),
+                            ),
+                          ),
                         ),
                       ),
                     ),
-                    SizedBox(
-                      height: 45.0,
-                      width: 45.0,
-                      child: AspectRatio(
-                        aspectRatio: 487 / 451,
-                        child: Container(
-                          decoration: BoxDecoration(
-                              image: DecorationImage(
-                                fit: BoxFit.fill,
-                                alignment: FractionalOffset.topCenter,
-                                image: MemoryImage(_file!),
-                              )),
-                        ),
+                    const SizedBox(width: 16.0),
+                    Expanded(
+                      child: TextButton.icon(
+                        onPressed: () => _selectImage(context),
+                        icon: const Icon(Icons.upload),
+                        label: const Text('上传头像'),
                       ),
                     ),
                   ],
+                )
+              else
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: <Widget>[
+                    if (isLoading) const LinearProgressIndicator(),
+                    const SizedBox(height: 16.0),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: <Widget>[
+                        const SizedBox(
+                          height: 75.0,
+                          width: 75.0,),
+                        SizedBox(
+                          height: 75.0,
+                          width: 75.0,
+                          child: AspectRatio(
+                            aspectRatio: 1,
+                            child: Container(
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                image: DecorationImage(
+                                  fit: BoxFit.cover,
+                                  image: MemoryImage(_photo),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(
+                          height: 75.0,
+                          width: 75.0,
+                          //右箭头icon
+                          child: Icon(Icons.arrow_forward_ios),
+                        ),
+                        SizedBox(
+                          height: 75.0,
+                          width: 75.0,
+                          child: AspectRatio(
+                            aspectRatio: 1,
+                            child: Container(
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                image: DecorationImage(
+                                  fit: BoxFit.cover,
+                                  image: MemoryImage(_file!),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 25.0),
+                    TextButton.icon(
+                      onPressed: () => _selectImage(context),
+                      icon: const Icon(Icons.edit),
+                      label: const Text('修改头像'),
+                    ),
+                  ],
                 ),
-                const Divider(),
-              ]
-            )
-        ],
+            ],
+          ),
+        ),
       ),
     );
-    // return _file == null
-    //     ? Center(
-    //   child: IconButton(
-    //     icon: const Icon(
-    //       Icons.upload,
-    //     ),
-    //     onPressed: () => _selectImage(context),
-    //   ),
-    // )
-    //     : Scaffold(
-    //   appBar: AppBar(
-    //     backgroundColor: mobileBackgroundColor,
-    //     leading: IconButton(
-    //       icon: const Icon(Icons.arrow_back),
-    //       onPressed: clearImage,
-    //     ),
-    //     title: const Text(
-    //       'Post to',
-    //     ),
-    //     centerTitle: false,
-    //     actions: <Widget>[
-    //       TextButton(
-    //         onPressed: () => postImage(
-    //           userProvider.getUser.uid,
-    //           userProvider.getUser.username,
-    //           userProvider.getUser.photoUrl,
-    //         ),
-    //         child: const Text(
-    //           "Post",
-    //           style: TextStyle(
-    //               color: Colors.blueAccent,
-    //               fontWeight: FontWeight.bold,
-    //               fontSize: 16.0),
-    //         ),
-    //       )
-    //     ],
-    //   ),
-    //   // POST FORM
-    //   body: Column(
-    //     children: <Widget>[
-    //       isLoading
-    //           ? const LinearProgressIndicator()
-    //           : const Padding(padding: EdgeInsets.only(top: 0.0)),
-    //       const Divider(),
-    //       Row(
-    //         mainAxisAlignment: MainAxisAlignment.spaceAround,
-    //         crossAxisAlignment: CrossAxisAlignment.start,
-    //         children: <Widget>[
-    //           CircleAvatar(
-    //             backgroundImage: NetworkImage(
-    //               userProvider.getUser.photoUrl,
-    //             ),
-    //           ),
-    //           SizedBox(
-    //             width: MediaQuery.of(context).size.width * 0.3,
-    //             child: TextField(
-    //               controller: _descriptionController,
-    //               decoration: const InputDecoration(
-    //                   hintText: "Write a caption...",
-    //                   border: InputBorder.none),
-    //               maxLines: 8,
-    //             ),
-    //           ),
-    //           SizedBox(
-    //             height: 45.0,
-    //             width: 45.0,
-    //             child: AspectRatio(
-    //               aspectRatio: 487 / 451,
-    //               child: Container(
-    //                 decoration: BoxDecoration(
-    //                     image: DecorationImage(
-    //                       fit: BoxFit.fill,
-    //                       alignment: FractionalOffset.topCenter,
-    //                       image: MemoryImage(_file!),
-    //                     )),
-    //               ),
-    //             ),
-    //           ),
-    //         ],
-    //       ),
-    //       const Divider(),
-    //     ],
-    //   ),
-    // );
   }
+  // @override
+  // Widget build(BuildContext context) {
+  //   final UserProvider userProvider = Provider.of<UserProvider>(context);
+  //
+  //   return Scaffold(
+  //     appBar: AppBar(
+  //       backgroundColor: mobileBackgroundColor,
+  //       leading: IconButton(
+  //         icon: const Icon(Icons.arrow_back),
+  //         onPressed: (){
+  //           Navigator.of(context).pop();
+  //           setState(() {
+  //           });
+  //         },
+  //         // onPressed: (){Navigator.of(context).pushReplacement(MaterialPageRoute(
+  //         //               builder: (context) =>
+  //         //               ProfileScreen(uid: CustomAuth.currentUser.uid),
+  //         //               ));},
+  //       ),
+  //       title: const Text(
+  //         '修改信息',
+  //       ),
+  //       centerTitle: false,
+  //       actions: <Widget>[
+  //         TextButton(
+  //           onPressed: ()async {
+  //             String res = await modifyInfo(
+  //               usernamec.text,
+  //               profilec.text,
+  //               passwordc.text,
+  //             );
+  //             print(res);
+  //             if(res == "Success"){
+  //               Map<String,dynamic> result = {};
+  //               result["username"] = usernamec.text;
+  //               result["profile"] = profilec.text;
+  //               if(_file != null){
+  //                 result["photo"] = _file;
+  //               }
+  //               else{
+  //                 result["photo"] = _photo;
+  //               }
+  //               Navigator.of(context).pop(result);
+  //             }
+  //
+  //             // Navigator.of(context).pushReplacement(MaterialPageRoute(
+  //             //   builder: (context) =>
+  //             //   ProfileScreen(uid: CustomAuth.currentUser.uid),
+  //             // ),);
+  //           },
+  //           child: const Text(
+  //             "完成",
+  //             style: TextStyle(
+  //                 color: Colors.blueAccent,
+  //                 fontWeight: FontWeight.bold,
+  //                 fontSize: 16.0),
+  //           ),
+  //         )
+  //       ],
+  //     ),
+  //     body: Column(
+  //       children: [
+  //         TextField(
+  //           controller: usernamec,
+  //           decoration: const InputDecoration(
+  //             labelText: "用户名",
+  //             prefixIcon: Icon(Icons.person),
+  //           )
+  //         ),
+  //         TextField(
+  //             controller: profilec,
+  //             decoration: const InputDecoration(
+  //               labelText: "简介",
+  //               prefixIcon: Icon(Icons.description),
+  //             ),
+  //             maxLines: null,
+  //             minLines: 1,
+  //         ),
+  //         TextField(
+  //             controller: passwordc,
+  //             decoration: const InputDecoration(
+  //               labelText: "密码",
+  //               prefixIcon: Icon(Icons.lock),
+  //             )
+  //         ),
+  //         _file == null
+  //         ? Row(
+  //           mainAxisAlignment: MainAxisAlignment.spaceAround,
+  //           crossAxisAlignment: CrossAxisAlignment.start,
+  //           children: <Widget>[
+  //             const Padding(padding: EdgeInsets.only(top: 0.0)),
+  //             const Divider(),
+  //             SizedBox(
+  //               height: 45.0,
+  //               width: 45.0,
+  //               child: AspectRatio(
+  //                 aspectRatio: 487 / 451,
+  //                 child: Container(
+  //                   decoration: BoxDecoration(
+  //                       image: DecorationImage(
+  //                         fit: BoxFit.fill,
+  //                         alignment: FractionalOffset.topCenter,
+  //                         image: MemoryImage(CustomAuth.currentUser.photo),
+  //                       )),
+  //                 ),
+  //               ),
+  //             ),
+  //             Center(
+  //               child: IconButton(
+  //                 icon: const Icon(
+  //                   Icons.upload,
+  //                 ),
+  //                 onPressed: () => _selectImage(context),
+  //               ),
+  //             ),
+  //             const Divider(),
+  //           ],): Column(
+  //             children: <Widget>[
+  //               isLoading
+  //                   ? const LinearProgressIndicator()
+  //                   : const Padding(padding: EdgeInsets.only(top: 0.0)),
+  //               const Divider(),
+  //               Row(
+  //                 mainAxisAlignment: MainAxisAlignment.spaceAround,
+  //                 crossAxisAlignment: CrossAxisAlignment.start,
+  //                 children: <Widget>[
+  //                   SizedBox(
+  //                     height: 45.0,
+  //                     width: 45.0,
+  //                     child: AspectRatio(
+  //                       aspectRatio: 487 / 451,
+  //                       child: Container(
+  //                         decoration: BoxDecoration(
+  //                             image: DecorationImage(
+  //                               fit: BoxFit.fill,
+  //                               alignment: FractionalOffset.topCenter,
+  //                               image: MemoryImage(_photo),
+  //                               // image : NetworkImage(
+  //                               //   // userProvider.getUser.photoUrl,
+  //                               //     "https://p0.itc.cn/q_70/images03/20230213/ca107acd0ee943a0ac9e8264a23b6ca4.jpeg"
+  //                               // ),
+  //                             )),
+  //                       ),
+  //                     ),
+  //                   ),
+  //                   SizedBox(
+  //                     height: 45.0,
+  //                     width: 45.0,
+  //                     child: AspectRatio(
+  //                       aspectRatio: 487 / 451,
+  //                       child: Container(
+  //                         decoration: BoxDecoration(
+  //                             image: DecorationImage(
+  //                               fit: BoxFit.fill,
+  //                               alignment: FractionalOffset.topCenter,
+  //                               image: MemoryImage(_file!),
+  //                             )),
+  //                       ),
+  //                     ),
+  //                   ),
+  //                 ],
+  //               ),
+  //               const Divider(),
+  //             ]
+  //           )
+  //       ],
+  //     ),
+  //   );
+  // }
 }

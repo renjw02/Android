@@ -136,25 +136,36 @@ class _FeedCardState extends State<FeedCard>
     feedStarList = snap.data!.starList;
     print(feedCreatorId);
 
-    return Container(
-      // boundary needed for web
-      decoration: BoxDecoration(
-        border: Border.all(
-          color: width > webScreenSize ? secondaryColor : mobileBackgroundColor,
+    return Card(
+        margin: const EdgeInsets.symmetric(
+          horizontal: 15.0,
+          vertical: 7.5,
         ),
-        color: mobileBackgroundColor,
-        borderRadius: BorderRadius.circular(10.0), // 设置圆角半径
-      ),
+        elevation: 5.0,
+        color:chatPrimaryColor,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20.0),
+        ),
+      // boundary needed for web
+      // elevation:
+      // BoxDecoration(
+      //   border: Border.all(
+      //     color: width > webScreenSize ? secondaryColor : mobileBackgroundColor,
+      //   ),
+      //   color: chatPrimaryColor,
+      //   borderRadius: BorderRadius.circular(20.0), // 设置圆角半径
+      //
+      // ),
       child:
       GestureDetector(
       child:Column(
         children: [
           //分割线
-          const Divider(
-            height: 1,
-            thickness: 1,
-            color: Colors.grey,
-          ),
+          // const Divider(
+          //   height: 1,
+          //   thickness: 1,
+          //   color: Colors.grey,
+          // ),
           // Title OF THE POST
           Container(
             width: double.infinity,
@@ -177,8 +188,8 @@ class _FeedCardState extends State<FeedCard>
           Container(
             padding: const EdgeInsets.only(
               top: 4,
-              left: 16,
-              right: 16,
+              left: 20,
+              right: 20,
             ).copyWith(right: 0),
             child: Row(
               children: [
@@ -211,9 +222,9 @@ class _FeedCardState extends State<FeedCard>
                   ),
                 ),
                 currentUser.following.contains(feedCreatorId)?
-                Text(
+                const Text(
                   "已关注",
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: primaryColor,
                   ),
                 ):Container(),
@@ -370,9 +381,10 @@ class _FeedCardState extends State<FeedCard>
           ),
           Container(
             margin: const EdgeInsets.only(
-              top: 10,
-              left: 10,
-              right: 10,
+              top: 5,
+              left: 15,
+              right: 15,
+              bottom: 10,
             ),
             child: Row(
               children: <Widget>[
@@ -459,10 +471,10 @@ class _FeedCardState extends State<FeedCard>
                       feedStarList.map((dynamic) => dynamic.toString()).toList()
                         .contains(currentUser.uid)
                         ? const Icon(
-                            Icons.star,
+                            Icons.star_rounded,
                             color: Colors.red,
                           )
-                        : const Icon(Icons.star_border),
+                        : const Icon(Icons.star_border_rounded),
                     onPressed: () async {
                       await bloc.starPost(
                         feedId,

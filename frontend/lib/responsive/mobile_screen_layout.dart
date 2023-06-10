@@ -63,13 +63,13 @@ class _MobileScreenLayoutState extends State<MobileScreenLayout> {
       ),
       bottomNavigationBar: CupertinoTabBar(
         backgroundColor: mobileBackgroundColor,
+        // iconSize: 35,
         items: <BottomNavigationBarItem>[
           BottomNavigationBarItem(
             icon: Icon(
               Icons.home_outlined,
               color: (_page == 0) ? themeColor : secondaryColor,
             ),
-            //label: '',
             backgroundColor: primaryColor,
           ),
           BottomNavigationBarItem(
@@ -77,21 +77,19 @@ class _MobileScreenLayoutState extends State<MobileScreenLayout> {
                 Icons.search_outlined,
                 color: (_page == 1) ? themeColor : secondaryColor,
               ),
-              label: '',
               backgroundColor: primaryColor),
           BottomNavigationBarItem(
               icon: Icon(
+                size: 40,
                 Icons.add_circle_outline,
                 color: (_page == 2) ? themeColor : secondaryColor,
               ),
-              label: '',
               backgroundColor: primaryColor),
           BottomNavigationBarItem(
             icon: Icon(
               Icons.chat_bubble_outline,
               color: (_page == 3) ? themeColor : secondaryColor,
             ),
-            label: '',
             backgroundColor: primaryColor,
           ),
           BottomNavigationBarItem(
@@ -99,7 +97,6 @@ class _MobileScreenLayoutState extends State<MobileScreenLayout> {
               Icons.person_outline,
               color: (_page == 4) ? themeColor : secondaryColor,
             ),
-            label: '',
             backgroundColor: primaryColor,
           ),
         ],

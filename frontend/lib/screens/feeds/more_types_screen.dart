@@ -102,47 +102,41 @@ class _MoreTypesScreenState extends State<MoreTypesScreen> {
     return SizedBox(
       height: 100+ 50 * infoList.length.toDouble(),
       width: 1 * 190,
-      child: Container(
-        decoration: BoxDecoration(
-          color: color,
+      child: Card(
+        color: color,
+        elevation: 10.0,
+        shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20),
         ),
-        margin: EdgeInsets.all(10),
-        child: Card(
-          color: color,
-          elevation: 0,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: InkWell(
-            onTap: () {
-              // 处理卡片点击事件
-            },
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                // crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    category,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
+        margin: const EdgeInsets.all(10),
+        child: InkWell(
+          onTap: () {
+            // 处理卡片点击事件
+          },
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              // crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  category,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
                   ),
-                  const SizedBox(height: 5),
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      for (String info in infoList)
-                        _buildFilterButton(info,
-                        selected: selectedFilters.contains(info),
-                        onPressed: () => _toggleFilter(info, selectedFilters,isSingle),
-                        ),
-                    ],
-                  ),
-                ],
-              ),
+                ),
+                const SizedBox(height: 5),
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    for (String info in infoList)
+                      _buildFilterButton(info,
+                      selected: selectedFilters.contains(info),
+                      onPressed: () => _toggleFilter(info, selectedFilters,isSingle),
+                      ),
+                  ],
+                ),
+              ],
             ),
           ),
         ),

@@ -544,35 +544,39 @@ class _AddPostScreenState extends State<AddPostScreen> {
                 ),
               ],
             ),
-            SizedBox(height: 20),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Container(
-                  padding: const EdgeInsets.only(left: 80),
-                  child: IconButton(
-                    icon: const Icon(Icons.topic),
-                    onPressed: () => _selectTopic(context),
-                  ),
-                ),
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.only(right: 80),
-                    child: TextButton(
+
+            SizedBox(
+              height: 40,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.only(left: 80),
+                    child: IconButton(
+                      icon: const Icon(Icons.topic),
                       onPressed: () => _selectTopic(context),
-                      child: Text(
-                        topicContent,
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
+                      iconSize: 30,
+                    ),
+                  ),
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.only(right: 80),
+                      child: TextButton(
+                        onPressed: () => _selectTopic(context),
+                        child: Text(
+                          topicContent,
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
                         ),
                       ),
                     ),
                   ),
-                ),
 
-              ],
+                ],
+              ),
             ),
 
             Row(
