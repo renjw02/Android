@@ -69,7 +69,7 @@ class _MobileScreenLayoutState extends State<MobileScreenLayout> {
               Icons.home_outlined,
               color: (_page == 0) ? themeColor : secondaryColor,
             ),
-            label: '',
+            //label: '',
             backgroundColor: primaryColor,
           ),
           BottomNavigationBarItem(

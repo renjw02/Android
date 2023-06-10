@@ -232,7 +232,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                                     MainAxisAlignment.spaceEvenly,
                                 children: [
                                   //buildStatColumn(postLen, "posts"),  //TODO
-                                  buildStatColumn(111, "发布数"),
+                                  //buildStatColumn(111, "发布数"),
                                   userData['id'].toString() == currentUserUid
                                       ? GestureDetector(
                                           onTap: () async {
@@ -266,8 +266,8 @@ class _ProfileScreenState extends State<ProfileScreen>
                                                 ),
                                               ),
                                               Container(
-                                                margin: const EdgeInsets.only(
-                                                    top: 4),
+                                                // margin: const EdgeInsets.only(
+                                                //     top: 4),
                                                 child: Text(
                                                   "关注数",
                                                   style: const TextStyle(
@@ -297,18 +297,22 @@ class _ProfileScreenState extends State<ProfileScreen>
                                             mainAxisAlignment:
                                                 MainAxisAlignment.center,
                                             children: [
-                                              Text(
-                                                followed['followedList']
-                                                    .length
-                                                    .toString(),
-                                                style: const TextStyle(
-                                                  fontSize: 18,
-                                                  fontWeight: FontWeight.bold,
+                                              Container(
+                                                padding: const EdgeInsets.only(
+                                                    top: 15),
+                                                child: Text(
+                                                  followed['followedList']
+                                                      .length
+                                                      .toString(),
+                                                  style: const TextStyle(
+                                                    fontSize: 18,
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
                                                 ),
                                               ),
                                               Container(
-                                                margin: const EdgeInsets.only(
-                                                    top: 4),
+                                                // margin: const EdgeInsets.only(
+                                                //     top: 4),
                                                 child: Text(
                                                   "关注数",
                                                   style: const TextStyle(
@@ -371,36 +375,22 @@ class _ProfileScreenState extends State<ProfileScreen>
                                                             widget.uid
                                                         ? FollowButton(
                                                             text: '修改信息',
-                                                            backgroundColor:
-                                                                mobileBackgroundColor,
-                                                            textColor:
-                                                                primaryColor,
-                                                            borderColor:
-                                                                Colors.grey,
+                                                            backgroundColor:mobileBackgroundColor,
+                                                            textColor:primaryColor,
+                                                            borderColor:Colors.grey,
                                                             function: () async {
                                                               //TODO  修改信息
-                                                              Navigator.of(
-                                                                      context)
-                                                                  .push(
+                                                              Navigator.of(context).push(
                                                                 MaterialPageRoute(
-                                                                  builder:
-                                                                      (context) =>
-                                                                          const ModifyScreen(),
+                                                                  builder:(context) =>const ModifyScreen(),
                                                                 ),
-                                                              )
-                                                                  .then((val) {
+                                                              ).then((val) {
                                                                 setState(() {
                                                                   print(val);
-                                                                  print(val
-                                                                      .runtimeType);
-                                                                  userData[
-                                                                          'username'] =
-                                                                      val['username'];
-                                                                  userData[
-                                                                          'profile'] =
-                                                                      val['profile'];
-                                                                  photo = MemoryImage(
-                                                                      val['photo']);
+                                                                  print(val.runtimeType);
+                                                                  userData['username'] = val['username'];
+                                                                  userData['profile'] = val['profile'];
+                                                                  photo = MemoryImage(val['photo']);
                                                                 });
                                                               });
                                                             },
@@ -444,7 +434,14 @@ class _ProfileScreenState extends State<ProfileScreen>
                                                         });
                                                       },
                                                     ),
-                                              isBlocked
+                                              Container(
+                                                alignment:
+                                                Alignment.centerRight,
+                                                padding:
+                                                const EdgeInsets.only(
+                                                  top: 1,
+                                                ),
+                                              child:isBlocked
                                                   ? FollowButton(
                                                       text: '取消屏蔽',
                                                       backgroundColor:
@@ -477,6 +474,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                                                         });
                                                       },
                                                     )
+                                              )
                                             ],
                                           )
                                   ]),
