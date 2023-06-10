@@ -188,8 +188,8 @@ class _FeedCardState extends State<FeedCard>
           Container(
             padding: const EdgeInsets.only(
               top: 4,
-              left: 16,
-              right: 16,
+              left: 20,
+              right: 20,
             ).copyWith(right: 0),
             child: Row(
               children: [
@@ -222,9 +222,9 @@ class _FeedCardState extends State<FeedCard>
                   ),
                 ),
                 currentUser.following.contains(feedCreatorId)?
-                Text(
+                const Text(
                   "已关注",
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: primaryColor,
                   ),
                 ):Container(),

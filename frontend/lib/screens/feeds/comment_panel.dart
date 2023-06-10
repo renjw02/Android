@@ -62,12 +62,21 @@ class _CommentPanelState extends State<CommentPanel> {
           return AlertDialog(
             title: Text("提示"),
             content: Text(res),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20.0),
+            ),
             actions: <Widget>[
               ElevatedButton(
                 child: Text("确定"),
                 onPressed: () {
                   Navigator.of(context).pop();
                 },
+                style: ElevatedButton.styleFrom(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                ),
+
               )
             ],
           );

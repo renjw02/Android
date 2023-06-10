@@ -18,9 +18,10 @@ String randomString() {
 }
 
 class NoticeScreen extends StatefulWidget {
-  const NoticeScreen({super.key, required this.snap,required this.file});
+  const NoticeScreen({super.key, required this.snap,required this.file, this.content});
   final snap;
   final Uint8List file;
+  final content;
   @override
   State<NoticeScreen> createState() => _NoticeScreenState();
 }
@@ -112,10 +113,14 @@ class _NoticeScreenState extends State<NoticeScreen> {
           ],
         ),
       ),
-      body: Chat(
-        messages: _messages,
-        onSendPressed: _handleSendPressed,
-        user: _user,
+      body:Center(
+        child: Text(
+          widget.content.toString(),
+          style: const TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 20,
+          ),
+        ),
       ),
     );
   }
