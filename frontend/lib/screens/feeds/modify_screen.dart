@@ -121,6 +121,7 @@ class _ModifyScreenState extends State<ModifyScreen> {
     Provider.of<UserProvider>(context);
 
     return Scaffold(
+      // resizeToAvoidBottomInset: false,
       appBar: AppBar(
         backgroundColor: mobileBackgroundColor,
         leading: IconButton(
@@ -165,161 +166,163 @@ class _ModifyScreenState extends State<ModifyScreen> {
           )
         ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(30.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SizedBox(height: 16.0),
-            Text(
-              '用户名',
-              style: TextStyle(
-                fontSize: 16.0,
-                fontWeight: FontWeight.bold,
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(30.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(height: 16.0),
+              Text(
+                '用户名',
+                style: TextStyle(
+                  fontSize: 16.0,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
-            ),
-            TextField(
-              controller: usernamec,
-              decoration: const InputDecoration(
-                hintText: '请输入用户名',
+              TextField(
+                controller: usernamec,
+                decoration: const InputDecoration(
+                  hintText: '请输入用户名',
+                ),
               ),
-            ),
-            const SizedBox(height: 16.0),
-            Text(
-              '简介',
-              style: TextStyle(
-                fontSize: 16.0,
-                fontWeight: FontWeight.bold,
+              const SizedBox(height: 16.0),
+              Text(
+                '简介',
+                style: TextStyle(
+                  fontSize: 16.0,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
-            ),
-            TextField(
-              controller: profilec,
-              decoration: const InputDecoration(
-                hintText: '请输入简介',
+              TextField(
+                controller: profilec,
+                decoration: const InputDecoration(
+                  hintText: '请输入简介',
+                ),
+                maxLines: null,
+                minLines: 1,
               ),
-              maxLines: null,
-              minLines: 1,
-            ),
-            const SizedBox(height: 16.0),
-            Text(
-              '密码',
-              style: TextStyle(
-                fontSize: 16.0,
-                fontWeight: FontWeight.bold,
+              const SizedBox(height: 16.0),
+              Text(
+                '密码',
+                style: TextStyle(
+                  fontSize: 16.0,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
-            ),
-            TextField(
-              controller: passwordc,
-              decoration: const InputDecoration(
-                hintText: '请输入密码',
+              TextField(
+                controller: passwordc,
+                decoration: const InputDecoration(
+                  hintText: '请输入密码',
+                ),
               ),
-            ),
-            const SizedBox(height: 16.0),
-            Text(
-              '头像',
-              style: TextStyle(
-                fontSize: 16.0,
-                fontWeight: FontWeight.bold,
+              const SizedBox(height: 16.0),
+              Text(
+                '头像',
+                style: TextStyle(
+                  fontSize: 16.0,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
-            ),
-            const SizedBox(height: 16.0),
-            if (_file == null)
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: <Widget>[
-                  SizedBox(
-                    width: 50,
-                    height: 75,
-                  ),
-                  SizedBox(
-                    height: 75.0,
-                    width: 75.0,
-                    child: AspectRatio(
-                      aspectRatio: 1,
-                      child: Container(
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          image: DecorationImage(
-                            fit: BoxFit.cover,
-                            image: MemoryImage(
-                              CustomAuth.currentUser.photo,
+              const SizedBox(height: 16.0),
+              if (_file == null)
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: <Widget>[
+                    SizedBox(
+                      width: 50,
+                      height: 75,
+                    ),
+                    SizedBox(
+                      height: 75.0,
+                      width: 75.0,
+                      child: AspectRatio(
+                        aspectRatio: 1,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            image: DecorationImage(
+                              fit: BoxFit.cover,
+                              image: MemoryImage(
+                                CustomAuth.currentUser.photo,
+                              ),
                             ),
                           ),
                         ),
                       ),
                     ),
-                  ),
-                  const SizedBox(width: 16.0),
-                  Expanded(
-                    child: TextButton.icon(
+                    const SizedBox(width: 16.0),
+                    Expanded(
+                      child: TextButton.icon(
+                        onPressed: () => _selectImage(context),
+                        icon: const Icon(Icons.upload),
+                        label: const Text('上传头像'),
+                      ),
+                    ),
+                  ],
+                )
+              else
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: <Widget>[
+                    if (isLoading) const LinearProgressIndicator(),
+                    const SizedBox(height: 16.0),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: <Widget>[
+                        const SizedBox(
+                          height: 75.0,
+                          width: 75.0,),
+                        SizedBox(
+                          height: 75.0,
+                          width: 75.0,
+                          child: AspectRatio(
+                            aspectRatio: 1,
+                            child: Container(
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                image: DecorationImage(
+                                  fit: BoxFit.cover,
+                                  image: MemoryImage(_photo),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(
+                          height: 75.0,
+                          width: 75.0,
+                          //右箭头icon
+                          child: Icon(Icons.arrow_forward_ios),
+                        ),
+                        SizedBox(
+                          height: 75.0,
+                          width: 75.0,
+                          child: AspectRatio(
+                            aspectRatio: 1,
+                            child: Container(
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                image: DecorationImage(
+                                  fit: BoxFit.cover,
+                                  image: MemoryImage(_file!),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 25.0),
+                    TextButton.icon(
                       onPressed: () => _selectImage(context),
-                      icon: const Icon(Icons.upload),
-                      label: const Text('上传头像'),
+                      icon: const Icon(Icons.edit),
+                      label: const Text('修改头像'),
                     ),
-                  ),
-                ],
-              )
-            else
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: <Widget>[
-                  if (isLoading) const LinearProgressIndicator(),
-                  const SizedBox(height: 16.0),
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: <Widget>[
-                      const SizedBox(
-                        height: 75.0,
-                        width: 75.0,),
-                      SizedBox(
-                        height: 75.0,
-                        width: 75.0,
-                        child: AspectRatio(
-                          aspectRatio: 1,
-                          child: Container(
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              image: DecorationImage(
-                                fit: BoxFit.cover,
-                                image: MemoryImage(_photo),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(
-                        height: 75.0,
-                        width: 75.0,
-                        //右箭头icon
-                        child: Icon(Icons.arrow_forward_ios),
-                      ),
-                      SizedBox(
-                        height: 75.0,
-                        width: 75.0,
-                        child: AspectRatio(
-                          aspectRatio: 1,
-                          child: Container(
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              image: DecorationImage(
-                                fit: BoxFit.cover,
-                                image: MemoryImage(_file!),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 25.0),
-                  TextButton.icon(
-                    onPressed: () => _selectImage(context),
-                    icon: const Icon(Icons.edit),
-                    label: const Text('修改头像'),
-                  ),
-                ],
-              ),
-          ],
+                  ],
+                ),
+            ],
+          ),
         ),
       ),
     );
