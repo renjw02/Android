@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import '../../resources/database_methods.dart' as db;
@@ -155,7 +156,7 @@ class ContactsList extends StatefulWidget {
 
 class _ContactsListState extends State<ContactsList> with AutomaticKeepAliveClientMixin {
   late QuerySnapshot _querySnapshot;
-  late StreamController<QuerySnapshot> _queryController = StreamController<QuerySnapshot>();
+  late final StreamController<QuerySnapshot> _queryController = StreamController<QuerySnapshot>();
   late String _type;
   bool isLoading = false;
   // 添加一个刷新方法
@@ -170,7 +171,6 @@ class _ContactsListState extends State<ContactsList> with AutomaticKeepAliveClie
     });
     super.initState();
     getData();
-    // _streamController = CustomStore.instance.collection<QuerySnapshot>("posts");
   }
 
   getData() async {
@@ -185,42 +185,22 @@ class _ContactsListState extends State<ContactsList> with AutomaticKeepAliveClie
   }
 
   Future<String> removeNotice(int noticeId) async {
-    print("removeNotice");
+    if (kDebugMode) {
+      print("removeNotice");
+    }
     String result = await db.DataBaseManager().removeNotice(noticeId);
     if(result == "Success"){
       submitQuery(_type);
-      print("删除成功");
+      if (kDebugMode) {
+        print("删除成功");
+      }
     }else{
-      print("删除失败");
+      if (kDebugMode) {
+        print("删除失败");
+      }
     }
     return result;
   }
-
-  // Future<String> createNotice(String str_type, String content) async  {
-  //   int type = 0;
-  //   if (str_type == "通知" || str_type == "全部") {
-  //     type = 0;
-  //   } else if (str_type == "私信") {
-  //     type = 1;
-  //   } else if (str_type == "已认证") {
-  //     type = 2;
-  //   } else if (str_type == "提及") {
-  //     type = 3;
-  //   } else {
-  //     type = 4;
-  //   }
-  //   String returnMsg = await db.DataBaseManager().createNotice(type, content);
-  //   if(returnMsg == "Success"){
-  //     submitQuery(_type);
-  //     print("创建成功");
-  //   }else{
-  //     print("创建失败");
-  //   }
-  //
-  //   return returnMsg;
-  //
-  //   // _queryController.sink.add(querySnapshot);
-  // }
 
   void submitQuery(String type) async {
     //type的值可能是“全部”、“通知”、“私信”或非法值
@@ -243,10 +223,6 @@ class _ContactsListState extends State<ContactsList> with AutomaticKeepAliveClie
         }
       case "私信":
         {
-          // QuerySnapshot querySnapshot = await db.DataBaseManager().noticeListQuery();
-          // //筛选出私信
-          // querySnapshot.docs = querySnapshot.docs.where((element) => element.data()['noticeType'] == 1).toList();
-          // _queryController.sink.add(querySnapshot);
           QuerySnapshot querySnapshot = await db.DataBaseManager().noticeListQuery();
           // 筛选出私信
           querySnapshot.docs = querySnapshot.docs.where((element) => element.data()['noticeType'] == 0).toList();
@@ -277,7 +253,9 @@ class _ContactsListState extends State<ContactsList> with AutomaticKeepAliveClie
         }
       default:
         {
-          print("非法值");
+          if (kDebugMode) {
+            print("非法值");
+          }
           return;
         }
     }
@@ -286,16 +264,15 @@ class _ContactsListState extends State<ContactsList> with AutomaticKeepAliveClie
 
   @override
   Widget build(BuildContext context) {
-    // final bloc = NoticesBloc();
     final width = MediaQuery.of(context).size.width;
-    // bloc.submitQuery(widget.e);
-    print("NoticesList build");
-    print(widget.e);
+    if (kDebugMode) {
+      print("NoticesList build");
+      print(widget.e);
+    }
     //拿到传入的text
 
 
     super.build(context);
-    // return widget.child;
     return RefreshIndicator(
       onRefresh: () async {
         submitQuery(widget.e);
@@ -313,25 +290,6 @@ class _ContactsListState extends State<ContactsList> with AutomaticKeepAliveClie
                 );
               }
               return Scaffold(
-                // floatingActionButton: FloatingActionButton(
-                //   onPressed: () async {
-                //     String returnMsg = await createNotice(widget.e, "content");
-                //     if(returnMsg == "Success"){
-                //       // 向用户显示信息
-                //       ScaffoldMessenger.of(context).showSnackBar(
-                //         const SnackBar(content: Text('创建成功')),
-                //       );
-                //     }else{
-                //       // 向用户显示信息
-                //       ScaffoldMessenger.of(context).showSnackBar(
-                //         const SnackBar(content: Text('创建失败')),
-                //       );
-                //     }
-                //     // 处理按钮点击事件
-                //   },
-                //   backgroundColor:  chatAccentColor,
-                //   child: Icon(Icons.add),
-                // ),
                 body:ListView.builder(
                   itemCount: snapshot.data!.docs.length,
                   itemBuilder: (ctx, index) => Container(
@@ -358,7 +316,6 @@ class _ContactsListState extends State<ContactsList> with AutomaticKeepAliveClie
                         }
                       },
                     ),
-
                   ),
                 ),
               );

@@ -1,6 +1,6 @@
-
-
 import 'dart:async';
+import 'package:flutter/foundation.dart';
+
 import '../Auth/customAuth.dart';
 import './bloc.dart';
 
@@ -25,26 +25,32 @@ class NoticesBloc implements Bloc {
   }
 
   Future<String> removeNotice(int noticeId) async {
-    print("removeNotice");
+    if (kDebugMode) {
+      print("removeNotice");
+    }
     String result = await db.DataBaseManager().removeNotice(noticeId);
     if(result == "Success"){
       submitQuery(_type);
-      print("删除成功");
+      if (kDebugMode) {
+        print("删除成功");
+      }
     }else{
-      print("删除失败");
+      if (kDebugMode) {
+        print("删除失败");
+      }
     }
     return result;
   }
 
-  Future<String> createNotice(String str_type, String content) async  {
+  Future<String> createNotice(String strType, String content) async  {
     int type = 0;
-    if (str_type == "通知" || str_type == "全部") {
+    if (strType == "通知" || strType == "全部") {
       type = 0;
-    } else if (str_type == "私信") {
+    } else if (strType == "私信") {
       type = 1;
-    } else if (str_type == "已认证") {
+    } else if (strType == "已认证") {
       type = 2;
-    } else if (str_type == "提及") {
+    } else if (strType == "提及") {
       type = 3;
     } else {
       type = 4;
@@ -52,14 +58,16 @@ class NoticesBloc implements Bloc {
     String returnMsg = await db.DataBaseManager().createNotice(type, content);
     if(returnMsg == "Success"){
       submitQuery(_type);
-      print("创建成功");
+      if (kDebugMode) {
+        print("创建成功");
+      }
     }else{
-      print("创建失败");
+      if (kDebugMode) {
+        print("创建失败");
+      }
     }
 
     return returnMsg;
-
-    // _queryController.sink.add(querySnapshot);
   }
   void submitQuery(String type) async {
     //type的值可能是“全部”、“通知”、“私信”或非法值
@@ -106,7 +114,9 @@ class NoticesBloc implements Bloc {
         }
       default:
         {
-          print("非法值");
+          if (kDebugMode) {
+            print("非法值");
+          }
           return;
         }
     }

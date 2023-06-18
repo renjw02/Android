@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:math';
 import 'dart:typed_data';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:flutter_chat_ui/flutter_chat_ui.dart';
@@ -40,14 +41,14 @@ class _ChatScreenState extends State<ChatScreen> {
     setState(() {
       isLoading = true;
     });
-    //初始化timer
-
     getData();
     var senderId = int.parse(widget.opuser);
     var receiverId =  int.parse(widget.user);
     timer = Timer.periodic(const Duration(seconds: 3), (timer) async {
-      print("timer refresh");
-      print(_querySnapshot.docs);
+      if (kDebugMode) {
+        print("timer refresh");
+        print(_querySnapshot.docs);
+      }
       _querySnapshot = await db.DataBaseManager().getChatHistory(senderId, receiverId);
       refresh(_querySnapshot, senderId, receiverId);
     });
@@ -63,30 +64,31 @@ class _ChatScreenState extends State<ChatScreen> {
     try {
       _user= types.User(id:widget.user );
       _opuser= types.User(id:widget.opuser);
-      print("user");
-      print(widget.user);
-      print("opuser");
-      print(widget.opuser);
+      if (kDebugMode) {
+        print("user");
+        print(widget.user);
+        print("opuser");
+        print(widget.opuser);
+      }
       db.DataBaseManager dbm = db.DataBaseManager();
-      // String opuserName = snap['noticeCreator'].toString();
       var url = Uri.parse("${gv.ip}/api/user/user/${widget.opuser}");
       userinfo = await dbm.getSomeMap(url);
-      print("userinfo");
-
-      // String content = await dbm.noticeContentQuery(snap['noticeId']);
-      // widget.snap["hasChecked"] = 1;
-      // print("content");
-      // print(content);
-
+      if (kDebugMode) {
+        print("userinfo");
+      }
       var senderId = int.parse(widget.opuser);
       var receiverId =  int.parse(widget.user);
       _querySnapshot = await dbm.getChatHistory(senderId, receiverId);
-      print("querySnapshot");
-      print(_querySnapshot.docs);
+      if (kDebugMode) {
+        print("querySnapshot");
+        print(_querySnapshot.docs);
+      }
       refresh(_querySnapshot, senderId, receiverId);
     } catch (err) {
-      print("err");
-      print(err);
+      if (kDebugMode) {
+        print("err");
+        print(err);
+      }
     }
     setState(() {
       isLoading = false;
@@ -117,9 +119,9 @@ class _ChatScreenState extends State<ChatScreen> {
     //清空_messages
     _messages.clear();
     //遍历querySnapshot.docs，将其add到_messages中
-    docs.forEach((element) {
+    for (var element in docs) {
       _messages.add(element);
-    });
+    }
   }
   @override
   Widget build(BuildContext context){
@@ -141,7 +143,7 @@ class _ChatScreenState extends State<ChatScreen> {
                     },
                     child:CircleAvatar(
                       radius: 16,
-                      backgroundImage: MemoryImage(widget.file!),
+                      backgroundImage: MemoryImage(widget.file),
                     )
                 ),
                 Expanded(

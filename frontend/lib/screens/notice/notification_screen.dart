@@ -1,5 +1,5 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
 
 import '../../Bloc/bloc_provider.dart';
 import '../../Bloc/noticesBloc.dart';
@@ -7,7 +7,6 @@ import '../../models/querySnapshot.dart';
 import '../../utils/colors.dart';
 import '../../utils/global_variable.dart';
 import '../../widgets/contact_user_card.dart';
-import 'message_screen.dart';
 
 
 class NotificationScreen extends StatefulWidget {
@@ -48,10 +47,6 @@ class _NotificationScreenState extends State<NotificationScreen>  with SingleTic
             '收藏',
           ),
         ),
-        // bottom: TabBar(
-        //   controller: _tabController,
-        //   tabs: tabs.map((e) => Tab(text: e)).toList(),
-        // ),
       ),
         body:Column(
           children: [
@@ -96,19 +91,6 @@ class _NotificationScreenState extends State<NotificationScreen>  with SingleTic
                     ),
                   ),
                 ),
-                // child: TabBarView(
-                //   controller: _tabController,
-                //   children:
-                //   tabs.map((e) {
-                //     return ContactsList(
-                //       e: e,
-                //       child: Container(
-                //         alignment: Alignment.center,
-                //         child: Text(e, textScaleFactor: 5),
-                //       ),
-                //     );
-                //   }).toList().cast<Widget>(),
-                // ),
               ),
             ),
           ],
@@ -132,8 +114,11 @@ class _NoticesListState extends State<NoticesList> with AutomaticKeepAliveClient
     final bloc = NoticesBloc();
     final width = MediaQuery.of(context).size.width;
     bloc.submitQuery(widget.e);
-    print("NoticesList build");
-    print(widget.e);
+    if (kDebugMode) {
+      print("NoticesList build");
+      print(widget.e);
+    }
+
     //拿到传入的text
 
 
@@ -175,7 +160,7 @@ class _NoticesListState extends State<NoticesList> with AutomaticKeepAliveClient
                   // 处理按钮点击事件
                 },
                 backgroundColor: primaryColor,
-                child: Icon(Icons.add),
+                child: const Icon(Icons.add),
               ),
               body:ListView.builder(
                 itemCount: snapshot.data!.docs.length,

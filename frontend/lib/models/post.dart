@@ -1,11 +1,5 @@
-import 'dart:typed_data';
-import 'dart:ui';
-
-import 'documentSnapshot.dart';
 import 'package:json_annotation/json_annotation.dart';
-import 'dart:typed_data';
-import 'dart:convert' show base64, json, jsonDecode, jsonEncode, utf8;
-import 'package:frontend/models/comment.dart';
+import 'dart:convert' show  jsonDecode, jsonEncode;
 part 'post.g.dart';
 
 @JsonSerializable()
@@ -33,12 +27,6 @@ class Post {
   List<dynamic> images;
   List<dynamic> videos;
 
-  // final String username;
-  // final likes;
-  // final String postId;
-  // final DateTime datePublished;
-  // final String postUrl;
-  // final String profImage;
   Post({required this.id,
     required this.userId,
     required this.title,

@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:frontend/models/user.dart';
 
 import './api_service.dart' ;
@@ -10,19 +11,27 @@ class CommentApiService extends ApiService implements Source {
       'content': content,
       'commentId': commentId,
     } ;
-    print('createComment: $url');
+    if (kDebugMode) {
+      print('createComment: $url');
+    }
     var result = await sendPostRequest(url, body);
-    print('createComment: $result');
-    print(result);
+    if (kDebugMode) {
+      print('createComment: $result');
+      print(result);
+    }
     return result;
   }
 
   Future<Comment> getComment(int commentId) async {
     String url = '/api/post/getcomment/$commentId';
-    print('getComment: $url');
+    if (kDebugMode) {
+      print('getComment: $url');
+    }
     var result = await sendGetRequest(url, {});
-    print('getComment: $result');
-    print(result);
+    if (kDebugMode) {
+      print('getComment: $result');
+      print(result);
+    }
     return Comment.fromJson(result);
   }
 

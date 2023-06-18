@@ -1,13 +1,11 @@
 // TODO Implement this library.
 import 'package:flutter/foundation.dart';
 import 'package:frontend/models/comment.dart';
-import 'package:frontend/models/user.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path_provider/path_provider.dart';
 import 'dart:io';
 import 'package:path/path.dart';
 import 'dart:async';
-import '../../models/post.dart';
 import '../interface/comments_interface.dart';
 
 const String _commentTableName = "table_comment";

@@ -1,5 +1,3 @@
-
-
 //账号、密码、用户名、头像、简介
 import 'dart:typed_data';
 import 'package:json_annotation/json_annotation.dart';

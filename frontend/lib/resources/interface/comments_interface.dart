@@ -1,5 +1,4 @@
 // TODO Implement this library.
-// import '../models/item_model.dart';
 
 import 'package:frontend/models/user.dart';
 

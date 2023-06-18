@@ -2,7 +2,7 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:frontend/screens/profile_screen.dart';
-import 'package:frontend/widgets/Avatar.dart';
+import 'package:frontend/widgets/avatar.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:frontend/providers/user_provider.dart';
 import 'package:frontend/utils/colors.dart';

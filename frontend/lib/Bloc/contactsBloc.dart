@@ -1,7 +1,4 @@
-
-
 import 'dart:async';
-import '../Auth/customAuth.dart';
 import './bloc.dart';
 
 import '../models/querySnapshot.dart';

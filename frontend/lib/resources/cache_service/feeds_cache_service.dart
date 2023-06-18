@@ -1,6 +1,7 @@
 // TODO Implement this library.
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart';
 import 'package:frontend/models/user.dart';
 import 'dart:async';
 import '../../models/post.dart';
@@ -54,13 +55,19 @@ class FeedsCacheService implements Source, Cache {
 
   @override
   clear() async {
-    print("cache clear");
+    if (kDebugMode) {
+      print("cache clear");
+    }
     await _prefs.remove('post_list');
     await _prefs.remove('user_list');
     //检测是否清除成功
-    print('post_list');
+    if (kDebugMode) {
+      print('post_list');
+    }
     var list = _prefs.getStringList('post_list');
-    print(list);
+    if (kDebugMode) {
+      print(list);
+    }
 
   }
 

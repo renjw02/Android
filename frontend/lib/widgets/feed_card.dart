@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:async/async.dart' as async;
 import 'package:frontend/models/user.dart' as model;
 import 'package:frontend/screens/feeds/feeds_detail_screen.dart';
-import 'package:frontend/widgets/Avatar.dart';
+import 'package:frontend/widgets/avatar.dart';
 import 'package:frontend/widgets/video_component.dart';
 import 'package:provider/provider.dart';
 import 'package:share/share.dart';

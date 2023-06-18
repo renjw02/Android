@@ -1,11 +1,10 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:frontend/Auth/customAuth.dart';
 import 'package:frontend/screens/feeds/more_types_screen.dart';
 import '../../Bloc/feeds_bloc_provider.dart';
 import '../../utils/colors.dart';
-// import '../widgets/item_tile.dart';
 import 'feeds_list_screen.dart';
-import '../../utils/global_variable.dart';
 
 class FeedsScreen extends StatefulWidget {
   FeedsScreen(
@@ -27,6 +26,7 @@ class _FeedsScreenState extends State<FeedsScreen>
   List tabs = ["全部", "热度", "关注"];
   List filteredTabs = ["全部", "热度", "关注", "已筛选"];
   late bool isFilter;
+
   @override
   void initState() {
     super.initState();
@@ -52,15 +52,12 @@ class _FeedsScreenState extends State<FeedsScreen>
       widget.cateFilters = result['cateFilters'];
       widget.timeFilters = result['timeFilters'];
       widget.sortFilters = result['sortFilters'];
-      // _tabController.animateTo(3);
       setState(() {});
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    // final bloc = FeedsBlocProvider.of(context);
-    // bloc.fetchTopIds();
     return Scaffold(
       appBar: AppBar(
         title: const Text('校园论坛'),
@@ -80,7 +77,9 @@ class _FeedsScreenState extends State<FeedsScreen>
                         text: "已筛选",
                         onClose: () {
                           // 取消过滤条件的逻辑
-                          print('Close 已筛选');
+                          if (kDebugMode) {
+                            print('Close 已筛选');
+                          }
                           widget.cateFilters = [];
                           widget.timeFilters = [];
                           widget.sortFilters = [];
@@ -89,7 +88,9 @@ class _FeedsScreenState extends State<FeedsScreen>
                           setState(() {
                             _tabController.animateTo(0);
                           });
-                          print('Close 已筛选');
+                          if (kDebugMode) {
+                            print('Close 已筛选');
+                          }
                         }),
                     widget.cateFilters.isEmpty ? Container()  :RuleTab(text: widget.cateFilters[0]),
                     widget.cateFilters.length <= 1 ? Container()  :RuleTab(text: widget.cateFilters[1]),
@@ -133,8 +134,7 @@ class _FeedsScreenState extends State<FeedsScreen>
                       topRight: Radius.circular(30))),
               child: isFilter
                   ? FeedsBlocProvider(
-                      key: ValueKey('已筛选'),
-                      filter: stringToNewsFilter('已筛选'),
+                      key: const ValueKey('已筛选'),
                       child: Center(
                           child: FeedsListScreen(
                         e: '已筛选',
@@ -149,7 +149,6 @@ class _FeedsScreenState extends State<FeedsScreen>
                       children: tabs.map((e) {
                         return FeedsBlocProvider(
                           key: ValueKey(e),
-                          filter: stringToNewsFilter(e),
                           child: Center(
                               child: FeedsListScreen(
                             e: e,
@@ -173,7 +172,7 @@ class ClosableTab extends StatelessWidget {
   final String text;
   final VoidCallback onClose;
 
-  ClosableTab({required this.text, required this.onClose});
+  const ClosableTab({super.key, required this.text, required this.onClose});
 
   @override
   Widget build(BuildContext context) {
@@ -183,7 +182,7 @@ class ClosableTab extends StatelessWidget {
         child: Row(
           children: [
             Tab(text: text),
-            Icon(Icons.close, size: 18),
+            const Icon(Icons.close, size: 18),
           ],
         ),
       ),
@@ -194,7 +193,7 @@ class ClosableTab extends StatelessWidget {
 class RuleTab extends StatelessWidget {
   final String text;
 
-  RuleTab({required this.text});
+  const RuleTab({super.key, required this.text});
 
   @override
   Widget build(BuildContext context) {
@@ -217,7 +216,7 @@ class MoreTypeTab extends StatelessWidget {
   final String text;
   final VoidCallback onMore;
 
-  MoreTypeTab({required this.text, required this.onMore});
+  const MoreTypeTab({super.key, required this.text, required this.onMore});
 
   @override
   Widget build(BuildContext context) {
@@ -227,7 +226,7 @@ class MoreTypeTab extends StatelessWidget {
         child: Row(
           children: [
             Tab(text: text),
-            Icon(Icons.arrow_forward_ios, size: 15),
+            const Icon(Icons.arrow_forward_ios, size: 15),
           ],
         ),
       ),

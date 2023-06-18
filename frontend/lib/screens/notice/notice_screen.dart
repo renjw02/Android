@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:math';
 import 'dart:typed_data';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:flutter_chat_ui/flutter_chat_ui.dart';
@@ -28,8 +29,6 @@ class NoticeScreen extends StatefulWidget {
 
 class _NoticeScreenState extends State<NoticeScreen> {
   bool isLoading = false;
-  final List<types.Message> _messages = [];
-  final _user = const types.User(id: '82091008-a484-4a89-ae75-a22bf8d6f3ac');
   late final Map<String,dynamic> userinfo;
   @override
   void initState() {
@@ -39,29 +38,35 @@ class _NoticeScreenState extends State<NoticeScreen> {
     super.initState();
     getData();
   }
-  getData() async {
+
+  Future<void> getData() async {
     try {
-      var snap = widget.snap;
-      //输出snap
-      print("snap");
-      print(snap);
-      print(snap['userId']);
-      db.DataBaseManager dbm = db.DataBaseManager();
-      String userId = snap['userId'].toString();
-      var url = Uri.parse("${gv.ip}/api/user/user/$userId");
+      final snap = widget.snap;
+      // 输出 snap
+      if (kDebugMode) {
+        print('snap: $snap');
+        print('userId: ${snap['userId']}');
+      }
+
+      final dbm = db.DataBaseManager();
+      final userId = snap['userId'].toString();
+      final url = Uri.parse('${gv.ip}/api/user/user/$userId');
       userinfo = await dbm.getSomeMap(url);
-      print("userinfo");
+      // 输出 userinfo
+      if (kDebugMode) {
+        print('userinfo: $userinfo');
+      }
 
-      String content = await dbm.noticeContentQuery(snap['noticeId']);
-      print("content");
-      print(content);
-
+      final content = await dbm.noticeContentQuery(snap['noticeId']);
+      // 输出 content
+      if (kDebugMode) {
+        print('content: $content');
+      }
     } catch (err) {
-      // showSnackBar(
-      //   context,
-      //   err.toString(),
-      // );
-      print(err);
+      // 处理异常
+      if (kDebugMode) {
+        print('Error: $err');
+      }
     }
     setState(() {
       isLoading = false;
@@ -88,7 +93,7 @@ class _NoticeScreenState extends State<NoticeScreen> {
                 },
                 child:CircleAvatar(
                   radius: 16,
-                  backgroundImage: MemoryImage(widget.file!),
+                  backgroundImage: MemoryImage(widget.file),
                 )
             ),
             Expanded(
@@ -123,22 +128,5 @@ class _NoticeScreenState extends State<NoticeScreen> {
         ),
       ),
     );
-  }
-
-  void _addMessage(types.Message message) {
-    setState(() {
-      _messages.insert(0, message);
-    });
-  }
-
-  void _handleSendPressed(types.PartialText message) {
-    final textMessage = types.TextMessage(
-      author: _user,
-      createdAt: DateTime.now().millisecondsSinceEpoch,
-      id: randomString(),
-      text: message.text,
-    );
-
-    _addMessage(textMessage);
   }
 }

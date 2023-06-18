@@ -3,21 +3,14 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:rxdart/rxdart.dart';
 import '../models/post.dart';
-import '../models/user.dart';
 import '../resources/respository/feeds_repository.dart';
-import '../utils/global_variable.dart';
-
-
 
 class FeedsBloc {
-
-  late final newFilter;
   static int _num = 1;
-  FeedsBloc(FeedsFilter filter) {
+  FeedsBloc() {
     if (kDebugMode) {
       print("FeedsBloc constructor");
     }
-    newFilter = filter;
     _itemsFetcher.transform(_itemTransformer()).pipe(_itemOutput);
   }
 

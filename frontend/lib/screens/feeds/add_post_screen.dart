@@ -1,18 +1,11 @@
-import 'dart:io';
-import 'dart:typed_data';
-
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:frontend/providers/user_provider.dart';
-import 'package:frontend/resources/post_methods.dart';
 import 'package:frontend/utils/colors.dart';
 import 'package:frontend/utils/utils.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:photo_view/photo_view.dart';
-import 'package:provider/provider.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:video_player/video_player.dart';
 
 import '../../resources/database_methods.dart' as db;
 import '../../widgets/full_Video.dart';
@@ -25,15 +18,14 @@ class AddPostScreen extends StatefulWidget {
 }
 
 class _AddPostScreenState extends State<AddPostScreen> {
-  Uint8List? _file;
   bool isLoading = false;
   String topicContent = "选择一个话题";
-  int font_size = 16;
-  Color font_color = Colors.white;
-  var font_weight = FontWeight.w500;  //fontWeight: FontWeight.w100 ~ w900
+  int fontSize = 16;
+  Color fontColor = Colors.white;
+  var fontWeight = FontWeight.w500;  //fontWeight: FontWeight.w100 ~ w900
   String position = "位置";
-  final TextEditingController titlec = new TextEditingController();
-  final TextEditingController contentc = new TextEditingController();
+  final TextEditingController titlec = TextEditingController();
+  final TextEditingController contentc = TextEditingController();
   List<Uint8List> photos = [];
   List<Uint8List> videos = [];
   List<Uint8List> files = [];
@@ -55,30 +47,37 @@ class _AddPostScreenState extends State<AddPostScreen> {
   }
 
   void _getCurrentLocation() async {
-    print("getcurrentlocation");
-    LocationPermission permission;
-    permission = await Geolocator.requestPermission();
-    print("asd");
+    if (kDebugMode) {
+      print("getcurrentlocation");
+    }
+    if (kDebugMode) {
+      print("asd");
+    }
     final position1 = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
-    print("asd");
-    print(position1);
-    print("asd");
+    if (kDebugMode) {
+      print("asd");
+      print(position1);
+      print("asd");
+    }
     List<Placemark> placemarks = await placemarkFromCoordinates(position1.latitude, position1.longitude);
     Placemark place = placemarks[0];
-    print("asd");
+    if (kDebugMode) {
+      print("asd");
+    }
 
     setState(() {
-      _locationMessage = "${place.locality}, ${place.street}, ${place.country},${place.administrativeArea},"+
-          "${place.name},${place.subAdministrativeArea},${place.subLocality},${place.thoroughfare},${place.subThoroughfare}";
+      _locationMessage = "${place.locality}, ${place.street}, ${place.country},${place.administrativeArea},""${place.name},${place.subAdministrativeArea},${place.subLocality},${place.thoroughfare},${place.subThoroughfare}";
       position = place.street!;
     });
-    print(_locationMessage);
+    if (kDebugMode) {
+      print(_locationMessage);
+    }
   }
 
   _selectImage(BuildContext parentContext) async {
     if(files.length==9){
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
+        const SnackBar(
           content: Text("最多只能添加9张图片或视频哦"),
         ),
       );
@@ -100,7 +99,9 @@ class _AddPostScreenState extends State<AddPostScreen> {
                     //photos.add(file);
                     files.add(file);
                     fileTypes.add(0);
-                    print(files.length);
+                    if (kDebugMode) {
+                      print(files.length);
+                    }
                   });
                 }),
             SimpleDialogOption(
@@ -112,7 +113,9 @@ class _AddPostScreenState extends State<AddPostScreen> {
                   setState(() {
                     files.add(file);
                     fileTypes.add(0);
-                    print(files.length);
+                    if (kDebugMode) {
+                      print(files.length);
+                    }
                   });
                 }),
             SimpleDialogOption(
@@ -131,7 +134,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
   _selectVideo(BuildContext parentContext) async {
     if(files.length==9){
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
+        const SnackBar(
           content: Text("最多只能添加9张图片或视频哦"),
         ),
       );
@@ -152,7 +155,9 @@ class _AddPostScreenState extends State<AddPostScreen> {
                   setState((){
                     files.add(file[0]);
                     fileTypes.add(1);
-                    print(files.length);
+                    if (kDebugMode) {
+                      print(files.length);
+                    }
                     videonails[files.length-1] = file[1];
                   });
                 }),
@@ -165,7 +170,9 @@ class _AddPostScreenState extends State<AddPostScreen> {
                   setState((){
                     files.add(file[0]);
                     fileTypes.add(1);
-                    print(files.length);
+                    if (kDebugMode) {
+                      print(files.length);
+                    }
                     videonails[files.length-1] = file[1];
                   });
                 }),
@@ -183,8 +190,10 @@ class _AddPostScreenState extends State<AddPostScreen> {
   }
 
   buildTable() {
-    print("buildtable");
-    print(fileTypes);
+    if (kDebugMode) {
+      print("buildtable");
+      print(fileTypes);
+    }
     if(files==null){
       return Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -259,7 +268,9 @@ class _AddPostScreenState extends State<AddPostScreen> {
         );
       }
       else{
-        print("get a video");
+        if (kDebugMode) {
+          print("get a video");
+        }
         int temp = count;
         arow.add(
           Container(
@@ -380,9 +391,9 @@ class _AddPostScreenState extends State<AddPostScreen> {
   void clearInfo() {
     setState(() {
       topicContent = "选择一个话题";
-      font_size = 16;
-      font_color = Colors.white;
-      font_weight = FontWeight.w500;
+      fontSize = 16;
+      fontColor = Colors.white;
+      fontWeight = FontWeight.w500;
       titlec.text = "";
       contentc.text = "";
       //photos = [];
@@ -395,26 +406,32 @@ class _AddPostScreenState extends State<AddPostScreen> {
     try{
       Map<String ,int> topic2type = {"校园资讯":1,"二手交易":2};
       if(files == null){
-        print("file is null");
+        if (kDebugMode) {
+          print("file is null");
+        }
       }
       List<Uint8List?> postfiles = files;
-      print(topic2type[topicContent]!);
+      if (kDebugMode) {
+        print(topic2type[topicContent]!);
+      }
       Map<Color,String> colors = {Colors.red:"red",Colors.white:"white",Colors.yellow:"yellow"};
       Map<FontWeight,String> weights = {FontWeight.w300:"较细",FontWeight.w500:"适中",FontWeight.w700:"较粗"};
       String res = await db.DataBaseManager().createPost(titlec.text, contentc.text, topic2type[topicContent]!, "$position",
-          font_size,colors[font_color]!,weights[font_weight]!,postfiles,fileTypes);
+          fontSize,colors[fontColor]!,weights[fontWeight]!,postfiles,fileTypes);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(res),
         ),
       );
-      print(res);
+      if (kDebugMode) {
+        print(res);
+      }
       if(res=="动态上传成功"){
         setState(() {
           topicContent = "选择一个话题";
-          font_size = 16;
-          font_color = Colors.white;
-          font_weight = FontWeight.w500;
+          fontSize = 16;
+          fontColor = Colors.white;
+          fontWeight = FontWeight.w500;
           titlec.text = "";
           contentc.text = "";
           photos = [];
@@ -424,7 +441,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
       }
     }catch(e){
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
+        const SnackBar(
           content: Text("请填写动态类型、标题及内容"),
         ),
       );
@@ -433,7 +450,6 @@ class _AddPostScreenState extends State<AddPostScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final UserProvider userProvider = Provider.of<UserProvider>(context);
     return Scaffold(
           appBar: AppBar(
             backgroundColor: mobileBackgroundColor,
@@ -462,57 +478,6 @@ class _AddPostScreenState extends State<AddPostScreen> {
         padding: const EdgeInsets.only(top: 10, left: 20, right: 20, bottom: 20),
         child: Column(
           children: [
-            // Row(
-            //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            //   children: [
-            //     IconButton(
-            //       icon: const Icon(Icons.topic),
-            //       onPressed: () => _selectTopic(context),
-            //     ),
-            //     Expanded(
-            //       child: Padding(
-            //         padding: const EdgeInsets.only(right: 30),
-            //         child: TextButton(
-            //           onPressed: () => _selectTopic(context) ,
-            //           child: Text(
-            //             topicContent,
-            //             style: TextStyle(
-            //               fontSize: 18,
-            //               fontWeight: FontWeight.bold,
-            //               color: Colors.white,
-            //             ),
-            //             overflow: TextOverflow.ellipsis,
-            //           ),
-            //         ),
-            //       ),
-            //     ),
-            //
-            //     GestureDetector(
-            //       onTap: () {
-            //         // do something on tap
-            //       },
-            //       child: Padding(
-            //         padding: const EdgeInsets.only(right: 30),
-            //         child: Row(
-            //           children: [
-            //             const Icon(
-            //               Icons.location_on,
-            //               color: Colors.grey,
-            //             ),
-            //             SizedBox(width: 5),
-            //             Text(
-            //               '$position',
-            //               style: TextStyle(
-            //                 fontSize: 8,
-            //                 color: Colors.grey,
-            //               ),
-            //             ),
-            //           ],
-            //         ),
-            //       ),
-            //     ),
-            //   ],
-            // ),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -528,7 +493,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
                           Icons.location_on,
                           color: Colors.grey,
                         ),
-                        SizedBox(width: 5),
+                        const SizedBox(width: 5),
                         Text(
                           position,
                           style: const TextStyle(
@@ -565,7 +530,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
                         onPressed: () => _selectTopic(context),
                         child: Text(
                           topicContent,
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
                             color: Colors.white,
@@ -584,78 +549,76 @@ class _AddPostScreenState extends State<AddPostScreen> {
                 SizedBox(
                   width: MediaQuery.of(context).size.width*0.33,
                   child: DropdownButton(
-                    value: font_size, //style: style,
-                    icon: Icon(Icons.arrow_drop_down), iconSize: 30, iconEnabledColor: Colors.deepPurple.withOpacity(0.7),
-                    hint: Text('请选择地区'), isExpanded: true,
+                    value: fontSize, //style: style,
+                    icon: const Icon(Icons.arrow_drop_down), iconSize: 30, iconEnabledColor: Colors.deepPurple.withOpacity(0.7),
+                    hint: const Text('请选择地区'), isExpanded: true,
                     underline: Container(height: 1, color: Colors.deepPurple.withOpacity(0.7)),
-                    items: [
+                    items: const [
                     DropdownMenuItem(
+                    value: 12,
                     child: Row(children: <Widget>[Icon(Icons.text_fields, color: Colors.deepPurple),SizedBox(width: 20),
-                      Text('小字体',style: TextStyle(fontSize: 12)), SizedBox(width: 5)]),
-                    value: 12),
+                      Text('小字体',style: TextStyle(fontSize: 12)), SizedBox(width: 5)])),
                     DropdownMenuItem(
-                    child: Row(children: <Widget>[Icon(Icons.text_fields, color: Colors.deepPurple),SizedBox(width: 15),Text('适中',style: TextStyle(fontSize: 16)), SizedBox(width: 5)]),
-                    value: 16),
+                    value: 16,
+                    child: Row(children: <Widget>[Icon(Icons.text_fields, color: Colors.deepPurple),SizedBox(width: 15),Text('适中',style: TextStyle(fontSize: 16)), SizedBox(width: 5)])),
                     DropdownMenuItem(
-                    child: Row(children: <Widget>[Icon(Icons.text_fields, color: Colors.deepPurple),SizedBox(width: 5),Text('大字体', style: TextStyle(fontSize: 20)), SizedBox(width: 5)]),
-                    value: 20)
+                    value: 20,
+                    child: Row(children: <Widget>[Icon(Icons.text_fields, color: Colors.deepPurple),SizedBox(width: 5),Text('大字体', style: TextStyle(fontSize: 20)), SizedBox(width: 5)]))
                     ],
-                    onChanged: (value) => setState(() => font_size = value!)
+                    onChanged: (value) => setState(() => fontSize = value!)
                   ),
                 ),
                 SizedBox(width: MediaQuery.of(context).size.width*0.03),
                 SizedBox(
                   width: MediaQuery.of(context).size.width*0.25,
                   child: DropdownButton(
-                      value: font_color, //style: style,
-                      icon: Icon(Icons.arrow_drop_down), iconSize: 30, iconEnabledColor: Colors.red.withOpacity(0.7),
-                      hint: Text('请选择字体颜色'), isExpanded: true, underline: Container(height: 1, color: Colors.red.withOpacity(0.7)),
-                      items: [
+                      value: fontColor, //style: style,
+                      icon: const Icon(Icons.arrow_drop_down), iconSize: 30, iconEnabledColor: Colors.red.withOpacity(0.7),
+                      hint: const Text('请选择字体颜色'), isExpanded: true, underline: Container(height: 1, color: Colors.red.withOpacity(0.7)),
+                      items: const [
                         DropdownMenuItem(
+                            value: Colors.red,
                             child: Row(children: <Widget>[Icon(Icons.color_lens, color: Colors.red),
-                              SizedBox(width: 5),Text('红色',style: TextStyle(color: Colors.red, fontSize: 16)), SizedBox(width: 5)]),
-                            value: Colors.red),
+                              SizedBox(width: 5),Text('红色',style: TextStyle(color: Colors.red, fontSize: 16)), SizedBox(width: 5)])),
                         DropdownMenuItem(
+                            value: Colors.white,
                             child: Row(children: <Widget>[Icon(Icons.color_lens, color: Colors.white),
-                              SizedBox(width: 5),Text('白色',style: TextStyle(color: Colors.white, fontSize: 16)), SizedBox(width: 5)]),
-                            value: Colors.white),
+                              SizedBox(width: 5),Text('白色',style: TextStyle(color: Colors.white, fontSize: 16)), SizedBox(width: 5)])),
                         DropdownMenuItem(
+                            value: Colors.yellow,
                             child: Row(children: <Widget>[Icon(Icons.color_lens, color: Colors.yellow),
-                              SizedBox(width: 5),Text('黄色', style: TextStyle(color: Colors.yellow, fontSize: 16)), SizedBox(width: 5)]),
-                            value: Colors.yellow)
+                              SizedBox(width: 5),Text('黄色', style: TextStyle(color: Colors.yellow, fontSize: 16)), SizedBox(width: 5)]))
                       ],
-                      onChanged: (value) => setState(() => font_color = value!)
+                      onChanged: (value) => setState(() => fontColor = value!)
                   ),
                 ),
                 SizedBox(width: MediaQuery.of(context).size.width*0.03),
                 SizedBox(
                   width: MediaQuery.of(context).size.width*0.25,
                   child: DropdownButton(
-                      value: font_weight, //style: style,
-                      icon: Icon(Icons.arrow_drop_down), iconSize: 30, iconEnabledColor: Colors.teal.withOpacity(0.7),
-                      hint: Text('请选择字体粗细'), isExpanded: true, underline: Container(height: 1, color: Colors.teal.withOpacity(0.7)),
-                      items: [
+                      value: fontWeight, //style: style,
+                      icon: const Icon(Icons.arrow_drop_down), iconSize: 30, iconEnabledColor: Colors.teal.withOpacity(0.7),
+                      hint: const Text('请选择字体粗细'), isExpanded: true, underline: Container(height: 1, color: Colors.teal.withOpacity(0.7)),
+                      items: const [
                         DropdownMenuItem(
+                            value: FontWeight.w300,
                             child: Row(children: <Widget>[Icon(Icons.format_bold, color: Colors.teal),
-                              SizedBox(width: 5),Text('较细', style: TextStyle(fontWeight: FontWeight.w300)), SizedBox(width: 5) ]),
-                            value: FontWeight.w300),
+                              SizedBox(width: 5),Text('较细', style: TextStyle(fontWeight: FontWeight.w300)), SizedBox(width: 5) ])),
                         DropdownMenuItem(
-                            child: Row(children: <Widget>[Icon(Icons.format_bold, color: Colors.teal),
-                              SizedBox(width: 5),
-                              Text('适中', style: TextStyle(fontWeight: FontWeight.w500)), SizedBox(width: 5)]),
-                            value: FontWeight.w500),
-                        DropdownMenuItem(
+                            value: FontWeight.w500,
                             child: Row(children: <Widget>[Icon(Icons.format_bold, color: Colors.teal),
                               SizedBox(width: 5),
-                              Text('较粗', style: TextStyle(fontWeight: FontWeight.w700)), SizedBox(width: 5)]),
-                            value: FontWeight.w700)
+                              Text('适中', style: TextStyle(fontWeight: FontWeight.w500)), SizedBox(width: 5)])),
+                        DropdownMenuItem(
+                            value: FontWeight.w700,
+                            child: Row(children: <Widget>[Icon(Icons.format_bold, color: Colors.teal),
+                              SizedBox(width: 5),
+                              Text('较粗', style: TextStyle(fontWeight: FontWeight.w700)), SizedBox(width: 5)]))
                       ],
-                      onChanged: (value) => setState(() => font_weight = value!)
+                      onChanged: (value) => setState(() => fontWeight = value!)
                   ),
                 ),
-
                 ]
-
               ),
 
             TextField(
@@ -674,7 +637,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
                   color: Colors.grey.withOpacity(0.2),
                   borderRadius: BorderRadius.circular(10),
                 ),
-                padding: EdgeInsets.symmetric(horizontal: 16),
+                padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: TextField(
                   controller: contentc,
                   decoration: const InputDecoration(
@@ -684,35 +647,11 @@ class _AddPostScreenState extends State<AddPostScreen> {
                   ),
                   maxLines: null,
                   keyboardType: TextInputType.multiline,
-                  style: TextStyle(fontSize: 18),
+                  style: const TextStyle(fontSize: 18),
                 ),
               ),
             ),
           buildTable(),
-
-          // _file == null?
-          // Center(
-          //   child: IconButton(
-          //     icon: const Icon(
-          //       Icons.upload,
-          //     ),
-          //     onPressed: () => _selectImage(context),
-          //   ),
-          // ):SizedBox(
-          //   height: 45.0,
-          //   width: 45.0,
-          //   child: AspectRatio(
-          //     aspectRatio: 487 / 451,
-          //     child: Container(
-          //       decoration: BoxDecoration(
-          //           image: DecorationImage(
-          //             fit: BoxFit.fill,
-          //             alignment: FractionalOffset.topCenter,
-          //             image: MemoryImage(_file!),
-          //           )),
-          //     ),
-          //   ),
-          // ),
         ],
       ),
     ));

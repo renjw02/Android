@@ -1,11 +1,3 @@
-//      description: snapshot["description"],
-//       uid: snapshot["uid"],
-//       likes: snapshot["likes"],
-//       postId: snapshot["postId"],
-//       datePublished: snapshot["datePublished"],
-//       username: snapshot["username"],
-//       postUrl: snapshot['postUrl'],
-//       profImage: snapshot['profImage']
 class DocumentSnapshot {
   final String description;
   final String uid;

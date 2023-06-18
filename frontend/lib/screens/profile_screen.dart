@@ -532,7 +532,6 @@ class _ProfileScreenState extends State<ProfileScreen>
                                 return Center(
                                   child: FeedsBlocProvider(
                                     key: ValueKey(e),
-                                    filter: stringToNewsFilter(e),
                                     child: FeedsListScreen(
                                       e: e,
                                       cateFilters: [],

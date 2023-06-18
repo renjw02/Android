@@ -1,7 +1,5 @@
-import 'dart:typed_data';
-
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import '../Auth/customAuth.dart';
@@ -44,7 +42,9 @@ class _UserAvatarState extends State<UserAvatar> {
       _bytesImage = await db.DataBaseManager().getPhoto(widget.userId.toString());
       avatar = MemoryImage(_bytesImage!);
     }catch(e){
-      print(e);
+      if (kDebugMode) {
+        print(e);
+      }
     }
     setState(() {
       isLoading = false;
@@ -79,8 +79,8 @@ class _UserAvatarState extends State<UserAvatar> {
             //     },
             //     placeholder: (context, url) => const CircularProgressIndicator(),
             //     errorWidget: (context, url, error) => const Icon(Icons.error),
-            //     width: widget.width == null ? 32 : widget.width,
-            //     height: widget.height == null ? 32 : widget.height,
+            //     width: widget.width ?? 32,
+            //     height: widget.height ?? 32,
             //   ),
             // ),
         ),

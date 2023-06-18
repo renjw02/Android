@@ -1,6 +1,7 @@
 import 'dart:ui';
 
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import '../../Auth/customAuth.dart';
@@ -10,7 +11,7 @@ import '../../widgets/comment.dart';
 import '../../models/post.dart';
 import '../../resources/web_service/comment_api_service.dart';
 import '../../utils/colors.dart';
-import '../../widgets/Avatar.dart' as avatar;
+import '../../widgets/avatar.dart' as avatar;
 class CommentPanel extends StatefulWidget {
   final VoidCallback onClose;
   final FeedsBloc onRefreshBloc;
@@ -32,8 +33,10 @@ class _CommentPanelState extends State<CommentPanel> {
     if(commentText != ''){
       try {
         res = await post(commentText);
-        print(commentText);
-        print('发送');
+        if (kDebugMode) {
+          print(commentText);
+          print('发送');
+        }
         setState(() {
           widget.post.comments.add({
             "commentId": 0,
@@ -47,20 +50,19 @@ class _CommentPanelState extends State<CommentPanel> {
           });
         });
       }catch(e){
-        print(e);
+        if (kDebugMode) {
+          print(e);
+        }
         res = 'Failed';
       }
     }else{
       res = '评论不能为空';
     }
-    // widget.onRefreshBloc.clearCache();
-    // widget.onRefreshBloc.fetchTopIds();
-    // widget.onRefreshBloc.fetchItems(widget.post.id);
     showDialog(
         context: context,
         builder: (context) {
           return AlertDialog(
-            title: Text("提示"),
+            title: const Text("提示"),
             content: Text(res),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(20.0),
@@ -90,20 +92,12 @@ class _CommentPanelState extends State<CommentPanel> {
     _scrollController.dispose();
     super.dispose();
   }
-  ScrollController _scrollController = ScrollController();
+  final ScrollController _scrollController = ScrollController();
 
   @override
   void initState() {
     super.initState();
     _scrollController.addListener(_handleScroll);
-  }
-
-  void _scrollListener() {
-    if (_scrollController.position.pixels ==
-        _scrollController.position.maxScrollExtent) {
-      // 滚动到底部时执行的代码
-      widget.onClose();
-    }
   }
 
   final double _scrollThreshold = 200.0; // 定义滑动距离阈值
@@ -113,10 +107,14 @@ class _CommentPanelState extends State<CommentPanel> {
   void _handleScroll() {
     if (_scrollController.position.pixels ==
         _scrollController.position.maxScrollExtent) {
-      print('滑动到底部');
+      if (kDebugMode) {
+        print('滑动到底部');
+      }
       // 如果滑动到底部
       int currentTimeStamp = DateTime.now().millisecondsSinceEpoch;
-      print('currentTimeStamp: $currentTimeStamp');
+      if (kDebugMode) {
+        print('currentTimeStamp: $currentTimeStamp');
+      }
       if (_lastTimeStamp == 0) {
         // 如果是第一次滑动到底部，记录当前时间戳和滑动位置
         _lastTimeStamp = currentTimeStamp;
@@ -125,7 +123,9 @@ class _CommentPanelState extends State<CommentPanel> {
         // 如果不是第一次滑动到底部，计算时间差和滑动距离差
         int duration = currentTimeStamp - _lastTimeStamp;
         double distance = (_scrollController.position.pixels - _lastOffset).abs();
-        print('duration: $duration, distance: $distance');
+        if (kDebugMode) {
+          print('duration: $duration, distance: $distance');
+        }
         if (duration < 1000 && distance > _scrollThreshold) {
           // 如果时间差小于1秒且滑动距离大于阈值，表示用户已经滑动到底部并继续滑动了一段距离，可以触发事件
           _lastTimeStamp = currentTimeStamp;
@@ -153,13 +153,14 @@ class _CommentPanelState extends State<CommentPanel> {
         commentText,);
       textEditingController.text = '';
       res = 'Success';
-      // await widget.bloc.clearCache();
-      // await widget.bloc.fetchTopIds();
-      // await widget.bloc.fetchItems(widget.post.id);
-      print(result);
+      if (kDebugMode) {
+        print(result);
+      }
     }catch(e){
-      print("error");
-      print(e);
+      if (kDebugMode) {
+        print("error");
+        print(e);
+      }
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text("请填写动态类型、标题及内容"),
@@ -184,20 +185,17 @@ class _CommentPanelState extends State<CommentPanel> {
   }
   @override
   Widget build(BuildContext context) {
-    // final of_bloc = FeedsBlocProvider.of(context);
-    // print('of_bloc');
-    // print(identical(of_bloc, widget.bloc));
-    final screenHeight = MediaQuery.of(context).size.height;
     List<Widget> children = [];
     if (widget.post.comments.isEmpty) {
       children.add(const SizedBox(
         height: 50,
       ));
       children.add(_buildNoCommentPageBody(context));
-      // return ListView(children: children);
     }else{
-      print('item.comments');
-      print(widget.post.comments);
+      if (kDebugMode) {
+        print('item.comments');
+        print(widget.post.comments);
+      }
       final commentsList =
       widget.post.comments.map((kid) => Comment(comment: commentModel.Comment.fromDbMap(kid))).toList();
       commentsList.sort((a, b) => b.comment.created.compareTo(a.comment.created));
@@ -207,7 +205,9 @@ class _CommentPanelState extends State<CommentPanel> {
 
     return GestureDetector(
       onVerticalDragUpdate: (details) {
-        print("detial.delta.dy = ${details.delta.dy}");
+        if (kDebugMode) {
+          print("detial.delta.dy = ${details.delta.dy}");
+        }
         if (details.delta.dy > _dragDistanceThreshold) {
           widget.onClose();
         }

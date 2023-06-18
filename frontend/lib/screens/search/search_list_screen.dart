@@ -1,6 +1,5 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:frontend/Auth/customAuth.dart';
-// import 'package:frontend/Bloc/comments_bloc_provider.dart';
 import '../../Bloc/feeds_bloc_provider.dart';
 import '../../widgets/feed_card.dart';
 
@@ -26,23 +25,19 @@ class _SearchListScreenState extends State<SearchListScreen> {
   late FeedsBloc _bloc;
   onRefresh() {
     setState(() {
-      print("onRefresh");
+      if (kDebugMode) {
+        print("onRefresh");
+      }
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    print("FeedsListScreen build");
+    if (kDebugMode) {
+      print("FeedsListScreen build");
+    }
     _bloc = FeedsBlocProvider.withKeyOf(context, ValueKey(widget.e));
     _bloc.fetchIdsByKeyWords(widget.keywords);
-    // _bloc.fetchIdsByRules(
-    //     1 ,
-    //     10,
-    //     widget.e == "我的帖子" ? int.parse(widget.uid) : 0 ,
-    //     widget.sortFilters.length ==1?  orderByWhat[widget.sortFilters[0]] : null,
-    //     widget.cateFilters.length == 1 ?type[widget.cateFilters[0]]!: 0  ,
-    //     widget.e == "关注" ? true : null,
-    //     widget.e == "热度"? true : null);
     return Center(child: refreshWidget(_buildList(_bloc), _bloc,onRefresh));
   }
 
@@ -85,13 +80,6 @@ class _SearchListScreenState extends State<SearchListScreen> {
                       creatorId: creatorSnapshot.data![index],
                       onRefreshBloc: _bloc,
                     );
-                      // CommentsBlocProvider(
-                      //   key: ValueKey(snapshot.data![index]),
-                      //   child: );
-                    // return const Text(
-                    //   'Hello, world!',
-                    //   textDirection: TextDirection.ltr,
-                    // );
                   });
             },
           );
@@ -102,17 +90,8 @@ class _SearchListScreenState extends State<SearchListScreen> {
     return RefreshIndicator(
         child: child,
         onRefresh: () async {
-          // print("onRefresh");
           await _bloc.clearCache();
           _bloc.fetchIdsByKeyWords(widget.keywords);
-          // await _bloc.fetchIdsByRules(
-          //     1 ,
-          //     10,
-          //     widget.e == "我的帖子" ? int.parse(widget.uid) : 0 ,
-          //     widget.sortFilters.length ==1?  orderByWhat[widget.sortFilters[0]] : null,
-          //     widget.cateFilters.length == 1 ?type[widget.cateFilters[0]]!: 0  ,
-          //     widget.e == "关注" ? true : null,
-          //     widget.e == "热度"? true : null);
           setTheState();
         });
   }

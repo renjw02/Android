@@ -1,9 +1,7 @@
 // TODO Implement this library.
 import 'package:frontend/models/comment.dart';
-import 'package:frontend/models/post.dart';
 import 'package:rxdart/rxdart.dart';
 import '../resources/respository/comments_repository.dart';
-import '../resources/respository/feeds_repository.dart';
 
 class CommentsBloc {
   CommentsBloc() {

@@ -28,7 +28,7 @@ class _FeedsListScreenState extends State<FeedsListScreen> {
 
   late FeedsBloc _bloc;
   onRefresh() {
-    _bloc.clearCache();
+    // _bloc.clearCache();
     setState(() {
       print("onRefresh setState");
     });
@@ -36,7 +36,7 @@ class _FeedsListScreenState extends State<FeedsListScreen> {
   @override
   void dispose() {
     // TODO: implement dispose
-    _bloc.clearCache();
+    // _bloc.clearCache();
     super.dispose();
   }
   //keepalive
